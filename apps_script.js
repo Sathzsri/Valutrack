@@ -22,7 +22,7 @@ function getSheet() {
     "ID", "FileNo", "Owner", "Bank", "Address", 
     "Location", "Engineer", "Priority", "Status", "Date", 
     "Loan", "DriveLink", "Remarks", "History", "UpdatedBy", "UpdatedAt",
-    "RefNo", "Coordinates"
+    "RefNo", "Coordinates", "Contact"
   ];
   
   if (!sheet) {

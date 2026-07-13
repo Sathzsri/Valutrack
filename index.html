@@ -2038,6 +2038,10 @@
           <span class="detail-value detail-value-mono" style="font-weight: 600;" id="detail-ref-no">-</span>
         </div>
         <div class="detail-field">
+          <span class="detail-label">Contact Number</span>
+          <span class="detail-value" id="detail-contact">-</span>
+        </div>
+        <div class="detail-field">
           <span class="detail-label">Date Received</span>
           <span class="detail-value detail-value-mono" id="detail-date">-</span>
         </div>
@@ -2161,13 +2165,17 @@
           </div>
 
           <div class="form-group-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 2;">
               <label class="form-label" for="form-owner">Owner / Applicant Name *</label>
               <input type="text" class="form-input" id="form-owner" required placeholder="Full Name of the Applicant">
             </div>
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label class="form-label" for="form-ref-no">Reference Number</label>
               <input type="text" class="form-input" id="form-ref-no" placeholder="e.g. REF-10023">
+            </div>
+            <div class="form-group" style="flex: 1.2;">
+              <label class="form-label" for="form-contact">Contact Number</label>
+              <input type="tel" class="form-input" id="form-contact" placeholder="e.g. 9876543210">
             </div>
           </div>
 
@@ -2408,6 +2416,8 @@
       {
         ID: "mock-uuid-001",
         FileNo: "VT-2026-001",
+        RefNo: "REF-10023",
+        Contact: "9876543210",
         Owner: "Aravind Swamy",
         Bank: "State Bank of India",
         Address: "No. 12, Anna Salai, T. Nagar, Chennai - 600017",
@@ -2416,14 +2426,13 @@
         Priority: "High",
         Status: "Report Submitted",
         Date: "2026-07-10",
-        Loan: 4500000,
+        Loan: "",
         DriveLink: "https://drive.google.com",
         Remarks: "Photos uploaded, valuation completed and report handed over.",
         History: JSON.stringify([
-          { status: "Documents Received", time: "2026-07-10 10:15", user: "Sathish" },
           { status: "Site Visit Pending", time: "2026-07-10 11:30", user: "Sathish" },
-          { status: "Site Visit Done", time: "2026-07-11 14:00", user: "Engineer 1" },
-          { status: "Report In Progress", time: "2026-07-12 09:30", user: "Engineer 1" },
+          { status: "Site Visit Completed", time: "2026-07-11 14:00", user: "Engineer 1" },
+          { status: "Report Progress", time: "2026-07-12 09:30", user: "Engineer 1" },
           { status: "Report Submitted", time: "2026-07-12 17:00", user: "Engineer 1" }
         ]),
         UpdatedBy: "Engineer 1",
@@ -2432,6 +2441,8 @@
       {
         ID: "mock-uuid-002",
         FileNo: "VT-2026-002",
+        RefNo: "REF-10024",
+        Contact: "8123456789",
         Owner: "Priyanjali Sen",
         Bank: "HDFC Bank",
         Address: "Block 4B, Shanti Enclave, Sardar Patel Road, Adyar, Chennai - 600020",
@@ -2440,11 +2451,10 @@
         Priority: "Medium",
         Status: "Site Visit Pending",
         Date: "2026-07-12",
-        Loan: 7500000,
+        Loan: "",
         DriveLink: "https://drive.google.com",
-        Remarks: "Documents received. Contacted owner to arrange site visit details.",
+        Remarks: "Contacted owner to arrange site visit details.",
         History: JSON.stringify([
-          { status: "Documents Received", time: "2026-07-12 09:00", user: "Udhaya" },
           { status: "Site Visit Pending", time: "2026-07-12 10:45", user: "Udhaya" }
         ]),
         UpdatedBy: "Udhaya",
@@ -2453,19 +2463,21 @@
       {
         ID: "mock-uuid-003",
         FileNo: "VT-2026-003",
+        RefNo: "REF-10025",
+        Contact: "7012345678",
         Owner: "Rajesh Kumar",
         Bank: "ICICI Bank",
         Address: "45, GST Road, Tambaram East, Chennai - 600059",
         Location: "Tambaram",
         Engineer: "Engineer 1",
         Priority: "Low",
-        Status: "Documents Received",
+        Status: "Site Visit Pending",
         Date: "2026-07-13",
-        Loan: 3000000,
+        Loan: "",
         DriveLink: "https://drive.google.com",
         Remarks: "New file added. Tax receipts and layout sketches need upload to Drive.",
         History: JSON.stringify([
-          { status: "Documents Received", time: "2026-07-13 11:00", user: "Sathish" }
+          { status: "Site Visit Pending", time: "2026-07-13 11:00", user: "Sathish" }
         ]),
         UpdatedBy: "Sathish",
         UpdatedAt: "2026-07-13 11:00"
@@ -2473,21 +2485,22 @@
       {
         ID: "mock-uuid-004",
         FileNo: "VT-2026-004",
+        RefNo: "REF-10026",
+        Contact: "9000123456",
         Owner: "Meenakshi Sundaram",
         Bank: "Axis Bank",
         Address: "7A, 2nd Main Road, Velachery, Chennai - 600042",
         Location: "Velachery",
         Engineer: "Engineer 2",
         Priority: "High",
-        Status: "Site Visit Done",
+        Status: "Site Visit Completed",
         Date: "2026-07-11",
-        Loan: 12000000,
+        Loan: "",
         DriveLink: "https://drive.google.com",
-        Remarks: "Completed site visit. Building measurement taken. Planning permissions check in progress.",
+        Remarks: "Completed site visit. Building measurement taken.",
         History: JSON.stringify([
-          { status: "Documents Received", time: "2026-07-11 09:15", user: "Udhaya" },
           { status: "Site Visit Pending", time: "2026-07-11 10:00", user: "Udhaya" },
-          { status: "Site Visit Done", time: "2026-07-12 15:30", user: "Engineer 2" }
+          { status: "Site Visit Completed", time: "2026-07-12 15:30", user: "Engineer 2" }
         ]),
         UpdatedBy: "Engineer 2",
         UpdatedAt: "2026-07-12 15:30"
@@ -3219,10 +3232,23 @@
           </a>
         `;
 
+        const contactCallIcon = file.Contact ? `
+          <a href="tel:${file.Contact}" class="action-icon-btn call-icon-btn" title="Call Owner: ${file.Contact}" onclick="event.stopPropagation();" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); transition: var(--transition-smooth); margin-left: 8px; vertical-align: middle;">
+            <svg style="width: 11px; height: 11px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+            </svg>
+          </a>
+        ` : "";
+
         tr.innerHTML = `
           <td class="file-no-col">${file.FileNo}</td>
           <td class="detail-value-mono" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
-          <td class="owner-col">${file.Owner}</td>
+          <td class="owner-col">
+            <div style="display: flex; align-items: center; gap: 4px;">
+              <span>${file.Owner}</span>
+              ${contactCallIcon}
+            </div>
+          </td>
           <td class="address-col" title="${file.Address}">${file.Address}</td>
           <td>${file.Bank}</td>
           <td>${file.Engineer}</td>
@@ -3313,6 +3339,22 @@
       document.getElementById("detail-bank").textContent = file.Bank;
       const detailRefNo = document.getElementById("detail-ref-no");
       if (detailRefNo) detailRefNo.textContent = file.RefNo || "N/A";
+
+      const detailContact = document.getElementById("detail-contact");
+      if (detailContact) {
+        if (file.Contact) {
+          detailContact.innerHTML = `
+            <a href="tel:${file.Contact}" class="phone-link" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-blue); text-decoration:none; font-weight:600;" title="Call now">
+              <svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+              </svg>
+              <span>${file.Contact}</span>
+            </a>
+          `;
+        } else {
+          detailContact.textContent = "-";
+        }
+      }
       
       document.getElementById("detail-date").textContent = file.Date ? file.Date.substring(0,10) : "-";
       document.getElementById("detail-engineer").textContent = file.Engineer;
@@ -3511,6 +3553,7 @@
         document.getElementById("form-owner").value = file.Owner || "";
         document.getElementById("form-bank").value = file.Bank || "";
         document.getElementById("form-ref-no").value = file.RefNo || "";
+        document.getElementById("form-contact").value = file.Contact || "";
         document.getElementById("form-date").value = file.Date ? file.Date.substring(0,10) : "";
         document.getElementById("form-engineer").value = file.Engineer || "";
         document.getElementById("form-location").value = file.Location || "";
@@ -3534,6 +3577,7 @@
         document.getElementById("form-file-no").value = `VT-2026-${serialStr}`;
         document.getElementById("form-date").value = getTodayString();
         document.getElementById("form-ref-no").value = "";
+        document.getElementById("form-contact").value = "";
         document.getElementById("form-coordinates").value = "";
         document.getElementById("form-priority").value = "High"; // Default to High
         document.getElementById("form-status").value = "Site Visit Pending"; // Default initial status
@@ -3560,6 +3604,7 @@
       const owner = document.getElementById("form-owner").value.trim();
       const bank = document.getElementById("form-bank").value.trim();
       const refNo = document.getElementById("form-ref-no").value.trim();
+      const contact = document.getElementById("form-contact").value.trim();
       const date = document.getElementById("form-date").value;
       const engineer = document.getElementById("form-engineer").value;
       const location = document.getElementById("form-location").value.trim();
@@ -3600,6 +3645,7 @@
           Bank: bank,
           Loan: "", // Loan Amount not needed
           RefNo: refNo,
+          Contact: contact,
           Date: date,
           Engineer: engineer,
           Location: location,
@@ -3643,6 +3689,7 @@
           Date: date,
           Loan: "", // Loan Amount not needed
           RefNo: refNo,
+          Contact: contact,
           DriveLink: drive,
           Remarks: mergedRemarks,
           History: JSON.stringify(historyArray),
