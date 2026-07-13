@@ -1687,28 +1687,8 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- LOGIN SCREEN -->
-  <div id="login-screen">
-    <div class="login-container">
-      <div class="logo-container">
-        <!-- Shield Check/Valuation Logo -->
-        <svg class="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-        </svg>
-        <span class="app-title">ValuTrack</span>
-      </div>
-      <div class="app-subtitle">Property Valuation File Management System</div>
-      
-      <div style="margin-bottom: 24px; font-weight: 500; font-size: 1.1rem; color: var(--text-main);">Select your profile to sign in</div>
-      
-      <div class="profile-grid" id="login-profiles">
-        <!-- Rendered dynamically by JS -->
-      </div>
-    </div>
-  </div>
-
   <!-- MAIN APP PORTAL -->
-  <div id="main-app">
+  <div id="main-app" style="display: grid;">
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-brand">
@@ -1720,19 +1700,14 @@
 
       <!-- Active User Profile Box -->
       <div class="sidebar-user">
-        <div class="sidebar-user-avatar" id="active-user-avatar">?</div>
+        <div class="sidebar-user-avatar" id="active-user-avatar">VT</div>
         <div class="sidebar-user-info">
-          <div class="sidebar-user-name" id="active-user-name">Loading...</div>
-          <div class="sidebar-user-role" id="active-user-role">Role</div>
+          <div class="sidebar-user-name" id="active-user-name">ValuTrack Portal</div>
+          <div class="sidebar-user-role" id="active-user-role">Sathish & Udhaya</div>
         </div>
-        <button class="logout-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme" style="margin-right: 8px;">
+        <button class="logout-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
           <svg id="theme-icon" style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <!-- Icon path dynamically generated -->
-          </svg>
-        </button>
-        <button class="logout-btn" id="logout-btn" title="Logout Profile">
-          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>
         </button>
       </div>
@@ -1770,8 +1745,19 @@
         </ul>
       </div>
 
-      <!-- Setup Button (Admin only) -->
-      <button class="setup-trigger-btn admin-only hidden" id="setup-trigger-btn">
+      <!-- Filters Section: Engineers -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Engineers</div>
+        <ul class="sidebar-list" id="sidebar-engineers" style="max-height: 180px; overflow-y: auto;">
+          <!-- Rendered dynamically by JS -->
+        </ul>
+        <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 8px; width: 100%; justify-content: center; margin-top: 8px;" id="sidebar-add-engineer-btn">
+          + Add Engineer
+        </button>
+      </div>
+
+      <!-- Setup Button -->
+      <button class="setup-trigger-btn" id="setup-trigger-btn">
         <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -1786,9 +1772,22 @@
       <div class="content-header">
         <div>
           <h2 class="welcome-title">Valuation Dashboard</h2>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="welcome-message">Welcome back</p>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="welcome-message">ValuTrack Property Portal</p>
         </div>
-        <span class="current-date-badge" id="current-date-display">2026-07-13</span>
+        
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <!-- Engineer Selector Filter -->
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Assignee Filter:</span>
+            <div style="position: relative; display: flex; align-items: center;">
+              <div style="position: absolute; left: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-blue); color: #070913; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; pointer-events: none;" id="header-user-avatar">ALL</div>
+              <select id="header-user-select" class="filter-select" style="padding: 8px 12px 8px 36px; border-radius: 20px; font-weight: 600; background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); cursor: pointer; outline: none; transition: var(--transition-smooth); width: 180px;">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+          </div>
+          <span class="current-date-badge" id="current-date-display">2026-07-13</span>
+        </div>
       </div>
 
       <!-- Stat Cards Grid -->
@@ -1882,13 +1881,13 @@
         </div>
 
         <div class="action-buttons">
-          <button class="btn btn-secondary admin-only hidden" id="export-csv-btn">
+          <button class="btn btn-secondary" id="export-csv-btn">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
             </svg>
             Export CSV
           </button>
-          <button class="btn btn-primary admin-only hidden" id="add-file-btn">
+          <button class="btn btn-primary" id="add-file-btn">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -2040,8 +2039,8 @@
       </div>
     </div>
 
-    <!-- Admin Panel Actions -->
-    <div class="detail-panel-footer admin-only hidden" id="detail-panel-admin-footer">
+    <!-- Panel Actions -->
+    <div class="detail-panel-footer" id="detail-panel-admin-footer">
       <button class="btn btn-secondary" style="border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.05);" id="detail-delete-btn">
         <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -2234,6 +2233,32 @@
     </div>
   </div>
 
+  <!-- ADD ENGINEER MODAL -->
+  <div id="engineer-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title">Add New Engineer</div>
+        <button class="modal-close" id="engineer-modal-close">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="engineer-form" onsubmit="event.preventDefault();">
+          <div class="form-group">
+            <label class="form-label" for="new-engineer-name">Engineer Name *</label>
+            <input type="text" class="form-input" id="new-engineer-name" required placeholder="Enter name (e.g. Engineer 3)">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="engineer-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="engineer-modal-save">Add Engineer</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
@@ -2345,8 +2370,9 @@
 
     // 2. Application Global State
     let state = {
-      currentUser: null,
+      currentUser: { name: "Admin", role: "Admin", avatar: "A" },
       files: [],
+      engineers: [],
       selectedFileId: null,
       filters: {
         search: "",
@@ -2471,6 +2497,26 @@
         state.files = [...MOCK_FILES];
         localStorage.setItem("valutrack_files", JSON.stringify(state.files));
       }
+      loadEngineers();
+    }
+
+    function loadEngineers() {
+      const cached = localStorage.getItem("valutrack_engineers");
+      if (cached) {
+        state.engineers = JSON.parse(cached);
+      } else {
+        const defaults = ["Sathish", "Udhaya", "Engineer 1", "Engineer 2"];
+        const fileEngs = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))];
+        defaults.forEach(d => {
+          if (!fileEngs.includes(d)) fileEngs.push(d);
+        });
+        state.engineers = fileEngs.sort();
+        localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
+      }
+    }
+
+    function saveEngineers() {
+      localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
     }
 
     function saveLocalData() {
@@ -2658,86 +2704,15 @@
       processSyncQueue();
     }
 
-    // 6. User and Roles UI Login Flow
-    function initLoginScreen() {
-      const container = document.getElementById("login-profiles");
-      container.innerHTML = "";
-      
-      USERS.forEach(user => {
-        const card = document.createElement("div");
-        card.className = "profile-card";
-        card.innerHTML = `
-          <div class="profile-avatar">${user.avatar}</div>
-          <div class="profile-name">${user.name}</div>
-          <span class="profile-role role-${user.role.toLowerCase()}">${user.role}</span>
-        `;
-        
-        card.addEventListener("click", () => {
-          loginAs(user);
-        });
-        container.appendChild(card);
-      });
-
-      // Remove global loading spinner
-      document.getElementById("global-loader").style.opacity = "0";
-      setTimeout(() => {
-        document.getElementById("global-loader").classList.add("hidden");
-      }, 500);
-    }
-
-    function loginAs(user) {
-      state.currentUser = user;
-      localStorage.setItem("valutrack_active_user", JSON.stringify(user));
-      
-      // Hide login, show portal
-      document.getElementById("login-screen").style.opacity = "0";
-      setTimeout(() => {
-        document.getElementById("login-screen").classList.add("hidden");
-      }, 300);
-      
-      document.getElementById("main-app").style.display = "grid";
-      
-      // Update UI matching permissions
-      document.getElementById("active-user-name").textContent = user.name;
-      document.getElementById("active-user-role").textContent = user.role;
-      document.getElementById("active-user-avatar").textContent = user.avatar;
-      document.getElementById("welcome-message").textContent = `Welcome back, ${user.name}! (${user.role} Portal)`;
-      
-      const adminElements = document.querySelectorAll(".admin-only");
-      if (user.role === "Admin") {
-        adminElements.forEach(el => el.classList.remove("hidden"));
-      } else {
-        adminElements.forEach(el => el.classList.add("hidden"));
-        // Engineers can't edit or delete, hide modal triggers
-      }
-
-      // Load correct database depending on role
-      loadLocalData();
-      
-      // Attempt first sync
-      syncWithSheet(true);
-    }
-
-    function logout() {
-      state.currentUser = null;
-      localStorage.removeItem("valutrack_active_user");
-      
-      document.getElementById("main-app").style.display = "none";
-      const login = document.getElementById("login-screen");
-      login.classList.remove("hidden");
-      setTimeout(() => {
-        login.style.opacity = "1";
-      }, 50);
-      closeDetailPanel();
-    }
+    // 6. User and Roles UI Login Flow (Bypassed)
 
     // 7. Filtering and Sorting Logic
     function getFilteredFiles() {
       let result = [...state.files];
       
-      // 1. Role Scope Filter: Engineers can only see files assigned to them
-      if (state.currentUser && state.currentUser.role === "Engineer") {
-        result = result.filter(f => f.Engineer === state.currentUser.name);
+      // 1. Sidebar/Header Engineer Filter
+      if (state.filters.engineer) {
+        result = result.filter(f => f.Engineer === state.filters.engineer);
       }
 
       // 2. Sidebar Filters
@@ -2749,9 +2724,6 @@
       }
 
       // 3. Header Dropdowns
-      if (state.filters.engineer) {
-        result = result.filter(f => f.Engineer === state.filters.engineer);
-      }
       if (state.filters.priority) {
         result = result.filter(f => f.Priority === state.filters.priority);
       }
@@ -2844,8 +2816,8 @@
     function renderStats() {
       // Stats should reflect only files VISIBLE to the user (e.g. Engineer sees only their files)
       let filesScope = [...state.files];
-      if (state.currentUser && state.currentUser.role === "Engineer") {
-        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
+      if (state.filters.engineer) {
+        filesScope = filesScope.filter(f => f.Engineer === state.filters.engineer);
       }
 
       const total = filesScope.length;
@@ -2864,11 +2836,7 @@
     }
 
     function renderSidebarFilters() {
-      // Dynamic counts reflecting role scope
       let filesScope = [...state.files];
-      if (state.currentUser && state.currentUser.role === "Engineer") {
-        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
-      }
 
       // Status sidebar list
       const statusList = document.getElementById("sidebar-statuses");
@@ -2934,6 +2902,43 @@
         });
         bankList.appendChild(item);
       });
+
+      // Engineers list sidebar
+      const engList = document.getElementById("sidebar-engineers");
+      if (engList) {
+        engList.innerHTML = "";
+        
+        const allEngItem = document.createElement("li");
+        allEngItem.className = `sidebar-item ${!state.filters.engineer ? "active" : ""}`;
+        allEngItem.innerHTML = `
+          <span>All Engineers</span>
+          <span class="sidebar-item-count">${filesScope.length}</span>
+        `;
+        allEngItem.addEventListener("click", () => {
+          state.filters.engineer = null;
+          const selector = document.getElementById("header-user-select");
+          if (selector) selector.value = "";
+          renderAll();
+        });
+        engList.appendChild(allEngItem);
+
+        state.engineers.forEach(eng => {
+          const count = filesScope.filter(f => f.Engineer === eng).length;
+          const item = document.createElement("li");
+          item.className = `sidebar-item ${state.filters.engineer === eng ? "active" : ""}`;
+          item.innerHTML = `
+            <span>${eng}</span>
+            <span class="sidebar-item-count">${count}</span>
+          `;
+          item.addEventListener("click", () => {
+            state.filters.engineer = eng;
+            const selector = document.getElementById("header-user-select");
+            if (selector) selector.value = eng;
+            renderAll();
+          });
+          engList.appendChild(item);
+        });
+      }
     }
 
     function populateDropdownFilters() {
@@ -2951,36 +2956,63 @@
         bankSelect.appendChild(opt);
       });
 
-      // Engineer select suggestions (only active for Admin since Engineers are locked to themselves)
+      // Engineer select suggestions
       const engSelect = document.getElementById("filter-engineer");
       const currentSelectedEng = engSelect.value;
       
       engSelect.innerHTML = '<option value="">All Engineers</option>';
       
-      if (state.currentUser && state.currentUser.role === "Engineer") {
-        engSelect.disabled = true;
+      state.engineers.forEach(e => {
         const opt = document.createElement("option");
-        opt.value = state.currentUser.name;
-        opt.textContent = state.currentUser.name;
-        opt.selected = true;
+        opt.value = e;
+        opt.textContent = e;
+        if (e === currentSelectedEng) opt.selected = true;
         engSelect.appendChild(opt);
-      } else {
-        engSelect.disabled = false;
-        const uniqueEngineers = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))].sort();
-        
-        // Ensure standard engineers are in the list too
-        const baseEngs = ["Engineer 1", "Engineer 2"];
-        baseEngs.forEach(e => {
-          if (!uniqueEngineers.includes(e)) uniqueEngineers.push(e);
-        });
+      });
 
-        uniqueEngineers.sort().forEach(e => {
+      // Populate form engineer selector (for Add/Edit Modal)
+      const formEng = document.getElementById("form-engineer");
+      if (formEng) {
+        const currentFormEngVal = formEng.value;
+        formEng.innerHTML = "";
+        state.engineers.forEach(e => {
           const opt = document.createElement("option");
           opt.value = e;
           opt.textContent = e;
-          if (e === currentSelectedEng) opt.selected = true;
-          engSelect.appendChild(opt);
+          if (e === currentFormEngVal) opt.selected = true;
+          formEng.appendChild(opt);
         });
+      }
+      
+      // Populate top bar selector
+      populateHeaderUserSelector();
+    }
+
+    function populateHeaderUserSelector() {
+      const select = document.getElementById("header-user-select");
+      if (!select) return;
+      const currentVal = select.value || "";
+      
+      select.innerHTML = '<option value="">All Cases</option>';
+      state.engineers.forEach(eng => {
+        const opt = document.createElement("option");
+        opt.value = eng;
+        opt.textContent = eng;
+        if (eng === currentVal) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      // Update avatar letter
+      const avatar = document.getElementById("header-user-avatar");
+      if (select.value === "") {
+        avatar.textContent = "ALL";
+        avatar.style.background = "var(--accent-blue)";
+        avatar.style.color = "#070913";
+      } else {
+        const name = select.value;
+        avatar.textContent = name.substring(0, 2).toUpperCase();
+        avatar.style.background = "var(--status-report-in-progress)";
+        avatar.style.color = "#ffffff";
       }
     }
 
@@ -3012,7 +3044,7 @@
 
         // Format Actions column
         const nextStatus = getNextStatus(file.Status);
-        const canAdvance = nextStatus && state.currentUser.role === "Admin";
+        const canAdvance = !!nextStatus;
         
         const nextBtn = canAdvance ? `
           <button class="action-icon-btn btn-next-status" title="Advance to: ${nextStatus}" data-id="${file.ID}">
@@ -3209,12 +3241,10 @@
         });
       }
 
-      // Panel Footer Settings based on user admin privileges
+      // Panel Footer Settings
       const adminFooter = document.getElementById("detail-panel-admin-footer");
-      if (state.currentUser.role === "Admin") {
+      if (adminFooter) {
         adminFooter.classList.remove("hidden");
-      } else {
-        adminFooter.classList.add("hidden");
       }
 
       // Slide open the panel
@@ -3462,10 +3492,7 @@
 
     // 11. EXPORT TO CSV
     function exportToCSV() {
-      let filesScope = [...state.files];
-      if (state.currentUser && state.currentUser.role === "Engineer") {
-        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
-      }
+      let filesScope = getFilteredFiles();
 
       if (filesScope.length === 0) {
         showToast("No records available to export", "warning");
@@ -3566,14 +3593,43 @@
       syncWithSheet(true);
     }
 
+    // Engineer Modal management
+    function openEngineerModal() {
+      document.getElementById("new-engineer-name").value = "";
+      document.getElementById("engineer-modal").classList.add("open");
+    }
+
+    function closeEngineerModal() {
+      document.getElementById("engineer-modal").classList.remove("open");
+    }
+
+    function saveEngineerForm() {
+      const nameInput = document.getElementById("new-engineer-name");
+      const name = nameInput.value.trim();
+      if (!name) {
+        nameInput.reportValidity();
+        return;
+      }
+      
+      if (state.engineers.includes(name)) {
+        showToast(`Engineer "${name}" already exists!`, "warning");
+        return;
+      }
+
+      state.engineers.push(name);
+      state.engineers.sort();
+      saveEngineers();
+      showToast(`Engineer "${name}" added successfully!`, "success");
+      closeEngineerModal();
+      
+      renderAll();
+    }
+
 
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
       // Current Date Badge display
       document.getElementById("current-date-display").textContent = getTodayString();
-
-      // Check cache for active logged user session
-      const savedUser = localStorage.getItem("valutrack_active_user");
 
       // Set up search event listener (real-time keypress filtering)
       document.getElementById("search-input").addEventListener("input", (e) => {
@@ -3592,6 +3648,8 @@
         document.getElementById("filter-bank").value = "";
         document.getElementById("filter-engineer").value = "";
         document.getElementById("filter-priority").value = "";
+        const topSelector = document.getElementById("header-user-select");
+        if (topSelector) topSelector.value = "";
         renderAll();
       });
 
@@ -3599,6 +3657,8 @@
       document.getElementById("filter-bank").addEventListener("change", renderAll);
       document.getElementById("filter-engineer").addEventListener("change", (e) => {
         state.filters.engineer = e.target.value || null;
+        const topSelector = document.getElementById("header-user-select");
+        if (topSelector) topSelector.value = e.target.value || "";
         renderAll();
       });
       document.getElementById("filter-priority").addEventListener("change", (e) => {
@@ -3606,13 +3666,21 @@
         renderAll();
       });
 
+      // Header User Select Change
+      const headerSelector = document.getElementById("header-user-select");
+      if (headerSelector) {
+        headerSelector.addEventListener("change", (e) => {
+          state.filters.engineer = e.target.value || null;
+          const panelSelector = document.getElementById("filter-engineer");
+          if (panelSelector) panelSelector.value = e.target.value || "";
+          renderAll();
+        });
+      }
+
       // Manual sync button trigger
       document.getElementById("manual-sync-btn").addEventListener("click", () => {
         syncWithSheet(true);
       });
-
-      // Log out button trigger
-      document.getElementById("logout-btn").addEventListener("click", logout);
 
       // Theme Toggle Logic
       const themeToggleBtn = document.getElementById("theme-toggle-btn");
@@ -3679,18 +3747,31 @@
       // Delete Modal triggers
       document.getElementById("delete-modal-cancel").addEventListener("click", closeDeleteConfirm);
 
-      // Start rendering profiles
-      initLoginScreen();
+      // Engineer modal events
+      document.getElementById("sidebar-add-engineer-btn").addEventListener("click", openEngineerModal);
+      document.getElementById("engineer-modal-close").addEventListener("click", closeEngineerModal);
+      document.getElementById("sidebar-add-engineer-btn").parentNode.querySelector("#engineer-modal-cancel")?.addEventListener("click", closeEngineerModal);
+      document.getElementById("engineer-modal-cancel").addEventListener("click", closeEngineerModal);
+      document.getElementById("engineer-modal-save").addEventListener("click", saveEngineerForm);
 
-      if (savedUser) {
-        loginAs(JSON.parse(savedUser));
+      // Load database cache
+      loadLocalData();
+
+      // Trigger sync
+      syncWithSheet(true);
+
+      // Hide global loader spinner
+      const loaderEl = document.getElementById("global-loader");
+      if (loaderEl) {
+        loaderEl.style.opacity = "0";
+        setTimeout(() => {
+          loaderEl.classList.add("hidden");
+        }, 500);
       }
 
       // Auto-Sync trigger every 60s in the background
       setInterval(() => {
-        if (state.currentUser) {
-          syncWithSheet(false); // Silent background auto-sync
-        }
+        syncWithSheet(false); // Silent background auto-sync
       }, 60000);
     });
   </script>
