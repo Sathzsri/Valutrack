@@ -1,0 +1,3483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ValuTrack - Property Valuation File Management System</title>
+  <!-- Google Fonts Sora & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* CSS Variables for Premium Dark Navy Design */
+    :root {
+      --bg-dark: #0d0f14;
+      --bg-card: #151922;
+      --bg-input: #1e2433;
+      --bg-hover: #262e42;
+      --border-color: #2a3449;
+      --accent-blue: #3b82f6;
+      --accent-blue-hover: #2563eb;
+      --accent-blue-glow: rgba(59, 130, 246, 0.25);
+      
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --text-sub: #6b7280;
+      
+      /* Status Colors */
+      --status-doc-received: #64748b;
+      --status-doc-received-bg: rgba(100, 116, 139, 0.12);
+      --status-visit-pending: #f59e0b;
+      --status-visit-pending-bg: rgba(245, 158, 11, 0.12);
+      --status-visit-done: #a855f7;
+      --status-visit-done-bg: rgba(168, 85, 247, 0.12);
+      --status-report-in-progress: #3b82f6;
+      --status-report-in-progress-bg: rgba(59, 130, 246, 0.12);
+      --status-report-submitted: #10b981;
+      --status-report-submitted-bg: rgba(16, 185, 129, 0.12);
+      
+      /* Priority Colors */
+      --priority-high: #ef4444;
+      --priority-high-bg: rgba(239, 68, 68, 0.1);
+      --priority-medium: #f59e0b;
+      --priority-medium-bg: rgba(245, 158, 11, 0.1);
+      --priority-low: #3b82f6;
+      --priority-low-bg: rgba(59, 130, 246, 0.1);
+      
+      --font-main: 'Sora', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --shadow-premium: 0 10px 30px -10px rgba(0, 0, 0, 0.7);
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Reset & Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--bg-input);
+    }
+
+    /* Login Screen */
+    #login-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at center, #1e2433 0%, #0d0f14 100%);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      transition: var(--transition-smooth);
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 680px;
+      background: rgba(21, 25, 34, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: var(--shadow-premium);
+      text-align: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      color: var(--accent-blue);
+      filter: drop-shadow(0 0 8px var(--accent-blue));
+    }
+
+    .app-title {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .app-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 40px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 500px) {
+      .profile-grid {
+        grid-template-columns: 1fr;
+      }
+      .login-container {
+        padding: 30px 20px;
+      }
+    }
+
+    .profile-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 24px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.15);
+      background: var(--bg-hover);
+    }
+
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.1);
+      border: 2px solid var(--accent-blue);
+      color: var(--accent-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 16px;
+      transition: var(--transition-smooth);
+    }
+
+    .profile-card:hover .profile-avatar {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: 0 0 15px var(--accent-blue);
+    }
+
+    .profile-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .profile-role {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 99px;
+      font-weight: 600;
+    }
+
+    .role-admin {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .role-engineer {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    /* Main Dashboard Layout */
+    #main-app {
+      display: none;
+      flex: 1;
+      grid-template-columns: 280px 1fr;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 1024px) {
+      #main-app {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Left Sidebar */
+    .sidebar {
+      background-color: var(--bg-card);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px;
+      gap: 28px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 8px;
+    }
+
+    .sidebar-brand h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .sidebar-user {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: relative;
+    }
+
+    .sidebar-user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    .sidebar-user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar-user-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sidebar-user-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logout-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Sync Widget */
+    .sync-widget {
+      background: rgba(59, 130, 246, 0.04);
+      border: 1px dashed var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sync-status-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.65rem;
+    }
+
+    .sync-badge.online {
+      color: #10b981;
+    }
+    .sync-badge.offline {
+      color: #f59e0b;
+    }
+    .sync-badge.syncing {
+      color: var(--accent-blue);
+    }
+
+    .sync-badge .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    .sync-badge.syncing .dot {
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.3; transform: scale(0.8); }
+      100% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .sync-time-text {
+      font-size: 0.7rem;
+      color: var(--text-sub);
+      font-family: var(--font-mono);
+    }
+
+    .sync-action-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+      font-family: var(--font-main);
+    }
+
+    .sync-action-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-blue);
+    }
+
+    .sync-icon-spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Left Sidebar Filter Section */
+    .sidebar-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      font-weight: 600;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .sidebar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .sidebar-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .sidebar-item:hover {
+      background: var(--bg-input);
+      color: var(--text-main);
+    }
+
+    .sidebar-item.active {
+      background: var(--bg-hover);
+      color: #ffffff;
+      border-left: 3px solid var(--accent-blue);
+      padding-left: 9px;
+    }
+
+    .sidebar-item-count {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text-muted);
+    }
+
+    .sidebar-item.active .sidebar-item-count {
+      background: rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue);
+    }
+
+    .setup-trigger-btn {
+      margin-top: auto;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: var(--transition-smooth);
+    }
+
+    .setup-trigger-btn:hover {
+      background: var(--bg-hover);
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+    }
+
+    /* Right Main Content Area */
+    .content-area {
+      display: flex;
+      flex-direction: column;
+      padding: 32px;
+      gap: 32px;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+      .content-area {
+        padding: 20px;
+        gap: 20px;
+      }
+    }
+
+    /* Content Header */
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .welcome-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .current-date-badge {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      background: var(--bg-card);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Stat Cards Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 1280px) {
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition-smooth);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--accent-blue);
+      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stat-card-icon {
+      width: 20px;
+      height: 20px;
+      color: var(--text-sub);
+    }
+
+    .stat-card-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .stat-card-deco {
+      position: absolute;
+      bottom: -15px;
+      right: -15px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(59, 130, 246, 0) 100%);
+      pointer-events: none;
+    }
+
+    /* Filter & Controls Panel */
+    .controls-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-container {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 16px 10px 40px;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      transition: var(--transition-smooth);
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px var(--accent-blue-glow);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      color: var(--text-sub);
+      pointer-events: none;
+    }
+
+    .filter-dropdowns {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-select {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .filter-select:focus {
+      border-color: var(--accent-blue);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        width: 100%;
+        margin-left: 0;
+        justify-content: flex-end;
+      }
+    }
+
+    .btn {
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-blue-hover);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-blue);
+    }
+
+    /* File Data Table View */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      width: 100%;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 16px 20px;
+    }
+
+    .data-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      vertical-align: middle;
+      color: var(--text-main);
+    }
+
+    .data-table tr {
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .data-table tr:hover td {
+      background-color: rgba(255, 255, 255, 0.015);
+    }
+
+    .file-no-col {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    .owner-col {
+      font-weight: 500;
+    }
+
+    .address-col {
+      max-width: 200px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-muted);
+    }
+
+    .priority-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .priority-badge.high {
+      background: var(--priority-high-bg);
+      color: var(--priority-high);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .priority-badge.medium {
+      background: var(--priority-medium-bg);
+      color: var(--priority-medium);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .priority-badge.low {
+      background: var(--priority-low-bg);
+      color: var(--priority-low);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-badge .badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-badge.doc-received {
+      background: var(--status-doc-received-bg);
+      color: var(--status-doc-received);
+      border: 1px solid rgba(100, 116, 139, 0.2);
+    }
+
+    .status-badge.visit-pending {
+      background: var(--status-visit-pending-bg);
+      color: var(--status-visit-pending);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .status-badge.visit-done {
+      background: var(--status-visit-done-bg);
+      color: var(--status-visit-done);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .status-badge.in-progress {
+      background: var(--status-report-in-progress-bg);
+      color: var(--status-report-in-progress);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    .status-badge.submitted {
+      background: var(--status-report-submitted-bg);
+      color: var(--status-report-submitted);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .date-col {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 8px;
+      /* Stop click event bubbling to row click */
+      pointer-events: auto; 
+    }
+
+    .action-icon-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .action-icon-btn:hover {
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+      background: var(--bg-hover);
+    }
+
+    .action-icon-btn.btn-next-status:hover {
+      color: #10b981;
+      border-color: #10b981;
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .empty-state {
+      padding: 60px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .empty-state-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--text-sub);
+    }
+
+    .empty-state-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    /* Sliding Detail Panel */
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 500px;
+      max-width: 100%;
+      height: 100vh;
+      background: var(--bg-card);
+      border-left: 1px solid var(--border-color);
+      box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+      z-index: 500;
+      transform: translateX(100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .detail-panel-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-panel-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+
+    .detail-panel-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .detail-panel-close:hover {
+      background: var(--bg-hover);
+      color: #ffffff;
+    }
+
+    .detail-panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    /* Detail Field Grid */
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px 20px;
+    }
+
+    .detail-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .detail-field.span-2 {
+      grid-column: span 2;
+    }
+
+    .detail-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      font-weight: 600;
+    }
+
+    .detail-value {
+      font-size: 0.9rem;
+      color: var(--text-main);
+      word-break: break-word;
+    }
+
+    .detail-value-mono {
+      font-family: var(--font-mono);
+      font-weight: 500;
+    }
+
+    .drive-link-btn {
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      color: var(--accent-blue-light);
+      padding: 8px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 500;
+      transition: var(--transition-smooth);
+      margin-top: 4px;
+    }
+
+    .drive-link-btn:hover {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border-color: var(--accent-blue);
+    }
+
+    /* Timeline Styles */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      position: relative;
+      padding-left: 24px;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 4px;
+      bottom: 4px;
+      width: 2px;
+      background: var(--border-color);
+    }
+
+    .timeline-item {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .timeline-node {
+      position: absolute;
+      left: -24px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+
+    .timeline-item.completed .timeline-node {
+      border-color: #10b981;
+      background: #10b981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+    }
+
+    .timeline-item.active .timeline-node {
+      border-color: var(--accent-blue);
+      background: var(--bg-card);
+      box-shadow: 0 0 8px var(--accent-blue-glow);
+    }
+
+    .timeline-node svg {
+      width: 10px;
+      height: 10px;
+      color: #ffffff;
+      display: none;
+    }
+
+    .timeline-item.completed .timeline-node svg {
+      display: block;
+    }
+
+    .timeline-item.active .timeline-node::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+    }
+
+    .timeline-stage-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .timeline-item.completed .timeline-stage-title {
+      color: var(--text-main);
+    }
+
+    .timeline-item.active .timeline-stage-title {
+      color: var(--accent-blue-light);
+    }
+
+    .timeline-meta {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      font-family: var(--font-mono);
+    }
+
+    /* Detail Timeline / Change Log */
+    .timeline-section-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    /* Update Action Block in Details */
+    .detail-update-block {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .remarks-textarea {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      resize: vertical;
+      min-height: 80px;
+      width: 100%;
+      outline: none;
+      transition: var(--transition-smooth);
+    }
+
+    .remarks-textarea:focus {
+      border-color: var(--accent-blue);
+    }
+
+    /* Detail Footer Buttons */
+    .detail-panel-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Modals (Overlay & Content) */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(13, 15, 20, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-premium);
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.open .modal-container {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: var(--bg-hover);
+      color: #ffffff;
+    }
+
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .form-group-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    @media (max-width: 500px) {
+      .form-group-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-family: var(--font-main);
+      font-size: 0.85rem;
+      outline: none;
+      transition: var(--transition-smooth);
+      width: 100%;
+    }
+
+    .form-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 8px var(--accent-blue-glow);
+    }
+
+    .form-input[type="date"] {
+      font-family: var(--font-mono);
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Setup Guide (Inside Setup Modal) */
+    .setup-guide {
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+
+    .setup-guide ol {
+      padding-left: 16px;
+      margin-top: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .connection-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+    }
+
+    /* Toast Notification System */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 2000;
+      max-width: 380px;
+    }
+
+    .toast {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-left: 4px solid var(--accent-blue);
+      border-radius: 8px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      transform: translateY(20px);
+      opacity: 0;
+      animation: toast-in 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      transition: var(--transition-smooth);
+    }
+
+    @keyframes toast-in {
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    .toast-content {
+      font-size: 0.8rem;
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .toast-close {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .toast-close:hover {
+      color: var(--text-main);
+    }
+
+    .toast.success {
+      border-left-color: #10b981;
+    }
+
+    .toast.error {
+      border-left-color: #ef4444;
+    }
+
+    .toast.warning {
+      border-left-color: #f59e0b;
+    }
+
+    /* Fullscreen loading spinner */
+    #global-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--bg-dark);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      transition: opacity 0.5s ease;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* Helper utility classes */
+    .hidden {
+      display: none !important;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    /* Highlight class for inline filters */
+    .filter-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: var(--accent-blue-light);
+    }
+
+    .filter-indicator-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    .filter-indicator-btn:hover {
+      color: var(--accent-blue-light);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fullscreen Loading Spinner -->
+  <div id="global-loader">
+    <div class="spinner"></div>
+    <div style="font-size: 0.95rem; font-weight: 500; color: var(--text-muted);">Initializing ValuTrack...</div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- LOGIN SCREEN -->
+  <div id="login-screen">
+    <div class="login-container">
+      <div class="logo-container">
+        <!-- Shield Check/Valuation Logo -->
+        <svg class="logo-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+        <span class="app-title">ValuTrack</span>
+      </div>
+      <div class="app-subtitle">Property Valuation File Management System</div>
+      
+      <div style="margin-bottom: 24px; font-weight: 500; font-size: 1.1rem; color: var(--text-main);">Select your profile to sign in</div>
+      
+      <div class="profile-grid" id="login-profiles">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP PORTAL -->
+  <div id="main-app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <svg class="logo-icon" style="width: 28px; height: 28px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+        </svg>
+        <h1>ValuTrack</h1>
+      </div>
+
+      <!-- Active User Profile Box -->
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar" id="active-user-avatar">?</div>
+        <div class="sidebar-user-info">
+          <div class="sidebar-user-name" id="active-user-name">Loading...</div>
+          <div class="sidebar-user-role" id="active-user-role">Role</div>
+        </div>
+        <button class="logout-btn" id="logout-btn" title="Logout Profile">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Synchronize Status Area -->
+      <div class="sync-widget">
+        <div class="sync-status-header">
+          <span>CLOUD SYNC</span>
+          <span class="sync-badge" id="sync-status-badge">
+            <span class="dot"></span><span class="status-label">Checking</span>
+          </span>
+        </div>
+        <div class="sync-time-text" id="sync-time-display">Never synced</div>
+        <button class="sync-action-btn" id="manual-sync-btn">
+          <svg id="sync-btn-icon" style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"></path>
+          </svg>
+          Sync Database
+        </button>
+      </div>
+
+      <!-- Filters Section: Statuses -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Workflow Stage</div>
+        <ul class="sidebar-list" id="sidebar-statuses">
+          <!-- Rendered dynamically by JS -->
+        </ul>
+      </div>
+
+      <!-- Filters Section: Banks -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Banks</div>
+        <ul class="sidebar-list" id="sidebar-banks" style="max-height: 180px; overflow-y: auto;">
+          <!-- Rendered dynamically by JS -->
+        </ul>
+      </div>
+
+      <!-- Setup Button (Admin only) -->
+      <button class="setup-trigger-btn admin-only hidden" id="setup-trigger-btn">
+        <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+        </svg>
+        API Connection Settings
+      </button>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Content Header -->
+      <div class="content-header">
+        <div>
+          <h2 class="welcome-title">Valuation Dashboard</h2>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="welcome-message">Welcome back</p>
+        </div>
+        <span class="current-date-badge" id="current-date-display">2026-07-13</span>
+      </div>
+
+      <!-- Stat Cards Grid -->
+      <section class="stats-grid">
+        <!-- Total Files -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Total Files</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" id="stat-total-files">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Site Visit Pending -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Visit Pending</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-pending);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--status-visit-pending);" id="stat-visit-pending">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Site Visit Done -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Visit Done</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-done);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--status-visit-done);" id="stat-visit-done">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Report Submitted -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Submitted</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-report-submitted);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-report-submitted">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Today's Files -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Today's Files</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-blue);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--accent-blue);" id="stat-todays-files">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+      </section>
+
+      <!-- Active Filters Display -->
+      <div id="active-filters-row" class="hidden" style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <span style="font-size: 0.8rem; display: flex; align-items: center; color: var(--text-muted);">Active Filters:</span>
+        <div id="active-filters-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+        <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px;" id="clear-all-filters-btn">Clear All</button>
+      </div>
+
+      <!-- Search & Filters Panel -->
+      <section class="controls-panel">
+        <div class="search-container">
+          <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+          <input type="text" class="search-input" id="search-input" placeholder="Search case #, owner, address, bank, engineer, location...">
+        </div>
+        
+        <div class="filter-dropdowns">
+          <select class="filter-select" id="filter-bank">
+            <option value="">All Banks</option>
+          </select>
+          <select class="filter-select" id="filter-engineer">
+            <option value="">All Engineers</option>
+          </select>
+          <select class="filter-select" id="filter-priority">
+            <option value="">All Priorities</option>
+            <option value="High">High</option>
+            <option value="Medium">Medium</option>
+            <option value="Low">Low</option>
+          </select>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-secondary admin-only hidden" id="export-csv-btn">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Export CSV
+          </button>
+          <button class="btn btn-primary admin-only hidden" id="add-file-btn">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Add File
+          </button>
+        </div>
+      </section>
+
+      <!-- Table View -->
+      <section class="table-container">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th width="120">File No</th>
+                <th>Owner Name</th>
+                <th>Address</th>
+                <th>Bank</th>
+                <th>Engineer</th>
+                <th width="100">Priority</th>
+                <th width="170">Status</th>
+                <th width="120">Date</th>
+                <th width="110" class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="files-table-body">
+              <!-- Rendered dynamically by JS -->
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Empty State UI -->
+        <div id="empty-state" class="empty-state hidden">
+          <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0a2 2 0 01-2 2H6a2 2 0 01-2-2m16 0V9a2 2 0 00-2-2H6a2 2 0 00-2 2v4M5 20h14a2 2 0 002-2V17M5 20a2 2 0 01-2-2v-1"></path>
+          </svg>
+          <div class="empty-state-text">No matching files found. Change filters or search terms.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- SLIDING DETAIL PANEL -->
+  <div id="detail-panel" class="detail-panel">
+    <div class="detail-panel-header">
+      <div class="detail-panel-title">Valuation File Details</div>
+      <button class="detail-panel-close" id="detail-panel-close" title="Close Panel">
+        <svg style="width: 20px; height: 20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    
+    <div class="detail-panel-body">
+      <!-- File Metadata Grid -->
+      <div class="detail-grid">
+        <div class="detail-field">
+          <span class="detail-label">File / Case Number</span>
+          <span class="detail-value detail-value-mono" style="color: var(--accent-blue); font-weight: 700;" id="detail-file-no">-</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-label">Priority</span>
+          <div id="detail-priority-badge-container"></div>
+        </div>
+        <div class="detail-field span-2">
+          <span class="detail-label">Owner / Applicant</span>
+          <span class="detail-value" style="font-size: 1.05rem; font-weight: 600;" id="detail-owner">-</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-label">Bank Name</span>
+          <span class="detail-value" id="detail-bank">-</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-label">Loan Amount</span>
+          <span class="detail-value detail-value-mono" style="font-weight: 600;" id="detail-loan">-</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-label">Date Received</span>
+          <span class="detail-value detail-value-mono" id="detail-date">-</span>
+        </div>
+        <div class="detail-field">
+          <span class="detail-label">Assigned Engineer</span>
+          <span class="detail-value" id="detail-engineer">-</span>
+        </div>
+        <div class="detail-field span-2">
+          <span class="detail-label">Area / Location</span>
+          <span class="detail-value" id="detail-location">-</span>
+        </div>
+        <div class="detail-field span-2">
+          <span class="detail-label">Site Address</span>
+          <span class="detail-value" id="detail-address" style="line-height: 1.4;">-</span>
+        </div>
+        <div class="detail-field span-2">
+          <span class="detail-label">Google Drive Link</span>
+          <div>
+            <a href="#" target="_blank" class="drive-link-btn" id="detail-drive-link">
+              <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+              Open Documents & Photos
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color);">
+
+      <!-- Status Timeline -->
+      <div>
+        <div class="timeline-section-title">Valuation Flow Stage Tracker</div>
+        <div class="timeline" id="detail-timeline">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <hr style="border: 0; border-top: 1px solid var(--border-color);">
+
+      <!-- Status Update Block -->
+      <div class="detail-update-block">
+        <div class="timeline-section-title" style="margin-bottom: 4px;">Update Case Status</div>
+        
+        <div class="form-group">
+          <span class="form-label" style="font-size: 0.65rem;">Workflow Stage</span>
+          <select class="form-input" id="detail-status-select">
+            <option value="Documents Received">Documents Received</option>
+            <option value="Site Visit Pending">Site Visit Pending</option>
+            <option value="Site Visit Done">Site Visit Done</option>
+            <option value="Report In Progress">Report In Progress</option>
+            <option value="Report Submitted">Report Submitted</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <span class="form-label" style="font-size: 0.65rem;">Remarks / Progress Notes</span>
+          <textarea class="remarks-textarea" id="detail-remarks-input" placeholder="Type status updates, site details, or client interaction notes..."></textarea>
+        </div>
+        
+        <button class="btn btn-primary" style="justify-content: center;" id="detail-save-status-btn">
+          Save Case Updates
+        </button>
+      </div>
+
+      <!-- Chronological History Audit Log -->
+      <div>
+        <div class="timeline-section-title">Historical Log & Audit Trail</div>
+        <div id="detail-history-list" style="display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; background: rgba(0,0,0,0.15); border-radius: 8px; padding: 12px; border: 1px solid var(--border-color); max-height: 200px; overflow-y: auto;">
+          <!-- Rendered dynamically by JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin Panel Actions -->
+    <div class="detail-panel-footer admin-only hidden" id="detail-panel-admin-footer">
+      <button class="btn btn-secondary" style="border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.05);" id="detail-delete-btn">
+        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+        Delete File
+      </button>
+      <button class="btn btn-secondary" id="detail-edit-btn">
+        <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+        </svg>
+        Edit File
+      </button>
+    </div>
+  </div>
+
+  <!-- ADD / EDIT FILE MODAL -->
+  <div id="file-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title" id="file-modal-title">Create Valuation File</div>
+        <button class="modal-close" id="file-modal-close">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <form class="modal-form" id="file-form" onsubmit="event.preventDefault();">
+          <input type="hidden" id="form-file-id">
+          
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-file-no">File / Case Number *</label>
+              <input type="text" class="form-input" id="form-file-no" required placeholder="e.g. VT-2026-001">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-priority">Priority *</label>
+              <select class="form-input" id="form-priority" required>
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-owner">Owner / Applicant Name *</label>
+            <input type="text" class="form-input" id="form-owner" required placeholder="Full Name of the Applicant">
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-bank">Bank Name *</label>
+              <input type="text" class="form-input" id="form-bank" required placeholder="e.g. State Bank of India">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-loan">Loan Amount (₹) *</label>
+              <input type="number" class="form-input" id="form-loan" required placeholder="e.g. 5000000">
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-date">Date Received *</label>
+              <input type="date" class="form-input" id="form-date" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-engineer">Assigned Engineer *</label>
+              <select class="form-input" id="form-engineer" required>
+                <option value="Engineer 1">Engineer 1</option>
+                <option value="Engineer 2">Engineer 2</option>
+                <option value="Sathish">Sathish (Admin)</option>
+                <option value="Udhaya">Udhaya (Admin)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-location">Area / Location *</label>
+              <input type="text" class="form-input" id="form-location" required placeholder="e.g. Adyar">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-status">Initial Status *</label>
+              <select class="form-input" id="form-status" required>
+                <option value="Documents Received" selected>Documents Received</option>
+                <option value="Site Visit Pending">Site Visit Pending</option>
+                <option value="Site Visit Done">Site Visit Done</option>
+                <option value="Report In Progress">Report In Progress</option>
+                <option value="Report Submitted">Report Submitted</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-address">Property Site Address *</label>
+            <textarea class="form-input" id="form-address" required rows="3" placeholder="Full physical address of the property..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-drive-link">Google Drive Link *</label>
+            <input type="url" class="form-input" id="form-drive-link" required placeholder="https://drive.google.com/..." value="https://drive.google.com">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="form-remarks">Initial Remarks / Notes</label>
+            <textarea class="form-input" id="form-remarks" rows="2" placeholder="Any initial notes about the property or documents..."></textarea>
+          </div>
+        </form>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="file-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="file-modal-save">Save Valuation File</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETUP SCREEN MODAL -->
+  <div id="setup-modal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">API & Database Connection Setup</div>
+        <button class="modal-close" id="setup-modal-close">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group" style="gap: 10px;">
+          <label class="form-label" for="setup-sheet-url">Google Sheets Web App URL</label>
+          <input type="url" class="form-input" id="setup-sheet-url" placeholder="https://script.google.com/macros/s/.../exec">
+          
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button class="btn btn-secondary" style="flex: 1; justify-content: center;" id="test-connection-btn">Test Connection</button>
+            <div id="connection-status" class="connection-status">
+              <span style="font-weight: 500; font-size: 0.8rem; color: var(--text-sub);">Not Tested</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="setup-guide">
+          <strong>Setup Guide: How to connect live Google Sheets database</strong>
+          <ol>
+            <li>Create a new Google Sheet.</li>
+            <li>Rename the sheet to whatever you want, but the Web App handles creating a dedicated "ValuTrack" tab automatically.</li>
+            <li>Go to <strong>Extensions > Apps Script</strong> from the top menu of the Google Sheet.</li>
+            <li>Clear any existing code in <code>Code.gs</code> and paste the contents of <code>apps_script.js</code> (which is included in this project folder).</li>
+            <li>Click the <strong>Save icon</strong>.</li>
+            <li>Click <strong>Deploy > New deployment</strong> in the top right.</li>
+            <li>Click the Gear icon next to "Select type" and choose <strong>Web app</strong>.</li>
+            <li>Configure deployment settings:
+              <ul>
+                <li><strong>Execute as:</strong> Me (your email)</li>
+                <li><strong>Who has access:</strong> Anyone</li>
+              </ul>
+            </li>
+            <li>Click <strong>Deploy</strong>, grant all necessary OAuth permissions, and copy the generated <strong>Web app URL</strong>.</li>
+            <li>Paste it into the field above and click "Test Connection", then click "Save Settings".</li>
+          </ol>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="setup-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="setup-modal-save">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE CONFIRMATION MODAL -->
+  <div id="delete-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title">Delete File Confirmation</div>
+      </div>
+      <div class="modal-body" style="padding-top: 10px; padding-bottom: 10px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+          Are you sure you want to permanently delete valuation file <strong id="delete-file-no-confirm" style="color: var(--accent-blue);">VT-2026-001</strong>?<br><br>
+          <span style="color: #ef4444; font-weight: 500;">Warning: This action cannot be undone and will delete the record from Google Sheets.</span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="delete-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" style="background-color: #ef4444;" id="delete-modal-confirm">Delete File</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // 1. Initial Config, Users & Mock Data
+    const USERS = [
+      { name: "Sathish", role: "Admin", avatar: "S" },
+      { name: "Udhaya", role: "Admin", avatar: "U" },
+      { name: "Engineer 1", role: "Engineer", avatar: "E1" },
+      { name: "Engineer 2", role: "Engineer", avatar: "E2" }
+    ];
+
+    const STAGES = [
+      "Documents Received",
+      "Site Visit Pending",
+      "Site Visit Done",
+      "Report In Progress",
+      "Report Submitted"
+    ];
+
+    const MOCK_FILES = [
+      {
+        ID: "mock-uuid-001",
+        FileNo: "VT-2026-001",
+        Owner: "Aravind Swamy",
+        Bank: "State Bank of India",
+        Address: "No. 12, Anna Salai, T. Nagar, Chennai - 600017",
+        Location: "T. Nagar",
+        Engineer: "Engineer 1",
+        Priority: "High",
+        Status: "Report Submitted",
+        Date: "2026-07-10",
+        Loan: 4500000,
+        DriveLink: "https://drive.google.com",
+        Remarks: "Photos uploaded, valuation completed and report handed over.",
+        History: JSON.stringify([
+          { status: "Documents Received", time: "2026-07-10 10:15", user: "Sathish" },
+          { status: "Site Visit Pending", time: "2026-07-10 11:30", user: "Sathish" },
+          { status: "Site Visit Done", time: "2026-07-11 14:00", user: "Engineer 1" },
+          { status: "Report In Progress", time: "2026-07-12 09:30", user: "Engineer 1" },
+          { status: "Report Submitted", time: "2026-07-12 17:00", user: "Engineer 1" }
+        ]),
+        UpdatedBy: "Engineer 1",
+        UpdatedAt: "2026-07-12 17:00"
+      },
+      {
+        ID: "mock-uuid-002",
+        FileNo: "VT-2026-002",
+        Owner: "Priyanjali Sen",
+        Bank: "HDFC Bank",
+        Address: "Block 4B, Shanti Enclave, Sardar Patel Road, Adyar, Chennai - 600020",
+        Location: "Adyar",
+        Engineer: "Engineer 2",
+        Priority: "Medium",
+        Status: "Site Visit Pending",
+        Date: "2026-07-12",
+        Loan: 7500000,
+        DriveLink: "https://drive.google.com",
+        Remarks: "Documents received. Contacted owner to arrange site visit details.",
+        History: JSON.stringify([
+          { status: "Documents Received", time: "2026-07-12 09:00", user: "Udhaya" },
+          { status: "Site Visit Pending", time: "2026-07-12 10:45", user: "Udhaya" }
+        ]),
+        UpdatedBy: "Udhaya",
+        UpdatedAt: "2026-07-12 10:45"
+      },
+      {
+        ID: "mock-uuid-003",
+        FileNo: "VT-2026-003",
+        Owner: "Rajesh Kumar",
+        Bank: "ICICI Bank",
+        Address: "45, GST Road, Tambaram East, Chennai - 600059",
+        Location: "Tambaram",
+        Engineer: "Engineer 1",
+        Priority: "Low",
+        Status: "Documents Received",
+        Date: "2026-07-13",
+        Loan: 3000000,
+        DriveLink: "https://drive.google.com",
+        Remarks: "New file added. Tax receipts and layout sketches need upload to Drive.",
+        History: JSON.stringify([
+          { status: "Documents Received", time: "2026-07-13 11:00", user: "Sathish" }
+        ]),
+        UpdatedBy: "Sathish",
+        UpdatedAt: "2026-07-13 11:00"
+      },
+      {
+        ID: "mock-uuid-004",
+        FileNo: "VT-2026-004",
+        Owner: "Meenakshi Sundaram",
+        Bank: "Axis Bank",
+        Address: "7A, 2nd Main Road, Velachery, Chennai - 600042",
+        Location: "Velachery",
+        Engineer: "Engineer 2",
+        Priority: "High",
+        Status: "Site Visit Done",
+        Date: "2026-07-11",
+        Loan: 12000000,
+        DriveLink: "https://drive.google.com",
+        Remarks: "Completed site visit. Building measurement taken. Planning permissions check in progress.",
+        History: JSON.stringify([
+          { status: "Documents Received", time: "2026-07-11 09:15", user: "Udhaya" },
+          { status: "Site Visit Pending", time: "2026-07-11 10:00", user: "Udhaya" },
+          { status: "Site Visit Done", time: "2026-07-12 15:30", user: "Engineer 2" }
+        ]),
+        UpdatedBy: "Engineer 2",
+        UpdatedAt: "2026-07-12 15:30"
+      }
+    ];
+
+    // 2. Application Global State
+    let state = {
+      currentUser: null,
+      files: [],
+      selectedFileId: null,
+      filters: {
+        search: "",
+        status: null,
+        bank: null,
+        engineer: null,
+        priority: null
+      },
+      sheetUrl: localStorage.getItem("valutrack_sheet_url") || "",
+      lastSynced: localStorage.getItem("valutrack_last_synced") || null,
+      syncQueue: JSON.parse(localStorage.getItem("valutrack_sync_queue") || "[]")
+    };
+
+    // 3. Helper Utility Functions
+    function getTodayString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      let mm = today.getMonth() + 1;
+      let dd = today.getDate();
+      if (mm < 10) mm = '0' + mm;
+      if (dd < 10) dd = '0' + dd;
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function getTimestamp() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      let mm = d.getMonth() + 1;
+      let dd = d.getDate();
+      let hh = d.getHours();
+      let min = d.getMinutes();
+      if (mm < 10) mm = '0' + mm;
+      if (dd < 10) dd = '0' + dd;
+      if (hh < 10) hh = '0' + hh;
+      if (min < 10) min = '0' + min;
+      return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+    }
+
+    function formatCurrency(num) {
+      if (num === undefined || num === null || isNaN(num) || num === "") return "₹ 0";
+      const val = Number(num);
+      return "₹ " + val.toLocaleString('en-IN');
+    }
+
+    function getNextStatus(currentStatus) {
+      const index = STAGES.indexOf(currentStatus);
+      if (index !== -1 && index < STAGES.length - 1) {
+        return STAGES[index + 1];
+      }
+      return null;
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case "Documents Received": return "doc-received";
+        case "Site Visit Pending": return "visit-pending";
+        case "Site Visit Done": return "visit-done";
+        case "Report In Progress": return "in-progress";
+        case "Report Submitted": return "submitted";
+        default: return "doc-received";
+      }
+    }
+
+    function getPriorityClass(priority) {
+      switch (priority) {
+        case "High": return "high";
+        case "Medium": return "medium";
+        case "Low": return "low";
+        default: return "medium";
+      }
+    }
+
+    // Generate unique local ID
+    function generateUUID() {
+      return 'valutrack-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    // 4. Toast Alerts System
+    function showToast(message, type = "info") {
+      const container = document.getElementById("toast-container");
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      
+      let icon = "";
+      if (type === "success") icon = '<span style="color:#10b981; font-weight:bold; font-size:1.1rem;">✓</span>';
+      else if (type === "error") icon = '<span style="color:#ef4444; font-weight:bold; font-size:1.1rem;">✗</span>';
+      else if (type === "warning") icon = '<span style="color:#f59e0b; font-weight:bold; font-size:1.1rem;">!</span>';
+      else icon = '<span style="color:#3b82f6; font-weight:bold; font-size:1.1rem;">i</span>';
+
+      toast.innerHTML = `
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${icon}
+          <div class="toast-content">${message}</div>
+        </div>
+        <button class="toast-close">&times;</button>
+      `;
+
+      container.appendChild(toast);
+
+      // Setup close click
+      toast.querySelector(".toast-close").addEventListener("click", () => {
+        toast.remove();
+      });
+
+      // Self destroy after 4 seconds
+      setTimeout(() => {
+        toast.style.opacity = "0";
+        toast.style.transform = "translateY(20px)";
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // 5. Offline Sync & Database Handling
+    function loadLocalData() {
+      const filesCache = localStorage.getItem("valutrack_files");
+      if (filesCache) {
+        state.files = JSON.parse(filesCache);
+      } else {
+        state.files = [...MOCK_FILES];
+        localStorage.setItem("valutrack_files", JSON.stringify(state.files));
+      }
+    }
+
+    function saveLocalData() {
+      localStorage.setItem("valutrack_files", JSON.stringify(state.files));
+    }
+
+    function saveSyncQueue() {
+      localStorage.setItem("valutrack_sync_queue", JSON.stringify(state.syncQueue));
+    }
+
+    function updateSyncStatusIndicator(status) {
+      const badge = document.getElementById("sync-status-badge");
+      const label = badge.querySelector(".status-label");
+      
+      badge.className = `sync-badge ${status}`;
+      
+      if (status === "online" || status === "success") {
+        badge.className = "sync-badge online";
+        label.textContent = "Synced";
+      } else if (status === "offline") {
+        badge.className = "sync-badge offline";
+        label.textContent = "Offline (Cached)";
+      } else if (status === "syncing") {
+        badge.className = "sync-badge syncing";
+        label.textContent = "Syncing...";
+      } else if (status === "error") {
+        badge.className = "sync-badge offline";
+        label.textContent = "Sync Error";
+      }
+      
+      const timeDisplay = document.getElementById("sync-time-display");
+      if (state.lastSynced) {
+        timeDisplay.textContent = `Last synced: ${state.lastSynced}`;
+      } else {
+        timeDisplay.textContent = "Never synced with Google Sheets";
+      }
+    }
+
+    async function processSyncQueue() {
+      if (state.syncQueue.length === 0 || !state.sheetUrl) return;
+      if (!navigator.onLine) {
+        updateSyncStatusIndicator("offline");
+        return;
+      }
+
+      updateSyncStatusIndicator("syncing");
+      const tempQueue = [...state.syncQueue];
+      let processedCount = 0;
+
+      for (let i = 0; i < tempQueue.length; i++) {
+        const item = tempQueue[i];
+        try {
+          const payload = {
+            action: item.action,
+            data: item.data,
+            id: item.action === "delete" ? item.data.ID : undefined
+          };
+
+          const response = await fetch(state.sheetUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8"
+            },
+            redirect: "follow",
+            body: JSON.stringify(payload)
+          });
+          const res = await response.json();
+
+          if (res.success) {
+            // Remove front of the queue
+            state.syncQueue.shift();
+            saveSyncQueue();
+            processedCount++;
+          } else {
+            console.error("Apps Script reported error:", res.error);
+            updateSyncStatusIndicator("error");
+            break; // Stop loop and try again later
+          }
+        } catch (e) {
+          console.error("Network sync error during queue playback:", e);
+          updateSyncStatusIndicator("error");
+          break; // Stop loop and try again later
+        }
+      }
+
+      if (processedCount > 0) {
+        showToast(`Synced ${processedCount} pending modifications to Cloud!`, "success");
+        // Pull latest state from spreadsheet
+        await syncWithSheet(false);
+      }
+    }
+
+    async function syncWithSheet(showToasts = true) {
+      if (!state.sheetUrl) {
+        if (showToasts) showToast("Google Sheets API URL is not set. Operating in Offline Cache Mode.", "warning");
+        updateSyncStatusIndicator("offline");
+        loadLocalData();
+        renderAll();
+        return;
+      }
+
+      if (!navigator.onLine) {
+        if (showToasts) showToast("Network offline. Displaying cached data.", "warning");
+        updateSyncStatusIndicator("offline");
+        loadLocalData();
+        renderAll();
+        return;
+      }
+
+      // If we have pending sync items, push them first
+      if (state.syncQueue.length > 0) {
+        await processSyncQueue();
+        if (state.syncQueue.length > 0) {
+          // If queue failed to clear, stop GET sync to avoid overwritten conflicts
+          loadLocalData();
+          renderAll();
+          return;
+        }
+      }
+
+      updateSyncStatusIndicator("syncing");
+      
+      const icon = document.getElementById("sync-btn-icon");
+      if (icon) icon.classList.add("sync-icon-spin");
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
+        const response = await fetch(state.sheetUrl, {
+          method: "GET",
+          redirect: "follow",
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          state.files = result.data || [];
+          saveLocalData();
+          
+          state.lastSynced = new Date().toLocaleString();
+          localStorage.setItem("valutrack_last_synced", state.lastSynced);
+          localStorage.setItem("valutrack_files", JSON.stringify(state.files));
+          
+          updateSyncStatusIndicator("success");
+          if (showToasts) showToast("Synced database with Google Sheets!", "success");
+        } else {
+          throw new Error(result.error || "API failure");
+        }
+      } catch (error) {
+        console.error("Cloud pull failed:", error);
+        updateSyncStatusIndicator("error");
+        if (showToasts) showToast("Connection failed. Displaying cached data. Details: " + error.message, "error");
+        loadLocalData();
+      } finally {
+        if (icon) icon.classList.remove("sync-icon-spin");
+        renderAll();
+      }
+    }
+
+    function queueDatabaseUpdate(action, data) {
+      // 1. Instantly write locally
+      if (action === "add") {
+        state.files.unshift(data);
+      } else if (action === "update") {
+        const idx = state.files.findIndex(f => f.ID === data.ID);
+        if (idx !== -1) {
+          state.files[idx] = data;
+        }
+      } else if (action === "delete") {
+        state.files = state.files.filter(f => f.ID !== data.ID);
+      }
+      
+      saveLocalData();
+      renderAll();
+
+      // 2. Queue for database push
+      state.syncQueue.push({ action, data, time: getTimestamp() });
+      saveSyncQueue();
+
+      // 3. Process push queue in background
+      processSyncQueue();
+    }
+
+    // 6. User and Roles UI Login Flow
+    function initLoginScreen() {
+      const container = document.getElementById("login-profiles");
+      container.innerHTML = "";
+      
+      USERS.forEach(user => {
+        const card = document.createElement("div");
+        card.className = "profile-card";
+        card.innerHTML = `
+          <div class="profile-avatar">${user.avatar}</div>
+          <div class="profile-name">${user.name}</div>
+          <span class="profile-role role-${user.role.toLowerCase()}">${user.role}</span>
+        `;
+        
+        card.addEventListener("click", () => {
+          loginAs(user);
+        });
+        container.appendChild(card);
+      });
+
+      // Remove global loading spinner
+      document.getElementById("global-loader").style.opacity = "0";
+      setTimeout(() => {
+        document.getElementById("global-loader").classList.add("hidden");
+      }, 500);
+    }
+
+    function loginAs(user) {
+      state.currentUser = user;
+      localStorage.setItem("valutrack_active_user", JSON.stringify(user));
+      
+      // Hide login, show portal
+      document.getElementById("login-screen").style.opacity = "0";
+      setTimeout(() => {
+        document.getElementById("login-screen").classList.add("hidden");
+      }, 300);
+      
+      document.getElementById("main-app").style.display = "grid";
+      
+      // Update UI matching permissions
+      document.getElementById("active-user-name").textContent = user.name;
+      document.getElementById("active-user-role").textContent = user.role;
+      document.getElementById("active-user-avatar").textContent = user.avatar;
+      document.getElementById("welcome-message").textContent = `Welcome back, ${user.name}! (${user.role} Portal)`;
+      
+      const adminElements = document.querySelectorAll(".admin-only");
+      if (user.role === "Admin") {
+        adminElements.forEach(el => el.classList.remove("hidden"));
+      } else {
+        adminElements.forEach(el => el.classList.add("hidden"));
+        // Engineers can't edit or delete, hide modal triggers
+      }
+
+      // Load correct database depending on role
+      loadLocalData();
+      
+      // Attempt first sync
+      syncWithSheet(true);
+    }
+
+    function logout() {
+      state.currentUser = null;
+      localStorage.removeItem("valutrack_active_user");
+      
+      document.getElementById("main-app").style.display = "none";
+      const login = document.getElementById("login-screen");
+      login.classList.remove("hidden");
+      setTimeout(() => {
+        login.style.opacity = "1";
+      }, 50);
+      closeDetailPanel();
+    }
+
+    // 7. Filtering and Sorting Logic
+    function getFilteredFiles() {
+      let result = [...state.files];
+      
+      // 1. Role Scope Filter: Engineers can only see files assigned to them
+      if (state.currentUser && state.currentUser.role === "Engineer") {
+        result = result.filter(f => f.Engineer === state.currentUser.name);
+      }
+
+      // 2. Sidebar Filters
+      if (state.filters.status) {
+        result = result.filter(f => f.Status === state.filters.status);
+      }
+      if (state.filters.bank) {
+        result = result.filter(f => f.Bank === state.filters.bank);
+      }
+
+      // 3. Header Dropdowns
+      if (state.filters.engineer) {
+        result = result.filter(f => f.Engineer === state.filters.engineer);
+      }
+      if (state.filters.priority) {
+        result = result.filter(f => f.Priority === state.filters.priority);
+      }
+      // If bank dropdown is used instead of sidebar
+      const dropBank = document.getElementById("filter-bank").value;
+      if (dropBank) {
+        result = result.filter(f => f.Bank === dropBank);
+      }
+
+      // 4. Search Filter
+      if (state.filters.search) {
+        const query = state.filters.search.toLowerCase();
+        result = result.filter(f => 
+          (f.FileNo && f.FileNo.toLowerCase().includes(query)) ||
+          (f.Owner && f.Owner.toLowerCase().includes(query)) ||
+          (f.Address && f.Address.toLowerCase().includes(query)) ||
+          (f.Bank && f.Bank.toLowerCase().includes(query)) ||
+          (f.Engineer && f.Engineer.toLowerCase().includes(query)) ||
+          (f.Location && f.Location.toLowerCase().includes(query))
+        );
+      }
+
+      return result;
+    }
+
+    // 8. RENDER SCREEN FUNCTIONS
+    function renderAll() {
+      renderActiveFiltersRow();
+      renderStats();
+      renderTable();
+      renderSidebarFilters();
+      populateDropdownFilters();
+    }
+
+    function renderActiveFiltersRow() {
+      const row = document.getElementById("active-filters-row");
+      const list = document.getElementById("active-filters-list");
+      list.innerHTML = "";
+      
+      let activeCount = 0;
+      
+      const addIndicator = (label, type, val) => {
+        activeCount++;
+        const ind = document.createElement("div");
+        ind.className = "filter-indicator";
+        ind.innerHTML = `
+          <span>${label}: <strong>${val}</strong></span>
+          <button class="filter-indicator-btn" data-type="${type}">&times;</button>
+        `;
+        ind.querySelector(".filter-indicator-btn").addEventListener("click", () => {
+          removeFilter(type);
+        });
+        list.appendChild(ind);
+      };
+
+      if (state.filters.status) addIndicator("Stage", "status", state.filters.status);
+      if (state.filters.bank) addIndicator("Bank", "bank", state.filters.bank);
+      if (state.filters.engineer) addIndicator("Engineer", "engineer", state.filters.engineer);
+      if (state.filters.priority) addIndicator("Priority", "priority", state.filters.priority);
+      
+      const dropBank = document.getElementById("filter-bank").value;
+      if (dropBank && !state.filters.bank) {
+        addIndicator("Bank", "bankDropdown", dropBank);
+      }
+
+      if (activeCount > 0) {
+        row.classList.remove("hidden");
+      } else {
+        row.classList.add("hidden");
+      }
+    }
+
+    function removeFilter(type) {
+      if (type === "status") state.filters.status = null;
+      if (type === "bank") state.filters.bank = null;
+      if (type === "engineer") {
+        state.filters.engineer = null;
+        document.getElementById("filter-engineer").value = "";
+      }
+      if (type === "priority") {
+        state.filters.priority = null;
+        document.getElementById("filter-priority").value = "";
+      }
+      if (type === "bankDropdown") {
+        document.getElementById("filter-bank").value = "";
+      }
+      renderAll();
+    }
+
+    function renderStats() {
+      // Stats should reflect only files VISIBLE to the user (e.g. Engineer sees only their files)
+      let filesScope = [...state.files];
+      if (state.currentUser && state.currentUser.role === "Engineer") {
+        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
+      }
+
+      const total = filesScope.length;
+      const visitPending = filesScope.filter(f => f.Status === "Site Visit Pending").length;
+      const visitDone = filesScope.filter(f => f.Status === "Site Visit Done").length;
+      const submitted = filesScope.filter(f => f.Status === "Report Submitted").length;
+      
+      const todayStr = getTodayString();
+      const todaysFiles = filesScope.filter(f => f.Date && f.Date.substring(0,10) === todayStr).length;
+
+      document.getElementById("stat-total-files").textContent = total;
+      document.getElementById("stat-visit-pending").textContent = visitPending;
+      document.getElementById("stat-visit-done").textContent = visitDone;
+      document.getElementById("stat-report-submitted").textContent = submitted;
+      document.getElementById("stat-todays-files").textContent = todaysFiles;
+    }
+
+    function renderSidebarFilters() {
+      // Dynamic counts reflecting role scope
+      let filesScope = [...state.files];
+      if (state.currentUser && state.currentUser.role === "Engineer") {
+        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
+      }
+
+      // Status sidebar list
+      const statusList = document.getElementById("sidebar-statuses");
+      statusList.innerHTML = "";
+      
+      // All stages count
+      const allItem = document.createElement("li");
+      allItem.className = `sidebar-item ${!state.filters.status ? "active" : ""}`;
+      allItem.innerHTML = `
+        <span>All Stages</span>
+        <span class="sidebar-item-count">${filesScope.length}</span>
+      `;
+      allItem.addEventListener("click", () => {
+        state.filters.status = null;
+        renderAll();
+      });
+      statusList.appendChild(allItem);
+
+      STAGES.forEach(stage => {
+        const count = filesScope.filter(f => f.Status === stage).length;
+        const item = document.createElement("li");
+        item.className = `sidebar-item ${state.filters.status === stage ? "active" : ""}`;
+        item.innerHTML = `
+          <span>${stage}</span>
+          <span class="sidebar-item-count">${count}</span>
+        `;
+        item.addEventListener("click", () => {
+          state.filters.status = stage;
+          renderAll();
+        });
+        statusList.appendChild(item);
+      });
+
+      // Banks list sidebar
+      const bankList = document.getElementById("sidebar-banks");
+      bankList.innerHTML = "";
+      
+      const uniqueBanks = [...new Set(filesScope.map(f => f.Bank).filter(Boolean))].sort();
+      
+      const allBankItem = document.createElement("li");
+      allBankItem.className = `sidebar-item ${!state.filters.bank ? "active" : ""}`;
+      allBankItem.innerHTML = `
+        <span>All Banks</span>
+        <span class="sidebar-item-count">${filesScope.length}</span>
+      `;
+      allBankItem.addEventListener("click", () => {
+        state.filters.bank = null;
+        renderAll();
+      });
+      bankList.appendChild(allBankItem);
+
+      uniqueBanks.forEach(bank => {
+        const count = filesScope.filter(f => f.Bank === bank).length;
+        const item = document.createElement("li");
+        item.className = `sidebar-item ${state.filters.bank === bank ? "active" : ""}`;
+        item.innerHTML = `
+          <span>${bank}</span>
+          <span class="sidebar-item-count">${count}</span>
+        `;
+        item.addEventListener("click", () => {
+          state.filters.bank = bank;
+          renderAll();
+        });
+        bankList.appendChild(item);
+      });
+    }
+
+    function populateDropdownFilters() {
+      // Re-populate select suggestions based on data
+      const bankSelect = document.getElementById("filter-bank");
+      const currentSelectedBank = bankSelect.value;
+      
+      bankSelect.innerHTML = '<option value="">All Banks</option>';
+      const uniqueBanks = [...new Set(state.files.map(f => f.Bank).filter(Boolean))].sort();
+      uniqueBanks.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        if (b === currentSelectedBank) opt.selected = true;
+        bankSelect.appendChild(opt);
+      });
+
+      // Engineer select suggestions (only active for Admin since Engineers are locked to themselves)
+      const engSelect = document.getElementById("filter-engineer");
+      const currentSelectedEng = engSelect.value;
+      
+      engSelect.innerHTML = '<option value="">All Engineers</option>';
+      
+      if (state.currentUser && state.currentUser.role === "Engineer") {
+        engSelect.disabled = true;
+        const opt = document.createElement("option");
+        opt.value = state.currentUser.name;
+        opt.textContent = state.currentUser.name;
+        opt.selected = true;
+        engSelect.appendChild(opt);
+      } else {
+        engSelect.disabled = false;
+        const uniqueEngineers = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))].sort();
+        
+        // Ensure standard engineers are in the list too
+        const baseEngs = ["Engineer 1", "Engineer 2"];
+        baseEngs.forEach(e => {
+          if (!uniqueEngineers.includes(e)) uniqueEngineers.push(e);
+        });
+
+        uniqueEngineers.sort().forEach(e => {
+          const opt = document.createElement("option");
+          opt.value = e;
+          opt.textContent = e;
+          if (e === currentSelectedEng) opt.selected = true;
+          engSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("files-table-body");
+      const emptyState = document.getElementById("empty-state");
+      tbody.innerHTML = "";
+      
+      const filesToShow = getFilteredFiles();
+
+      if (filesToShow.length === 0) {
+        emptyState.classList.remove("hidden");
+        return;
+      }
+      
+      emptyState.classList.add("hidden");
+
+      filesToShow.forEach(file => {
+        const tr = document.createElement("tr");
+        
+        // Format priority element
+        const pBadge = `<span class="priority-badge ${getPriorityClass(file.Priority)}">${file.Priority}</span>`;
+        // Format status badge
+        const sBadge = `
+          <span class="status-badge ${getStatusClass(file.Status)}">
+            <span class="badge-dot"></span>${file.Status}
+          </span>
+        `;
+
+        // Format Actions column
+        const nextStatus = getNextStatus(file.Status);
+        const canAdvance = nextStatus && state.currentUser.role === "Admin";
+        
+        const nextBtn = canAdvance ? `
+          <button class="action-icon-btn btn-next-status" title="Advance to: ${nextStatus}" data-id="${file.ID}">
+            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        ` : `
+          <button class="action-icon-btn" disabled style="opacity: 0.2; cursor: not-allowed;" title="Cannot advance status">
+            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+            </svg>
+          </button>
+        `;
+
+        const driveBtn = `
+          <a class="action-icon-btn" href="${file.DriveLink}" target="_blank" title="Google Drive Link" onclick="event.stopPropagation();">
+            <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+            </svg>
+          </a>
+        `;
+
+        tr.innerHTML = `
+          <td class="file-no-col">${file.FileNo}</td>
+          <td class="owner-col">${file.Owner}</td>
+          <td class="address-col" title="${file.Address}">${file.Address}</td>
+          <td>${file.Bank}</td>
+          <td>${file.Engineer}</td>
+          <td>${pBadge}</td>
+          <td>${sBadge}</td>
+          <td class="date-col">${file.Date ? file.Date.substring(0,10) : "-"}</td>
+          <td class="text-center">
+            <div class="table-actions">
+              ${driveBtn}
+              ${nextBtn}
+              <button class="action-icon-btn btn-view-detail" title="View Detail" data-id="${file.ID}">
+                <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+
+        // Click row open detail
+        tr.addEventListener("click", () => {
+          openDetailPanel(file.ID);
+        });
+
+        // Quick next status click listener
+        if (canAdvance) {
+          tr.querySelector(".btn-next-status").addEventListener("click", (e) => {
+            e.stopPropagation();
+            advanceFileStatus(file.ID);
+          });
+        }
+
+        tr.querySelector(".btn-view-detail").addEventListener("click", (e) => {
+          e.stopPropagation();
+          openDetailPanel(file.ID);
+        });
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 9. VALUATIONS CRUD OPERATIONS
+    function advanceFileStatus(fileId) {
+      const file = state.files.find(f => f.ID === fileId);
+      if (!file) return;
+
+      const nextStatus = getNextStatus(file.Status);
+      if (!nextStatus) return;
+
+      const time = getTimestamp();
+      let historyArray = [];
+      try {
+        historyArray = file.History ? JSON.parse(file.History) : [];
+      } catch (e) {
+        historyArray = [];
+      }
+
+      historyArray.push({
+        status: nextStatus,
+        time: time,
+        user: state.currentUser.name
+      });
+
+      const updatedFile = {
+        ...file,
+        Status: nextStatus,
+        History: JSON.stringify(historyArray),
+        UpdatedBy: state.currentUser.name,
+        UpdatedAt: time
+      };
+
+      queueDatabaseUpdate("update", updatedFile);
+      showToast(`Advanced ${file.FileNo} status to ${nextStatus}`, "success");
+      
+      // Update details side panel if opened for this file
+      if (state.selectedFileId === fileId) {
+        openDetailPanel(fileId);
+      }
+    }
+
+    function openDetailPanel(fileId) {
+      state.selectedFileId = fileId;
+      const file = state.files.find(f => f.ID === fileId);
+      if (!file) return;
+
+      document.getElementById("detail-file-no").textContent = file.FileNo;
+      document.getElementById("detail-owner").textContent = file.Owner;
+      document.getElementById("detail-bank").textContent = file.Bank;
+      document.getElementById("detail-loan").textContent = formatCurrency(file.Loan);
+      document.getElementById("detail-date").textContent = file.Date ? file.Date.substring(0,10) : "-";
+      document.getElementById("detail-engineer").textContent = file.Engineer;
+      document.getElementById("detail-location").textContent = file.Location;
+      document.getElementById("detail-address").textContent = file.Address;
+      
+      const dl = document.getElementById("detail-drive-link");
+      dl.href = file.DriveLink;
+
+      // Render Priority Badge in details
+      const pContainer = document.getElementById("detail-priority-badge-container");
+      pContainer.innerHTML = `<span class="priority-badge ${getPriorityClass(file.Priority)}">${file.Priority}</span>`;
+
+      // Status selector value
+      document.getElementById("detail-status-select").value = file.Status;
+      document.getElementById("detail-remarks-input").value = "";
+
+      // Parse and display timeline workflow
+      let historyArray = [];
+      try {
+        historyArray = file.History ? JSON.parse(file.History) : [];
+      } catch (e) {
+        historyArray = [];
+      }
+
+      const timelineContainer = document.getElementById("detail-timeline");
+      timelineContainer.innerHTML = "";
+
+      // We find the last status index to show everything up to now as done
+      const currentStatusIndex = STAGES.indexOf(file.Status);
+
+      STAGES.forEach((stage, idx) => {
+        const isCompleted = idx <= currentStatusIndex;
+        const isActive = idx === currentStatusIndex;
+
+        // Find matches in history log
+        const logEntry = historyArray.filter(h => h.status === stage).pop();
+        
+        let metaHtml = "";
+        if (logEntry) {
+          metaHtml = `<span class="timeline-meta">${logEntry.time} by ${logEntry.user}</span>`;
+        } else if (isActive) {
+          metaHtml = `<span class="timeline-meta">Active now</span>`;
+        }
+
+        const tItem = document.createElement("div");
+        tItem.className = `timeline-item ${isCompleted ? "completed" : ""} ${isActive ? "active" : ""}`;
+        tItem.innerHTML = `
+          <div class="timeline-node">
+            <svg viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+            </svg>
+          </div>
+          <div class="timeline-stage-title">${stage}</div>
+          ${metaHtml}
+        `;
+        timelineContainer.appendChild(tItem);
+      });
+
+      // Chronological audit trail
+      const auditContainer = document.getElementById("detail-history-list");
+      auditContainer.innerHTML = "";
+      if (historyArray.length === 0) {
+        auditContainer.innerHTML = '<span style="color: var(--text-sub);">No status updates recorded.</span>';
+      } else {
+        // Reverse array to show latest first
+        [...historyArray].reverse().forEach(log => {
+          const item = document.createElement("div");
+          item.style.paddingBottom = "6px";
+          item.style.borderBottom = "1px solid rgba(255,255,255,0.03)";
+          item.innerHTML = `
+            <div style="display:flex; justify-content:between; font-weight:600; color:var(--text-main);">
+              <span>Stage: ${log.status}</span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.75rem;">
+              <span>Updated by ${log.user} on <span class="detail-value-mono">${log.time}</span></span>
+            </div>
+          `;
+          auditContainer.appendChild(item);
+        });
+      }
+
+      // Panel Footer Settings based on user admin privileges
+      const adminFooter = document.getElementById("detail-panel-admin-footer");
+      if (state.currentUser.role === "Admin") {
+        adminFooter.classList.remove("hidden");
+      } else {
+        adminFooter.classList.add("hidden");
+      }
+
+      // Slide open the panel
+      document.getElementById("detail-panel").classList.add("open");
+    }
+
+    function closeDetailPanel() {
+      document.getElementById("detail-panel").classList.remove("open");
+      state.selectedFileId = null;
+    }
+
+    // Save inline detail update (status & remarks change)
+    function saveDetailUpdates() {
+      const fileId = state.selectedFileId;
+      const file = state.files.find(f => f.ID === fileId);
+      if (!file) return;
+
+      const newStatus = document.getElementById("detail-status-select").value;
+      const remarksText = document.getElementById("detail-remarks-input").value.trim();
+      const time = getTimestamp();
+
+      let historyArray = [];
+      try {
+        historyArray = file.History ? JSON.parse(file.History) : [];
+      } catch (e) {
+        historyArray = [];
+      }
+
+      let statusChanged = newStatus !== file.Status;
+
+      // Add to history log if status changed OR remarks added
+      if (statusChanged || remarksText !== "") {
+        historyArray.push({
+          status: newStatus,
+          time: time,
+          user: state.currentUser.name,
+          remarks: remarksText || undefined
+        });
+      }
+
+      // Merge remarks
+      let mergedRemarks = file.Remarks;
+      if (remarksText !== "") {
+        mergedRemarks = file.Remarks 
+          ? `${file.Remarks}\n[${time} by ${state.currentUser.name}]: ${remarksText}`
+          : `[${time} by ${state.currentUser.name}]: ${remarksText}`;
+      }
+
+      const updatedFile = {
+        ...file,
+        Status: newStatus,
+        Remarks: mergedRemarks,
+        History: JSON.stringify(historyArray),
+        UpdatedBy: state.currentUser.name,
+        UpdatedAt: time
+      };
+
+      queueDatabaseUpdate("update", updatedFile);
+      showToast("Case details updated successfully", "success");
+      
+      // Reload panel visual timeline
+      openDetailPanel(fileId);
+    }
+
+    // Modal Form actions (Create/Edit)
+    function openFileModal(fileId = null) {
+      const form = document.getElementById("file-form");
+      form.reset();
+
+      if (fileId) {
+        // Edit mode
+        const file = state.files.find(f => f.ID === fileId);
+        if (!file) return;
+        
+        document.getElementById("file-modal-title").textContent = `Edit Case: ${file.FileNo}`;
+        document.getElementById("form-file-id").value = file.ID;
+        document.getElementById("form-file-no").value = file.FileNo;
+        document.getElementById("form-file-no").disabled = true; // Block file number edit for consistency
+        document.getElementById("form-priority").value = file.Priority;
+        document.getElementById("form-owner").value = file.Owner;
+        document.getElementById("form-bank").value = file.Bank;
+        document.getElementById("form-loan").value = file.Loan;
+        document.getElementById("form-date").value = file.Date ? file.Date.substring(0,10) : "";
+        document.getElementById("form-engineer").value = file.Engineer;
+        document.getElementById("form-location").value = file.Location;
+        document.getElementById("form-status").value = file.Status;
+        document.getElementById("form-address").value = file.Address;
+        document.getElementById("form-drive-link").value = file.DriveLink;
+        document.getElementById("form-remarks").value = ""; // Don't overwrite existing remarks in draft input
+        
+        // Hide initial status selector since we should update via detail panel timeline or dropdowns
+        document.getElementById("form-status").closest(".form-group").style.display = "none";
+      } else {
+        // Create mode
+        document.getElementById("file-modal-title").textContent = "Create Valuation Case";
+        document.getElementById("form-file-id").value = "";
+        document.getElementById("form-file-no").disabled = false;
+        
+        // Suggest automatic File number based on count
+        const serial = state.files.length + 1;
+        const serialStr = serial < 100 ? (serial < 10 ? "00" + serial : "0" + serial) : serial;
+        document.getElementById("form-file-no").value = `VT-2026-${serialStr}`;
+        document.getElementById("form-date").value = getTodayString();
+        document.getElementById("form-status").closest(".form-group").style.display = "flex";
+      }
+
+      document.getElementById("file-modal").classList.add("open");
+    }
+
+    function closeFileModal() {
+      document.getElementById("file-modal").classList.remove("open");
+    }
+
+    function saveFileForm() {
+      const form = document.getElementById("file-form");
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const fileId = document.getElementById("form-file-id").value;
+      const fileNo = document.getElementById("form-file-no").value.trim();
+      const priority = document.getElementById("form-priority").value;
+      const owner = document.getElementById("form-owner").value.trim();
+      const bank = document.getElementById("form-bank").value.trim();
+      const loan = Number(document.getElementById("form-loan").value);
+      const date = document.getElementById("form-date").value;
+      const engineer = document.getElementById("form-engineer").value;
+      const location = document.getElementById("form-location").value.trim();
+      const status = document.getElementById("form-status").value;
+      const address = document.getElementById("form-address").value.trim();
+      const drive = document.getElementById("form-drive-link").value.trim();
+      const initialRemarks = document.getElementById("form-remarks").value.trim();
+      
+      const time = getTimestamp();
+
+      if (fileId) {
+        // UPDATE EXISTING FILE
+        const originalFile = state.files.find(f => f.ID === fileId);
+        if (!originalFile) return;
+
+        let historyArray = [];
+        try {
+          historyArray = originalFile.History ? JSON.parse(originalFile.History) : [];
+        } catch (e) {
+          historyArray = [];
+        }
+
+        // Add history entry if priority or engineer changed
+        if (originalFile.Priority !== priority || originalFile.Engineer !== engineer) {
+          historyArray.push({
+            status: originalFile.Status,
+            time: time,
+            user: state.currentUser.name,
+            remarks: `Metadata updated (Priority: ${priority}, Engineer: ${engineer})`
+          });
+        }
+
+        const updated = {
+          ...originalFile,
+          Priority: priority,
+          Owner: owner,
+          Bank: bank,
+          Loan: loan,
+          Date: date,
+          Engineer: engineer,
+          Location: location,
+          Address: address,
+          DriveLink: drive,
+          History: JSON.stringify(historyArray),
+          UpdatedBy: state.currentUser.name,
+          UpdatedAt: time
+        };
+
+        queueDatabaseUpdate("update", updated);
+        showToast(`Case ${fileNo} metadata successfully updated`, "success");
+        if (state.selectedFileId === fileId) openDetailPanel(fileId);
+      } else {
+        // CREATE NEW FILE
+        const newId = generateUUID();
+        const historyArray = [{
+          status: status,
+          time: time,
+          user: state.currentUser.name,
+          remarks: "Case opened initially"
+        }];
+
+        let mergedRemarks = "";
+        if (initialRemarks !== "") {
+          mergedRemarks = `[${time} by ${state.currentUser.name}]: ${initialRemarks}`;
+        }
+
+        const newFile = {
+          ID: newId,
+          FileNo: fileNo,
+          Owner: owner,
+          Bank: bank,
+          Address: address,
+          Location: location,
+          Engineer: engineer,
+          Priority: priority,
+          Status: status,
+          Date: date,
+          Loan: loan,
+          DriveLink: drive,
+          Remarks: mergedRemarks,
+          History: JSON.stringify(historyArray),
+          UpdatedBy: state.currentUser.name,
+          UpdatedAt: time
+        };
+
+        queueDatabaseUpdate("add", newFile);
+        showToast(`Created new Valuation case: ${fileNo}`, "success");
+      }
+
+      closeFileModal();
+    }
+
+    // 10. Delete confirmation flow
+    function openDeleteConfirm(fileId) {
+      const file = state.files.find(f => f.ID === fileId);
+      if (!file) return;
+      
+      document.getElementById("delete-file-no-confirm").textContent = file.FileNo;
+      
+      // Confirm trigger
+      const confirmBtn = document.getElementById("delete-modal-confirm");
+      // Re-create confirm button to clear previous event listeners safely
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+      newConfirmBtn.addEventListener("click", () => {
+        queueDatabaseUpdate("delete", file);
+        showToast(`Valuation file ${file.FileNo} successfully deleted`, "success");
+        closeDeleteConfirm();
+        closeDetailPanel();
+      });
+
+      document.getElementById("delete-modal").classList.add("open");
+    }
+
+    function closeDeleteConfirm() {
+      document.getElementById("delete-modal").classList.remove("open");
+    }
+
+    // 11. EXPORT TO CSV
+    function exportToCSV() {
+      let filesScope = [...state.files];
+      if (state.currentUser && state.currentUser.role === "Engineer") {
+        filesScope = filesScope.filter(f => f.Engineer === state.currentUser.name);
+      }
+
+      if (filesScope.length === 0) {
+        showToast("No records available to export", "warning");
+        return;
+      }
+
+      // Build CSV String
+      const headers = [
+        "FileNo", "Owner", "Bank", "Address", "Location", 
+        "Engineer", "Priority", "Status", "Date", "Loan", 
+        "DriveLink", "Remarks", "UpdatedAt"
+      ];
+      
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += headers.join(",") + "\r\n";
+
+      filesScope.forEach(file => {
+        const row = headers.map(header => {
+          // Escape quotes in values
+          let val = file[header] !== undefined ? String(file[header]) : "";
+          val = val.replace(/"/g, '""');
+          if (val.search(/("|,|\n)/g) >= 0) {
+            val = `"${val}"`;
+          }
+          return val;
+        });
+        csvContent += row.join(",") + "\r\n";
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      
+      const dateStr = new Date().toISOString().substring(0,10);
+      link.setAttribute("download", `valutrack_export_${dateStr}.csv`);
+      document.body.appendChild(link);
+      
+      link.click();
+      document.body.removeChild(link);
+      showToast("CSV file generated and download started!", "success");
+    }
+
+    // 12. Setup Screen API configuration actions
+    function openSetupModal() {
+      document.getElementById("setup-sheet-url").value = state.sheetUrl;
+      document.getElementById("connection-status").innerHTML = `<span style="font-weight: 500; font-size: 0.8rem; color: var(--text-sub);">Not Tested</span>`;
+      document.getElementById("setup-modal").classList.add("open");
+    }
+
+    function closeSetupModal() {
+      document.getElementById("setup-modal").classList.remove("open");
+    }
+
+    async function testConnection() {
+      const url = document.getElementById("setup-sheet-url").value.trim();
+      const statusEl = document.getElementById("connection-status");
+      
+      if (!url) {
+        statusEl.innerHTML = `<span style="color: #ef4444; font-weight:600;">URL Empty</span>`;
+        return;
+      }
+
+      statusEl.innerHTML = `<span style="color: var(--accent-blue-light); font-weight:600;">Testing...</span>`;
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "text/plain;charset=utf-8"
+          },
+          redirect: "follow",
+          body: JSON.stringify({ action: "test" })
+        });
+        const res = await response.json();
+        
+        if (res.success) {
+          statusEl.innerHTML = `<span style="color: #10b981; font-weight:600;">Success ✓</span>`;
+          showToast("API Connection Verified! Sheets integration works.", "success");
+        } else {
+          statusEl.innerHTML = `<span style="color: #ef4444; font-weight:600;">Fail ✗</span>`;
+          showToast("API returned error: " + res.error, "error");
+        }
+      } catch (e) {
+        console.error("Test connection exception:", e);
+        statusEl.innerHTML = `<span style="color: #ef4444; font-weight:600;">Error ✗</span>`;
+        showToast("Failed to connect: CORS blocking, offline, or invalid Apps Script URL.", "error");
+      }
+    }
+
+    function saveSetupSettings() {
+      const url = document.getElementById("setup-sheet-url").value.trim();
+      state.sheetUrl = url;
+      localStorage.setItem("valutrack_sheet_url", url);
+      showToast("API settings saved", "success");
+      closeSetupModal();
+      
+      // Trigger new sync
+      syncWithSheet(true);
+    }
+
+
+    // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
+    document.addEventListener("DOMContentLoaded", () => {
+      // Current Date Badge display
+      document.getElementById("current-date-display").textContent = getTodayString();
+
+      // Check cache for active logged user session
+      const savedUser = localStorage.getItem("valutrack_active_user");
+
+      // Set up search event listener (real-time keypress filtering)
+      document.getElementById("search-input").addEventListener("input", (e) => {
+        state.filters.search = e.target.value;
+        renderAll();
+      });
+
+      // Clear Filters handler
+      document.getElementById("clear-all-filters-btn").addEventListener("click", () => {
+        state.filters.status = null;
+        state.filters.bank = null;
+        state.filters.engineer = null;
+        state.filters.priority = null;
+        state.filters.search = "";
+        document.getElementById("search-input").value = "";
+        document.getElementById("filter-bank").value = "";
+        document.getElementById("filter-engineer").value = "";
+        document.getElementById("filter-priority").value = "";
+        renderAll();
+      });
+
+      // Set up dropdown selector change listener filters
+      document.getElementById("filter-bank").addEventListener("change", renderAll);
+      document.getElementById("filter-engineer").addEventListener("change", (e) => {
+        state.filters.engineer = e.target.value || null;
+        renderAll();
+      });
+      document.getElementById("filter-priority").addEventListener("change", (e) => {
+        state.filters.priority = e.target.value || null;
+        renderAll();
+      });
+
+      // Manual sync button trigger
+      document.getElementById("manual-sync-btn").addEventListener("click", () => {
+        syncWithSheet(true);
+      });
+
+      // Log out button trigger
+      document.getElementById("logout-btn").addEventListener("click", logout);
+
+      // Detail Panel event listeners
+      document.getElementById("detail-panel-close").addEventListener("click", closeDetailPanel);
+      document.getElementById("detail-save-status-btn").addEventListener("click", saveDetailUpdates);
+      document.getElementById("detail-edit-btn").addEventListener("click", () => {
+        openFileModal(state.selectedFileId);
+      });
+      document.getElementById("detail-delete-btn").addEventListener("click", () => {
+        openDeleteConfirm(state.selectedFileId);
+      });
+
+      // Add file modal trigger
+      document.getElementById("add-file-btn").addEventListener("click", () => {
+        openFileModal();
+      });
+      document.getElementById("file-modal-close").addEventListener("click", closeFileModal);
+      document.getElementById("file-modal-cancel").addEventListener("click", closeFileModal);
+      document.getElementById("file-modal-save").addEventListener("click", saveFileForm);
+
+      // Setup Modal triggers
+      document.getElementById("setup-trigger-btn").addEventListener("click", openSetupModal);
+      document.getElementById("setup-modal-close").addEventListener("click", closeSetupModal);
+      document.getElementById("setup-modal-cancel").addEventListener("click", closeSetupModal);
+      document.getElementById("setup-modal-save").addEventListener("click", saveSetupSettings);
+      document.getElementById("test-connection-btn").addEventListener("click", testConnection);
+
+      // CSV Download trigger
+      document.getElementById("export-csv-btn").addEventListener("click", exportToCSV);
+
+      // Delete Modal triggers
+      document.getElementById("delete-modal-cancel").addEventListener("click", closeDeleteConfirm);
+
+      // Start rendering profiles
+      initLoginScreen();
+
+      if (savedUser) {
+        loginAs(JSON.parse(savedUser));
+      }
+
+      // Auto-Sync trigger every 60s in the background
+      setInterval(() => {
+        if (state.currentUser) {
+          syncWithSheet(false); // Silent background auto-sync
+        }
+      }, 60000);
+    });
+  </script>
+</body>
+</html>
