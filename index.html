@@ -2301,6 +2301,52 @@
     </div>
   </div>
 
+  <!-- RENAME ENGINEER MODAL -->
+  <div id="rename-engineer-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title">Rename Engineer</div>
+        <button class="modal-close" id="rename-engineer-modal-close">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="modal-form" id="rename-engineer-form" onsubmit="event.preventDefault();">
+          <input type="hidden" id="rename-engineer-old-name">
+          <div class="form-group">
+            <label class="form-label" for="rename-engineer-new-name">New Name *</label>
+            <input type="text" class="form-input" id="rename-engineer-new-name" required placeholder="Enter new name">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="rename-engineer-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" id="rename-engineer-modal-save">Rename</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DELETE ENGINEER CONFIRMATION MODAL -->
+  <div id="delete-engineer-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <div class="modal-title">Delete Engineer Confirmation</div>
+      </div>
+      <div class="modal-body" style="padding-top: 10px; padding-bottom: 10px;">
+        <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;">
+          Are you sure you want to permanently delete engineer <strong id="delete-engineer-name-confirm" style="color: var(--accent-blue);">Engineer 1</strong>?<br><br>
+          <span style="color: #ef4444; font-weight: 500;">Warning: This will unassign this engineer from all of their currently assigned valuation cases.</span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="delete-engineer-modal-cancel">Cancel</button>
+        <button class="btn btn-primary" style="background-color: #ef4444;" id="delete-engineer-modal-confirm">Delete Engineer</button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
