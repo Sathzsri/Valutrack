@@ -530,6 +530,48 @@
       color: var(--accent-blue);
     }
 
+    /* Sidebar Item Actions for Engineers editing/deleting */
+    .sidebar-item {
+      position: relative;
+    }
+    .sidebar-item-actions {
+      display: none;
+      gap: 4px;
+      position: absolute;
+      right: 32px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 5;
+    }
+    .sidebar-item:hover .sidebar-item-actions {
+      display: flex;
+      background: var(--bg-input);
+      padding-left: 6px;
+    }
+    .sidebar-item.active:hover .sidebar-item-actions {
+      background: var(--bg-hover);
+    }
+    .sidebar-action-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+    }
+    .sidebar-action-btn:hover {
+      color: var(--accent-blue);
+      background: rgba(255,255,255,0.08);
+    }
+    .sidebar-action-btn.delete:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+
     .setup-trigger-btn {
       margin-top: auto;
       background: rgba(255, 255, 255, 0.03);
@@ -2928,14 +2970,39 @@
           item.className = `sidebar-item ${state.filters.engineer === eng ? "active" : ""}`;
           item.innerHTML = `
             <span>${eng}</span>
+            <div class="sidebar-item-actions">
+              <button class="sidebar-action-btn edit" title="Rename Engineer">
+                <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                </svg>
+              </button>
+              <button class="sidebar-action-btn delete" title="Delete Engineer">
+                <svg style="width: 12px; height: 12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+              </button>
+            </div>
             <span class="sidebar-item-count">${count}</span>
           `;
-          item.addEventListener("click", () => {
+          
+          item.addEventListener("click", (e) => {
+            if (e.target.closest(".sidebar-action-btn")) return;
             state.filters.engineer = eng;
             const selector = document.getElementById("header-user-select");
             if (selector) selector.value = eng;
             renderAll();
           });
+
+          item.querySelector(".sidebar-action-btn.edit").addEventListener("click", (e) => {
+            e.stopPropagation();
+            openRenameEngineerModal(eng);
+          });
+
+          item.querySelector(".sidebar-action-btn.delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            openDeleteEngineerConfirm(eng);
+          });
+
           engList.appendChild(item);
         });
       }
@@ -3625,6 +3692,148 @@
       renderAll();
     }
 
+    // Rename Engineer
+    function openRenameEngineerModal(oldName) {
+      document.getElementById("rename-engineer-old-name").value = oldName;
+      document.getElementById("rename-engineer-new-name").value = oldName;
+      document.getElementById("rename-engineer-modal").classList.add("open");
+    }
+
+    function closeRenameEngineerModal() {
+      document.getElementById("rename-engineer-modal").classList.remove("open");
+    }
+
+    function saveRenameEngineerForm() {
+      const oldName = document.getElementById("rename-engineer-old-name").value;
+      const newNameInput = document.getElementById("rename-engineer-new-name");
+      const newName = newNameInput.value.trim();
+      if (!newName) {
+        newNameInput.reportValidity();
+        return;
+      }
+
+      if (newName === oldName) {
+        closeRenameEngineerModal();
+        return;
+      }
+
+      if (state.engineers.includes(newName)) {
+        showToast(`Engineer "${newName}" already exists!`, "warning");
+        return;
+      }
+
+      // 1. Rename in engineers list
+      const idx = state.engineers.indexOf(oldName);
+      if (idx !== -1) {
+        state.engineers[idx] = newName;
+        state.engineers.sort();
+        saveEngineers();
+      }
+
+      // 2. Rename in active filters
+      if (state.filters.engineer === oldName) {
+        state.filters.engineer = newName;
+        const selector = document.getElementById("header-user-select");
+        if (selector) selector.value = newName;
+      }
+
+      // 3. Rename in all database cases
+      let updateCount = 0;
+      state.files.forEach(file => {
+        if (file.Engineer === oldName) {
+          file.Engineer = newName;
+          file.UpdatedBy = "System";
+          file.UpdatedAt = getTimestamp();
+          
+          let historyArray = [];
+          try {
+            historyArray = file.History ? JSON.parse(file.History) : [];
+          } catch(e) {
+            historyArray = [];
+          }
+          historyArray.push({
+            status: file.Status,
+            time: file.UpdatedAt,
+            user: "System",
+            remarks: `Engineer renamed from "${oldName}" to "${newName}"`
+          });
+          file.History = JSON.stringify(historyArray);
+
+          // Update spreadsheet sync
+          queueDatabaseUpdate("update", file);
+          updateCount++;
+        }
+      });
+
+      showToast(`Engineer renamed to "${newName}". Updated ${updateCount} active cases.`, "success");
+      closeRenameEngineerModal();
+      renderAll();
+    }
+
+    // Delete Engineer
+    function openDeleteEngineerConfirm(name) {
+      document.getElementById("delete-engineer-name-confirm").textContent = name;
+      
+      const confirmBtn = document.getElementById("delete-engineer-modal-confirm");
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+      newConfirmBtn.addEventListener("click", () => {
+        confirmDeleteEngineer(name);
+      });
+
+      document.getElementById("delete-engineer-modal").classList.add("open");
+    }
+
+    function closeDeleteEngineerConfirm() {
+      document.getElementById("delete-engineer-modal").classList.remove("open");
+    }
+
+    function confirmDeleteEngineer(name) {
+      // 1. Remove from engineers list
+      state.engineers = state.engineers.filter(e => e !== name);
+      saveEngineers();
+
+      // 2. Clear from active filters
+      if (state.filters.engineer === name) {
+        state.filters.engineer = null;
+        const selector = document.getElementById("header-user-select");
+        if (selector) selector.value = "";
+      }
+
+      // 3. Clear from all database cases (unassign)
+      let updateCount = 0;
+      state.files.forEach(file => {
+        if (file.Engineer === name) {
+          file.Engineer = "";
+          file.UpdatedBy = "System";
+          file.UpdatedAt = getTimestamp();
+
+          let historyArray = [];
+          try {
+            historyArray = file.History ? JSON.parse(file.History) : [];
+          } catch(e) {
+            historyArray = [];
+          }
+          historyArray.push({
+            status: file.Status,
+            time: file.UpdatedAt,
+            user: "System",
+            remarks: `Engineer deleted: Case unassigned (formerly assigned to "${name}")`
+          });
+          file.History = JSON.stringify(historyArray);
+
+          // Update spreadsheet sync
+          queueDatabaseUpdate("update", file);
+          updateCount++;
+        }
+      });
+
+      showToast(`Engineer "${name}" deleted. Unassigned ${updateCount} active cases.`, "success");
+      closeDeleteEngineerConfirm();
+      renderAll();
+    }
+
 
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
@@ -3753,6 +3962,14 @@
       document.getElementById("sidebar-add-engineer-btn").parentNode.querySelector("#engineer-modal-cancel")?.addEventListener("click", closeEngineerModal);
       document.getElementById("engineer-modal-cancel").addEventListener("click", closeEngineerModal);
       document.getElementById("engineer-modal-save").addEventListener("click", saveEngineerForm);
+
+      // Rename Engineer modal events
+      document.getElementById("rename-engineer-modal-close").addEventListener("click", closeRenameEngineerModal);
+      document.getElementById("rename-engineer-modal-cancel").addEventListener("click", closeRenameEngineerModal);
+      document.getElementById("rename-engineer-modal-save").addEventListener("click", saveRenameEngineerForm);
+
+      // Delete Engineer modal events
+      document.getElementById("delete-engineer-modal-cancel").addEventListener("click", closeDeleteEngineerConfirm);
 
       // Load database cache
       loadLocalData();
