@@ -18,20 +18,44 @@ var SHEET_NAME = "ValuTrack";
 function getSheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName(SHEET_NAME);
+  var targetHeaders = [
+    "ID", "FileNo", "Owner", "Bank", "Address", 
+    "Location", "Engineer", "Priority", "Status", "Date", 
+    "Loan", "DriveLink", "Remarks", "History", "UpdatedBy", "UpdatedAt",
+    "RefNo", "Coordinates"
+  ];
+  
   if (!sheet) {
     sheet = ss.insertSheet(SHEET_NAME);
-    // Write exact header names in Row 1
-    sheet.appendRow([
-      "ID", "FileNo", "Owner", "Bank", "Address", 
-      "Location", "Engineer", "Priority", "Status", "Date", 
-      "Loan", "DriveLink", "Remarks", "History", "UpdatedBy", "UpdatedAt"
-    ]);
-    // Format headers
-    var headerRange = sheet.getRange(1, 1, 1, 16);
+    sheet.appendRow(targetHeaders);
+    var headerRange = sheet.getRange(1, 1, 1, targetHeaders.length);
     headerRange.setFontWeight("bold");
     headerRange.setBackground("#0d0f14");
     headerRange.setFontColor("#ffffff");
     sheet.setFrozenRows(1);
+  } else {
+    // Self-heal existing sheet if columns are missing
+    var range = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1));
+    var currentHeaders = range.getValues()[0];
+    var needsUpdate = false;
+    
+    for (var i = 0; i < targetHeaders.length; i++) {
+      if (currentHeaders.indexOf(targetHeaders[i]) === -1) {
+        // Append missing header
+        var lastCol = sheet.getLastColumn();
+        sheet.getRange(1, lastCol + 1).setValue(targetHeaders[i]);
+        currentHeaders.push(targetHeaders[i]); // Update working copy
+        needsUpdate = true;
+      }
+    }
+    
+    if (needsUpdate) {
+      // Re-apply formatting to header row
+      var newRange = sheet.getRange(1, 1, 1, sheet.getLastColumn());
+      newRange.setFontWeight("bold");
+      newRange.setBackground("#0d0f14");
+      newRange.setFontColor("#ffffff");
+    }
   }
   return sheet;
 }

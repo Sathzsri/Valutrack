@@ -26,16 +26,16 @@
       --text-sub: #94a3b8;
       
       /* Status Colors (Vibrant Neon) */
-      --status-doc-received: #38bdf8;
-      --status-doc-received-bg: rgba(56, 189, 248, 0.12);
       --status-visit-pending: #fbbf24;
       --status-visit-pending-bg: rgba(251, 191, 36, 0.12);
-      --status-visit-done: #e879f9;
-      --status-visit-done-bg: rgba(232, 121, 249, 0.12);
-      --status-report-in-progress: #6366f1;
-      --status-report-in-progress-bg: rgba(99, 102, 241, 0.12);
+      --status-visit-completed: #e879f9;
+      --status-visit-completed-bg: rgba(232, 121, 249, 0.12);
+      --status-report-progress: #6366f1;
+      --status-report-progress-bg: rgba(99, 102, 241, 0.12);
       --status-report-submitted: #34d399;
       --status-report-submitted-bg: rgba(52, 211, 153, 0.12);
+      --status-query-process: #fb7185;
+      --status-query-process-bg: rgba(251, 113, 133, 0.12);
       
       /* Priority Colors */
       --priority-high: #ff4d4d;
@@ -67,16 +67,16 @@
       --text-sub: #64748b;
       
       /* Status Colors (Vibrant Pastel Basis) */
-      --status-doc-received: #0284c7;
-      --status-doc-received-bg: rgba(2, 132, 199, 0.1);
       --status-visit-pending: #d97706;
       --status-visit-pending-bg: rgba(217, 119, 6, 0.1);
-      --status-visit-done: #9333ea;
-      --status-visit-done-bg: rgba(147, 51, 234, 0.1);
-      --status-report-in-progress: #4f46e5;
-      --status-report-in-progress-bg: rgba(79, 70, 229, 0.1);
+      --status-visit-completed: #9333ea;
+      --status-visit-completed-bg: rgba(147, 51, 234, 0.1);
+      --status-report-progress: #4f46e5;
+      --status-report-progress-bg: rgba(79, 70, 229, 0.1);
       --status-report-submitted: #059669;
       --status-report-submitted-bg: rgba(5, 150, 105, 0.1);
+      --status-query-process: #be123c;
+      --status-query-process-bg: rgba(190, 18, 60, 0.1);
       
       /* Priority Colors */
       --priority-high: #dc2626;
@@ -636,7 +636,7 @@
     /* Stat Cards Grid */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 16px;
     }
 
@@ -703,21 +703,30 @@
     }
     
     .stat-card:nth-child(4) {
-      background: linear-gradient(135deg, #041f14 0%, #0a3f29 100%);
-      border-color: rgba(52, 211, 153, 0.25);
+      background: linear-gradient(135deg, #0e0d2c 0%, #1e1b5c 100%);
+      border-color: rgba(99, 102, 241, 0.25);
     }
     .stat-card:nth-child(4):hover {
-      border-color: #34d399;
-      box-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
+      border-color: #6366f1;
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
     }
     
     .stat-card:nth-child(5) {
-      background: linear-gradient(135deg, #031c26 0%, #0a3d54 100%);
-      border-color: rgba(0, 242, 254, 0.25);
+      background: linear-gradient(135deg, #041f14 0%, #0a3f29 100%);
+      border-color: rgba(52, 211, 153, 0.25);
     }
     .stat-card:nth-child(5):hover {
-      border-color: #00f2fe;
-      box-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+      border-color: #34d399;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.2);
+    }
+
+    .stat-card:nth-child(6) {
+      background: linear-gradient(135deg, #2a0815 0%, #520f2b 100%);
+      border-color: rgba(251, 113, 133, 0.25);
+    }
+    .stat-card:nth-child(6):hover {
+      border-color: #fb7185;
+      box-shadow: 0 0 20px rgba(251, 113, 133, 0.2);
     }
 
     .stat-card-header {
@@ -990,27 +999,21 @@
       background: currentColor;
     }
 
-    .status-badge.doc-received {
-      background: var(--status-doc-received-bg);
-      color: var(--status-doc-received);
-      border: 1px solid rgba(100, 116, 139, 0.2);
-    }
-
     .status-badge.visit-pending {
       background: var(--status-visit-pending-bg);
       color: var(--status-visit-pending);
       border: 1px solid rgba(245, 158, 11, 0.2);
     }
 
-    .status-badge.visit-done {
-      background: var(--status-visit-done-bg);
-      color: var(--status-visit-done);
+    .status-badge.visit-completed {
+      background: var(--status-visit-completed-bg);
+      color: var(--status-visit-completed);
       border: 1px solid rgba(168, 85, 247, 0.2);
     }
 
-    .status-badge.in-progress {
-      background: var(--status-report-in-progress-bg);
-      color: var(--status-report-in-progress);
+    .status-badge.report-progress {
+      background: var(--status-report-progress-bg);
+      color: var(--status-report-progress);
       border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
@@ -1018,6 +1021,12 @@
       background: var(--status-report-submitted-bg);
       color: var(--status-report-submitted);
       border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .status-badge.query-process {
+      background: var(--status-query-process-bg);
+      color: var(--status-query-process);
+      border: 1px solid rgba(244, 63, 94, 0.2);
     }
 
     .date-col {
@@ -1662,23 +1671,33 @@
     }
     
     body.light-theme .stat-card:nth-child(4) {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      border-color: rgba(99, 102, 241, 0.25);
+      color: #1e1b4b;
+    }
+    body.light-theme .stat-card:nth-child(4) .stat-card-title,
+    body.light-theme .stat-card:nth-child(4) .stat-card-icon {
+      color: #4338ca;
+    }
+    
+    body.light-theme .stat-card:nth-child(5) {
       background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
       border-color: rgba(52, 211, 153, 0.25);
       color: #064e3b;
     }
-    body.light-theme .stat-card:nth-child(4) .stat-card-title,
-    body.light-theme .stat-card:nth-child(4) .stat-card-icon {
-      color: #047857;
-    }
-    
-    body.light-theme .stat-card:nth-child(5) {
-      background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
-      border-color: rgba(0, 242, 254, 0.25);
-      color: #042f2e;
-    }
     body.light-theme .stat-card:nth-child(5) .stat-card-title,
     body.light-theme .stat-card:nth-child(5) .stat-card-icon {
-      color: #0f766e;
+      color: #047857;
+    }
+
+    body.light-theme .stat-card:nth-child(6) {
+      background: linear-gradient(135deg, #ffe4e6 0%, #fecdd3 100%);
+      border-color: rgba(244, 63, 94, 0.25);
+      color: #881337;
+    }
+    body.light-theme .stat-card:nth-child(6) .stat-card-title,
+    body.light-theme .stat-card:nth-child(6) .stat-card-icon {
+      color: #be123c;
     }
 
     /* Light Theme Screen Overrides */
@@ -1837,7 +1856,7 @@
         <!-- Total Files -->
         <div class="stat-card">
           <div class="stat-card-header">
-            <span class="stat-card-title">Total Files</span>
+            <span class="stat-card-title">Total Cases</span>
             <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
@@ -1856,15 +1875,26 @@
           <div class="stat-card-value" style="color: var(--status-visit-pending);" id="stat-visit-pending">0</div>
           <div class="stat-card-deco"></div>
         </div>
-        <!-- Site Visit Done -->
+        <!-- Site Visit Completed -->
         <div class="stat-card">
           <div class="stat-card-header">
-            <span class="stat-card-title">Visit Done</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-done);">
+            <span class="stat-card-title">Visit Completed</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-completed);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <div class="stat-card-value" style="color: var(--status-visit-done);" id="stat-visit-done">0</div>
+          <div class="stat-card-value" style="color: var(--status-visit-completed);" id="stat-visit-completed">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Report Progress -->
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Report Progress</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-report-progress);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--status-report-progress);" id="stat-report-progress">0</div>
           <div class="stat-card-deco"></div>
         </div>
         <!-- Report Submitted -->
@@ -1878,15 +1908,15 @@
           <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-report-submitted">0</div>
           <div class="stat-card-deco"></div>
         </div>
-        <!-- Today's Files -->
+        <!-- Query Process -->
         <div class="stat-card">
           <div class="stat-card-header">
-            <span class="stat-card-title">Today's Files</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-blue);">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            <span class="stat-card-title">Query Process</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-query-process);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
           </div>
-          <div class="stat-card-value" style="color: var(--accent-blue);" id="stat-todays-files">0</div>
+          <div class="stat-card-value" style="color: var(--status-query-process);" id="stat-query-process">0</div>
           <div class="stat-card-deco"></div>
         </div>
       </section>
@@ -1945,6 +1975,7 @@
             <thead>
               <tr>
                 <th width="120">File No</th>
+                <th width="110">Ref No</th>
                 <th>Owner Name</th>
                 <th>Address</th>
                 <th>Bank</th>
@@ -2003,8 +2034,8 @@
           <span class="detail-value" id="detail-bank">-</span>
         </div>
         <div class="detail-field">
-          <span class="detail-label">Loan Amount</span>
-          <span class="detail-value detail-value-mono" style="font-weight: 600;" id="detail-loan">-</span>
+          <span class="detail-label">Reference Number</span>
+          <span class="detail-value detail-value-mono" style="font-weight: 600;" id="detail-ref-no">-</span>
         </div>
         <div class="detail-field">
           <span class="detail-label">Date Received</span>
@@ -2122,34 +2153,37 @@
             <div class="form-group">
               <label class="form-label" for="form-priority">Priority *</label>
               <select class="form-input" id="form-priority" required>
-                <option value="High">High</option>
-                <option value="Medium" selected>Medium</option>
+                <option value="High" selected>High</option>
+                <option value="Medium">Medium</option>
                 <option value="Low">Low</option>
               </select>
             </div>
           </div>
 
-          <div class="form-group">
-            <label class="form-label" for="form-owner">Owner / Applicant Name *</label>
-            <input type="text" class="form-input" id="form-owner" required placeholder="Full Name of the Applicant">
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-owner">Owner / Applicant Name *</label>
+              <input type="text" class="form-input" id="form-owner" required placeholder="Full Name of the Applicant">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-ref-no">Reference Number</label>
+              <input type="text" class="form-input" id="form-ref-no" placeholder="e.g. REF-10023">
+            </div>
           </div>
 
           <div class="form-group-row">
             <div class="form-group">
               <label class="form-label" for="form-bank">Bank Name *</label>
-              <input type="text" class="form-input" id="form-bank" required placeholder="e.g. State Bank of India">
+              <input type="text" class="form-input" id="form-bank" required placeholder="e.g. State Bank of India" list="form-bank-datalist">
+              <datalist id="form-bank-datalist"></datalist>
             </div>
-            <div class="form-group">
-              <label class="form-label" for="form-loan">Loan Amount (₹) *</label>
-              <input type="number" class="form-input" id="form-loan" required placeholder="e.g. 5000000">
-            </div>
-          </div>
-
-          <div class="form-group-row">
             <div class="form-group">
               <label class="form-label" for="form-date">Date Received *</label>
               <input type="date" class="form-input" id="form-date" required>
             </div>
+          </div>
+
+          <div class="form-group-row">
             <div class="form-group">
               <label class="form-label" for="form-engineer">Assigned Engineer *</label>
               <select class="form-input" id="form-engineer" required>
@@ -2157,6 +2191,16 @@
                 <option value="Engineer 2">Engineer 2</option>
                 <option value="Sathish">Sathish (Admin)</option>
                 <option value="Udhaya">Udhaya (Admin)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-status">Initial Status *</label>
+              <select class="form-input" id="form-status" required>
+                <option value="Site Visit Pending" selected>Site Visit Pending</option>
+                <option value="Site Visit Completed">Site Visit Completed</option>
+                <option value="Report Progress">Report Progress</option>
+                <option value="Report Submitted">Report Submitted</option>
+                <option value="Query Process">Query Process</option>
               </select>
             </div>
           </div>
@@ -2167,14 +2211,8 @@
               <input type="text" class="form-input" id="form-location" required placeholder="e.g. Adyar">
             </div>
             <div class="form-group">
-              <label class="form-label" for="form-status">Initial Status *</label>
-              <select class="form-input" id="form-status" required>
-                <option value="Documents Received" selected>Documents Received</option>
-                <option value="Site Visit Pending">Site Visit Pending</option>
-                <option value="Site Visit Done">Site Visit Done</option>
-                <option value="Report In Progress">Report In Progress</option>
-                <option value="Report Submitted">Report Submitted</option>
-              </select>
+              <label class="form-label" for="form-coordinates">Coordinates (Lat, Lng)</label>
+              <input type="text" class="form-input" id="form-coordinates" placeholder="e.g. 13.0067, 80.2578">
             </div>
           </div>
 
@@ -2359,11 +2397,11 @@
     ];
 
     const STAGES = [
-      "Documents Received",
       "Site Visit Pending",
-      "Site Visit Done",
-      "Report In Progress",
-      "Report Submitted"
+      "Site Visit Completed",
+      "Report Progress",
+      "Report Submitted",
+      "Query Process"
     ];
 
     const MOCK_FILES = [
@@ -2515,12 +2553,12 @@
 
     function getStatusClass(status) {
       switch (status) {
-        case "Documents Received": return "doc-received";
         case "Site Visit Pending": return "visit-pending";
-        case "Site Visit Done": return "visit-done";
-        case "Report In Progress": return "in-progress";
+        case "Site Visit Completed": return "visit-completed";
+        case "Report Progress": return "report-progress";
         case "Report Submitted": return "submitted";
-        default: return "doc-received";
+        case "Query Process": return "query-process";
+        default: return "visit-pending";
       }
     }
 
@@ -2910,17 +2948,17 @@
 
       const total = filesScope.length;
       const visitPending = filesScope.filter(f => f.Status === "Site Visit Pending").length;
-      const visitDone = filesScope.filter(f => f.Status === "Site Visit Done").length;
+      const visitCompleted = filesScope.filter(f => f.Status === "Site Visit Completed").length;
+      const reportProgress = filesScope.filter(f => f.Status === "Report Progress").length;
       const submitted = filesScope.filter(f => f.Status === "Report Submitted").length;
-      
-      const todayStr = getTodayString();
-      const todaysFiles = filesScope.filter(f => f.Date && f.Date.substring(0,10) === todayStr).length;
+      const queryProcess = filesScope.filter(f => f.Status === "Query Process").length;
 
       document.getElementById("stat-total-files").textContent = total;
       document.getElementById("stat-visit-pending").textContent = visitPending;
-      document.getElementById("stat-visit-done").textContent = visitDone;
+      document.getElementById("stat-visit-completed").textContent = visitCompleted;
+      document.getElementById("stat-report-progress").textContent = reportProgress;
       document.getElementById("stat-report-submitted").textContent = submitted;
-      document.getElementById("stat-todays-files").textContent = todaysFiles;
+      document.getElementById("stat-query-process").textContent = queryProcess;
     }
 
     function renderSidebarFilters() {
@@ -3183,6 +3221,7 @@
 
         tr.innerHTML = `
           <td class="file-no-col">${file.FileNo}</td>
+          <td class="detail-value-mono" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
           <td class="owner-col">${file.Owner}</td>
           <td class="address-col" title="${file.Address}">${file.Address}</td>
           <td>${file.Bank}</td>
@@ -3272,10 +3311,30 @@
       document.getElementById("detail-file-no").textContent = file.FileNo;
       document.getElementById("detail-owner").textContent = file.Owner;
       document.getElementById("detail-bank").textContent = file.Bank;
-      document.getElementById("detail-loan").textContent = formatCurrency(file.Loan);
+      const detailRefNo = document.getElementById("detail-ref-no");
+      if (detailRefNo) detailRefNo.textContent = file.RefNo || "N/A";
+      
       document.getElementById("detail-date").textContent = file.Date ? file.Date.substring(0,10) : "-";
       document.getElementById("detail-engineer").textContent = file.Engineer;
-      document.getElementById("detail-location").textContent = file.Location;
+      
+      const mapsQuery = file.Coordinates ? file.Coordinates : file.Location;
+      const mapsLink = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`;
+      
+      document.getElementById("detail-location").innerHTML = `
+        <a href="${mapsLink}" target="_blank" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-blue); text-decoration:none; font-weight:600;" title="Open in Google Maps">
+          <svg style="width: 14px; height: 14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+          <span>${file.Location}</span>
+        </a>
+      `;
+      if (file.Coordinates) {
+        document.getElementById("detail-location").innerHTML += `
+          <div style="font-size:0.72rem; color:var(--text-sub); margin-top:3px; font-family:var(--font-mono); font-weight:500;">Coords: ${file.Coordinates}</div>
+        `;
+      }
+      
       document.getElementById("detail-address").textContent = file.Address;
       
       const dl = document.getElementById("detail-drive-link");
@@ -3427,6 +3486,18 @@
       const form = document.getElementById("file-form");
       form.reset();
 
+      // Trigger dynamic bank datalist suggestions refresh
+      const formBankDatalist = document.getElementById("form-bank-datalist");
+      if (formBankDatalist) {
+        formBankDatalist.innerHTML = "";
+        const uniqueBanks = [...new Set(state.files.map(f => f.Bank).filter(Boolean))].sort();
+        uniqueBanks.forEach(b => {
+          const opt = document.createElement("option");
+          opt.value = b;
+          formBankDatalist.appendChild(opt);
+        });
+      }
+
       if (fileId) {
         // Edit mode
         const file = state.files.find(f => f.ID === fileId);
@@ -3436,16 +3507,17 @@
         document.getElementById("form-file-id").value = file.ID;
         document.getElementById("form-file-no").value = file.FileNo;
         document.getElementById("form-file-no").disabled = true; // Block file number edit for consistency
-        document.getElementById("form-priority").value = file.Priority;
-        document.getElementById("form-owner").value = file.Owner;
-        document.getElementById("form-bank").value = file.Bank;
-        document.getElementById("form-loan").value = file.Loan;
+        document.getElementById("form-priority").value = file.Priority || "High";
+        document.getElementById("form-owner").value = file.Owner || "";
+        document.getElementById("form-bank").value = file.Bank || "";
+        document.getElementById("form-ref-no").value = file.RefNo || "";
         document.getElementById("form-date").value = file.Date ? file.Date.substring(0,10) : "";
-        document.getElementById("form-engineer").value = file.Engineer;
-        document.getElementById("form-location").value = file.Location;
-        document.getElementById("form-status").value = file.Status;
-        document.getElementById("form-address").value = file.Address;
-        document.getElementById("form-drive-link").value = file.DriveLink;
+        document.getElementById("form-engineer").value = file.Engineer || "";
+        document.getElementById("form-location").value = file.Location || "";
+        document.getElementById("form-coordinates").value = file.Coordinates || "";
+        document.getElementById("form-status").value = file.Status || "Site Visit Pending";
+        document.getElementById("form-address").value = file.Address || "";
+        document.getElementById("form-drive-link").value = file.DriveLink || "";
         document.getElementById("form-remarks").value = ""; // Don't overwrite existing remarks in draft input
         
         // Hide initial status selector since we should update via detail panel timeline or dropdowns
@@ -3461,6 +3533,10 @@
         const serialStr = serial < 100 ? (serial < 10 ? "00" + serial : "0" + serial) : serial;
         document.getElementById("form-file-no").value = `VT-2026-${serialStr}`;
         document.getElementById("form-date").value = getTodayString();
+        document.getElementById("form-ref-no").value = "";
+        document.getElementById("form-coordinates").value = "";
+        document.getElementById("form-priority").value = "High"; // Default to High
+        document.getElementById("form-status").value = "Site Visit Pending"; // Default initial status
         document.getElementById("form-status").closest(".form-group").style.display = "flex";
       }
 
@@ -3483,10 +3559,11 @@
       const priority = document.getElementById("form-priority").value;
       const owner = document.getElementById("form-owner").value.trim();
       const bank = document.getElementById("form-bank").value.trim();
-      const loan = Number(document.getElementById("form-loan").value);
+      const refNo = document.getElementById("form-ref-no").value.trim();
       const date = document.getElementById("form-date").value;
       const engineer = document.getElementById("form-engineer").value;
       const location = document.getElementById("form-location").value.trim();
+      const coordinates = document.getElementById("form-coordinates").value.trim();
       const status = document.getElementById("form-status").value;
       const address = document.getElementById("form-address").value.trim();
       const drive = document.getElementById("form-drive-link").value.trim();
@@ -3521,10 +3598,12 @@
           Priority: priority,
           Owner: owner,
           Bank: bank,
-          Loan: loan,
+          Loan: "", // Loan Amount not needed
+          RefNo: refNo,
           Date: date,
           Engineer: engineer,
           Location: location,
+          Coordinates: coordinates,
           Address: address,
           DriveLink: drive,
           History: JSON.stringify(historyArray),
@@ -3557,11 +3636,13 @@
           Bank: bank,
           Address: address,
           Location: location,
+          Coordinates: coordinates,
           Engineer: engineer,
           Priority: priority,
           Status: status,
           Date: date,
-          Loan: loan,
+          Loan: "", // Loan Amount not needed
+          RefNo: refNo,
           DriveLink: drive,
           Remarks: mergedRemarks,
           History: JSON.stringify(historyArray),
@@ -3614,9 +3695,8 @@
 
       // Build CSV String
       const headers = [
-        "FileNo", "Owner", "Bank", "Address", "Location", 
-        "Engineer", "Priority", "Status", "Date", "Loan", 
-        "DriveLink", "Remarks", "UpdatedAt"
+        "FileNo", "RefNo", "Owner", "Bank", "Address", "Location", "Coordinates",
+        "Engineer", "Priority", "Status", "Date", "DriveLink", "Remarks", "UpdatedAt"
       ];
       
       let csvContent = "data:text/csv;charset=utf-8,";
