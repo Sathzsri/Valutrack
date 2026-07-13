@@ -306,6 +306,206 @@
       }
     }
 
+    /* Mobile Navigation Bar & Tab Toggling */
+    .mobile-nav-bar {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0 10px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .mobile-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      gap: 4px;
+      cursor: pointer;
+      font-size: 0.7rem;
+      font-weight: 500;
+      transition: var(--transition-smooth);
+      flex: 1;
+      height: 100%;
+      position: relative;
+    }
+
+    .mobile-nav-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: var(--text-muted);
+      transition: var(--transition-smooth);
+    }
+
+    .mobile-nav-btn.active {
+      color: var(--accent-blue);
+    }
+
+    .mobile-nav-btn.active svg {
+      stroke: var(--accent-blue);
+      transform: translateY(-2px);
+      filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.6));
+    }
+
+    .mobile-nav-btn::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent-blue);
+      opacity: 0;
+      transform: scale(0);
+      transition: var(--transition-smooth);
+    }
+
+    .mobile-nav-btn.active::after {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-nav-bar {
+        display: flex;
+      }
+
+      /* Adjust main-app spacing for bottom nav */
+      #main-app {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .main-content {
+        padding: 16px 16px 85px 16px !important;
+      }
+
+      /* Hide sections based on active mobile tab */
+      #main-app:not([data-mobile-tab="filters"]) .sidebar {
+        display: none !important;
+      }
+      
+      #main-app[data-mobile-tab="filters"] .sidebar {
+        display: flex !important;
+        border-bottom: none;
+        min-height: calc(100vh - 64px);
+        padding-bottom: 90px;
+        width: 100%;
+      }
+      
+      #main-app[data-mobile-tab="filters"] .main-content {
+        display: none !important;
+      }
+
+      #main-app:not([data-mobile-tab="stats"]) .dashboard-stats-grid {
+        display: none !important;
+      }
+
+      #main-app:not([data-mobile-tab="cases"]) .search-filter-section,
+      #main-app:not([data-mobile-tab="cases"]) .table-section {
+        display: none !important;
+      }
+
+      /* Responsive Case Cards layout for Tables */
+      .table-wrapper table, 
+      .table-wrapper thead, 
+      .table-wrapper tbody, 
+      .table-wrapper th, 
+      .table-wrapper td, 
+      .table-wrapper tr {
+        display: block;
+        width: 100% !important;
+      }
+
+      .table-wrapper thead {
+        display: none !important; /* Hide headings */
+      }
+
+      .table-wrapper tr {
+        background: var(--bg-card);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        margin-bottom: 16px;
+        padding: 16px;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition-smooth);
+      }
+
+      .table-wrapper tr:hover {
+        border-color: rgba(59, 130, 246, 0.4);
+        box-shadow: var(--shadow-md);
+      }
+
+      .table-wrapper td {
+        border: none !important;
+        padding: 8px 0 !important;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        text-align: right;
+        font-size: 0.85rem;
+      }
+
+      .table-wrapper td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-sub);
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        text-align: left;
+        display: block;
+      }
+
+      .table-wrapper td.address-col {
+        white-space: normal !important;
+        max-width: none !important;
+        text-align: right;
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+      }
+
+      .table-wrapper td.address-col span {
+        max-width: 60%;
+        display: inline-block;
+        word-break: break-word;
+      }
+
+      .table-wrapper td.owner-col {
+        justify-content: space-between;
+      }
+
+      .table-wrapper td.owner-col div {
+        justify-content: flex-end;
+      }
+
+      .table-wrapper td.text-center {
+        justify-content: space-between;
+        border-top: 1px dashed var(--border-color) !important;
+        margin-top: 8px;
+        padding-top: 12px !important;
+      }
+
+      /* Adjust action button alignments on cards */
+      .table-actions {
+        justify-content: flex-end;
+        width: 100%;
+      }
+    }
+
     .sidebar-brand {
       display: flex;
       align-items: center;
@@ -2001,6 +2201,28 @@
         </div>
       </section>
     </main>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <div class="mobile-nav-bar">
+      <button class="mobile-nav-btn active" id="nav-btn-cases">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+        </svg>
+        <span>Cases</span>
+      </button>
+      <button class="mobile-nav-btn" id="nav-btn-stats">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        <span>Stats</span>
+      </button>
+      <button class="mobile-nav-btn" id="nav-btn-filters">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+        </svg>
+        <span>Filters</span>
+      </button>
+    </div>
   </div>
 
   <!-- SLIDING DETAIL PANEL -->
@@ -2336,7 +2558,15 @@
         <form class="modal-form" id="engineer-form" onsubmit="event.preventDefault();">
           <div class="form-group">
             <label class="form-label" for="new-engineer-name">Engineer Name *</label>
-            <input type="text" class="form-input" id="new-engineer-name" required placeholder="Enter name (e.g. Engineer 3)">
+            <input type="text" class="form-input" id="new-engineer-name" required placeholder="e.g. Arun">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-engineer-phone">WhatsApp Number (e.g. 919876543210)</label>
+            <input type="text" class="form-input" id="new-engineer-phone" placeholder="With country code, no + or spaces">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="new-engineer-apikey">CallMeBot API Key</label>
+            <input type="text" class="form-input" id="new-engineer-apikey" placeholder="Personal CallMeBot API key">
           </div>
         </form>
       </div>
@@ -2347,11 +2577,11 @@
     </div>
   </div>
 
-  <!-- RENAME ENGINEER MODAL -->
+  <!-- EDIT ENGINEER PROFILE MODAL -->
   <div id="rename-engineer-modal" class="modal-overlay">
     <div class="modal-container" style="max-width: 400px;">
       <div class="modal-header">
-        <div class="modal-title">Rename Engineer</div>
+        <div class="modal-title">Edit Engineer Profile</div>
         <button class="modal-close" id="rename-engineer-modal-close">
           <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -2362,14 +2592,22 @@
         <form class="modal-form" id="rename-engineer-form" onsubmit="event.preventDefault();">
           <input type="hidden" id="rename-engineer-old-name">
           <div class="form-group">
-            <label class="form-label" for="rename-engineer-new-name">New Name *</label>
-            <input type="text" class="form-input" id="rename-engineer-new-name" required placeholder="Enter new name">
+            <label class="form-label" for="rename-engineer-new-name">Engineer Name *</label>
+            <input type="text" class="form-input" id="rename-engineer-new-name" required placeholder="e.g. Arun">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rename-engineer-phone">WhatsApp Number (e.g. 919876543210)</label>
+            <input type="text" class="form-input" id="rename-engineer-phone" placeholder="With country code, no + or spaces">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="rename-engineer-apikey">CallMeBot API Key</label>
+            <input type="text" class="form-input" id="rename-engineer-apikey" placeholder="Personal CallMeBot API key">
           </div>
         </form>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" id="rename-engineer-modal-cancel">Cancel</button>
-        <button class="btn btn-primary" id="rename-engineer-modal-save">Rename</button>
+        <button class="btn btn-primary" id="rename-engineer-modal-save">Save Changes</button>
       </div>
     </div>
   </div>
@@ -2512,6 +2750,7 @@
       currentUser: { name: "Admin", role: "Admin", avatar: "A" },
       files: [],
       engineers: [],
+      engineerContacts: {},
       selectedFileId: null,
       filters: {
         search: "",
@@ -2652,10 +2891,50 @@
         state.engineers = fileEngs.sort();
         localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
       }
+
+      const cachedContacts = localStorage.getItem("valutrack_engineer_contacts");
+      if (cachedContacts) {
+        state.engineerContacts = JSON.parse(cachedContacts);
+      } else {
+        state.engineerContacts = {
+          "Sathish": { phone: "", apikey: "" },
+          "Udhaya": { phone: "", apikey: "" },
+          "Engineer 1": { phone: "", apikey: "" },
+          "Engineer 2": { phone: "", apikey: "" }
+        };
+      }
     }
 
     function saveEngineers() {
       localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
+      localStorage.setItem("valutrack_engineer_contacts", JSON.stringify(state.engineerContacts));
+      syncEngineersToCloud();
+    }
+
+    async function syncEngineersToCloud() {
+      if (!state.sheetUrl || !navigator.onLine) return;
+      try {
+        const engList = state.engineers.map(name => {
+          const info = state.engineerContacts[name] || {};
+          return {
+            Name: name,
+            Phone: info.phone || "",
+            Apikey: info.apikey || ""
+          };
+        });
+        
+        await fetch(state.sheetUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify({
+            action: "saveEngineers",
+            engineers: engList
+          })
+        });
+      } catch (e) {
+        console.error("Failed to sync engineers to cloud:", e);
+      }
     }
 
     function saveLocalData() {
@@ -2798,6 +3077,27 @@
         if (result.success) {
           state.files = result.data || [];
           saveLocalData();
+          
+          // Pull engineers contact details from Google Sheets response
+          if (result.engineers && Array.isArray(result.engineers)) {
+            const names = [];
+            const contacts = {};
+            result.engineers.forEach(eng => {
+              if (eng.Name) {
+                names.push(eng.Name);
+                contacts[eng.Name] = {
+                  phone: eng.Phone || "",
+                  apikey: eng.Apikey || ""
+                };
+              }
+            });
+            if (names.length > 0) {
+              state.engineers = names.sort();
+              state.engineerContacts = contacts;
+              localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
+              localStorage.setItem("valutrack_engineer_contacts", JSON.stringify(state.engineerContacts));
+            }
+          }
           
           state.lastSynced = new Date().toLocaleString();
           localStorage.setItem("valutrack_last_synced", state.lastSynced);
@@ -3241,22 +3541,22 @@
         ` : "";
 
         tr.innerHTML = `
-          <td class="file-no-col">${file.FileNo}</td>
-          <td class="detail-value-mono" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
-          <td class="owner-col">
-            <div style="display: flex; align-items: center; gap: 4px;">
+          <td class="file-no-col" data-label="File No">${file.FileNo}</td>
+          <td class="detail-value-mono" data-label="Ref No" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
+          <td class="owner-col" data-label="Owner">
+            <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-end;">
               <span>${file.Owner}</span>
               ${contactCallIcon}
             </div>
           </td>
-          <td class="address-col" title="${file.Address}">${file.Address}</td>
-          <td>${file.Bank}</td>
-          <td>${file.Engineer}</td>
-          <td>${pBadge}</td>
-          <td>${sBadge}</td>
-          <td class="date-col">${file.Date ? file.Date.substring(0,10) : "-"}</td>
-          <td class="text-center">
-            <div class="table-actions">
+          <td class="address-col" data-label="Address" title="${file.Address}">${file.Address}</td>
+          <td data-label="Bank">${file.Bank}</td>
+          <td data-label="Engineer">${file.Engineer}</td>
+          <td data-label="Priority">${pBadge}</td>
+          <td data-label="Status">${sBadge}</td>
+          <td class="date-col" data-label="Date">${file.Date ? file.Date.substring(0,10) : "-"}</td>
+          <td class="text-center" data-label="Actions">
+            <div class="table-actions" style="justify-content: flex-end;">
               ${driveBtn}
               ${nextBtn}
               <button class="action-icon-btn btn-view-detail" title="View Detail" data-id="${file.ID}">
@@ -3836,6 +4136,8 @@
     // Engineer Modal management
     function openEngineerModal() {
       document.getElementById("new-engineer-name").value = "";
+      document.getElementById("new-engineer-phone").value = "";
+      document.getElementById("new-engineer-apikey").value = "";
       document.getElementById("engineer-modal").classList.add("open");
     }
 
@@ -3846,6 +4148,9 @@
     function saveEngineerForm() {
       const nameInput = document.getElementById("new-engineer-name");
       const name = nameInput.value.trim();
+      const phone = document.getElementById("new-engineer-phone").value.trim();
+      const apikey = document.getElementById("new-engineer-apikey").value.trim();
+
       if (!name) {
         nameInput.reportValidity();
         return;
@@ -3858,6 +4163,8 @@
 
       state.engineers.push(name);
       state.engineers.sort();
+      state.engineerContacts[name] = { phone: phone, apikey: apikey };
+      
       saveEngineers();
       showToast(`Engineer "${name}" added successfully!`, "success");
       closeEngineerModal();
@@ -3865,10 +4172,13 @@
       renderAll();
     }
 
-    // Rename Engineer
+    // Rename/Edit Engineer
     function openRenameEngineerModal(oldName) {
+      const contactInfo = state.engineerContacts[oldName] || { phone: "", apikey: "" };
       document.getElementById("rename-engineer-old-name").value = oldName;
       document.getElementById("rename-engineer-new-name").value = oldName;
+      document.getElementById("rename-engineer-phone").value = contactInfo.phone || "";
+      document.getElementById("rename-engineer-apikey").value = contactInfo.apikey || "";
       document.getElementById("rename-engineer-modal").classList.add("open");
     }
 
@@ -3880,65 +4190,79 @@
       const oldName = document.getElementById("rename-engineer-old-name").value;
       const newNameInput = document.getElementById("rename-engineer-new-name");
       const newName = newNameInput.value.trim();
+      const phone = document.getElementById("rename-engineer-phone").value.trim();
+      const apikey = document.getElementById("rename-engineer-apikey").value.trim();
+
       if (!newName) {
         newNameInput.reportValidity();
         return;
       }
 
-      if (newName === oldName) {
-        closeRenameEngineerModal();
-        return;
-      }
-
-      if (state.engineers.includes(newName)) {
+      const isNameChange = (newName !== oldName);
+      if (isNameChange && state.engineers.includes(newName)) {
         showToast(`Engineer "${newName}" already exists!`, "warning");
         return;
       }
 
-      // 1. Rename in engineers list
-      const idx = state.engineers.indexOf(oldName);
-      if (idx !== -1) {
-        state.engineers[idx] = newName;
-        state.engineers.sort();
-        saveEngineers();
+      // Update state.engineerContacts
+      if (isNameChange) {
+        delete state.engineerContacts[oldName];
       }
+      state.engineerContacts[newName] = { phone: phone, apikey: apikey };
 
-      // 2. Rename in active filters
-      if (state.filters.engineer === oldName) {
+      // 1. Rename in engineers list if changed
+      if (isNameChange) {
+        const idx = state.engineers.indexOf(oldName);
+        if (idx !== -1) {
+          state.engineers[idx] = newName;
+          state.engineers.sort();
+        }
+      }
+      
+      saveEngineers();
+
+      // 2. Rename in active filters if changed
+      if (isNameChange && state.filters.engineer === oldName) {
         state.filters.engineer = newName;
         const selector = document.getElementById("header-user-select");
         if (selector) selector.value = newName;
       }
 
-      // 3. Rename in all database cases
+      // 3. Rename in all database cases if changed
       let updateCount = 0;
-      state.files.forEach(file => {
-        if (file.Engineer === oldName) {
-          file.Engineer = newName;
-          file.UpdatedBy = "System";
-          file.UpdatedAt = getTimestamp();
-          
-          let historyArray = [];
-          try {
-            historyArray = file.History ? JSON.parse(file.History) : [];
-          } catch(e) {
-            historyArray = [];
+      if (isNameChange) {
+        state.files.forEach(file => {
+          if (file.Engineer === oldName) {
+            file.Engineer = newName;
+            file.UpdatedBy = "System";
+            file.UpdatedAt = getTimestamp();
+            
+            let historyArray = [];
+            try {
+              historyArray = file.History ? JSON.parse(file.History) : [];
+            } catch(e) {
+              historyArray = [];
+            }
+            historyArray.push({
+              status: file.Status,
+              time: file.UpdatedAt,
+              user: "System",
+              remarks: `Engineer renamed from "${oldName}" to "${newName}"`
+            });
+            file.History = JSON.stringify(historyArray);
+
+            queueDatabaseUpdate("update", file);
+            updateCount++;
           }
-          historyArray.push({
-            status: file.Status,
-            time: file.UpdatedAt,
-            user: "System",
-            remarks: `Engineer renamed from "${oldName}" to "${newName}"`
-          });
-          file.History = JSON.stringify(historyArray);
+        });
+      }
 
-          // Update spreadsheet sync
-          queueDatabaseUpdate("update", file);
-          updateCount++;
-        }
-      });
-
-      showToast(`Engineer renamed to "${newName}". Updated ${updateCount} active cases.`, "success");
+      if (isNameChange) {
+        showToast(`Engineer profile updated and renamed. Updated ${updateCount} active cases.`, "success");
+      } else {
+        showToast(`Engineer profile for "${newName}" updated successfully.`, "success");
+      }
+      
       closeRenameEngineerModal();
       renderAll();
     }
@@ -3965,6 +4289,7 @@
     function confirmDeleteEngineer(name) {
       // 1. Remove from engineers list
       state.engineers = state.engineers.filter(e => e !== name);
+      delete state.engineerContacts[name];
       saveEngineers();
 
       // 2. Clear from active filters
@@ -4010,6 +4335,37 @@
 
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
+      // Initialize mobile tab navigation
+      const mainApp = document.getElementById("main-app");
+      if (mainApp) {
+        mainApp.setAttribute("data-mobile-tab", "cases");
+      }
+
+      const mobileNavButtons = {
+        "nav-btn-cases": "cases",
+        "nav-btn-stats": "stats",
+        "nav-btn-filters": "filters"
+      };
+
+      Object.keys(mobileNavButtons).forEach(btnId => {
+        const btn = document.getElementById(btnId);
+        if (btn) {
+          btn.addEventListener("click", () => {
+            Object.keys(mobileNavButtons).forEach(id => {
+              const b = document.getElementById(id);
+              if (b) b.classList.remove("active");
+            });
+            btn.classList.add("active");
+            if (mainApp) {
+              mainApp.setAttribute("data-mobile-tab", mobileNavButtons[btnId]);
+            }
+            if (mobileNavButtons[btnId] === "filters") {
+              renderSidebarFilters();
+            }
+          });
+        }
+      });
+
       // Current Date Badge display
       document.getElementById("current-date-display").textContent = getTodayString();
 
