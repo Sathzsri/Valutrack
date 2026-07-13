@@ -52,6 +52,43 @@
       --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    body.light-theme {
+      --bg-dark: #f6f8fd;
+      --bg-card: #ffffff;
+      --bg-input: #edf2f9;
+      --bg-hover: #e2eaf4;
+      --border-color: #cbd5e1;
+      --accent-blue: #2563eb; /* Royal Blue */
+      --accent-blue-hover: #1d4ed8;
+      --accent-blue-glow: rgba(37, 99, 235, 0.15);
+      
+      --text-main: #0f172a;
+      --text-muted: #334155;
+      --text-sub: #64748b;
+      
+      /* Status Colors (Vibrant Pastel Basis) */
+      --status-doc-received: #0284c7;
+      --status-doc-received-bg: rgba(2, 132, 199, 0.1);
+      --status-visit-pending: #d97706;
+      --status-visit-pending-bg: rgba(217, 119, 6, 0.1);
+      --status-visit-done: #9333ea;
+      --status-visit-done-bg: rgba(147, 51, 234, 0.1);
+      --status-report-in-progress: #4f46e5;
+      --status-report-in-progress-bg: rgba(79, 70, 229, 0.1);
+      --status-report-submitted: #059669;
+      --status-report-submitted-bg: rgba(5, 150, 105, 0.1);
+      
+      /* Priority Colors */
+      --priority-high: #dc2626;
+      --priority-high-bg: rgba(220, 38, 38, 0.08);
+      --priority-medium: #d97706;
+      --priority-medium-bg: rgba(217, 119, 6, 0.08);
+      --priority-low: #0284c7;
+      --priority-low-bg: rgba(2, 132, 199, 0.08);
+      
+      --shadow-premium: 0 10px 40px -10px rgba(0, 0, 0, 0.08), 0 0 25px rgba(37, 99, 235, 0.03);
+    }
+
     /* Reset & Base Styles */
     * {
       box-sizing: border-box;
@@ -62,11 +99,18 @@
     body {
       font-family: var(--font-main);
       background-color: var(--bg-dark);
+      background-image: radial-gradient(rgba(0, 242, 254, 0.06) 1.5px, transparent 1.5px);
+      background-size: 24px 24px;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    body.light-theme {
+      background-image: radial-gradient(rgba(37, 99, 235, 0.05) 1.5px, transparent 1.5px);
     }
 
     /* Custom Scrollbar */
@@ -1544,6 +1588,92 @@
     .filter-indicator-btn:hover {
       color: var(--accent-blue-light);
     }
+    /* Light Theme Stat Cards */
+    body.light-theme .stat-card:nth-child(1) {
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      border-color: rgba(99, 102, 241, 0.25);
+      color: #1e1b4b;
+    }
+    body.light-theme .stat-card:nth-child(1) .stat-card-title,
+    body.light-theme .stat-card:nth-child(1) .stat-card-icon {
+      color: #4338ca;
+    }
+    
+    body.light-theme .stat-card:nth-child(2) {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-color: rgba(245, 158, 11, 0.25);
+      color: #78350f;
+    }
+    body.light-theme .stat-card:nth-child(2) .stat-card-title,
+    body.light-theme .stat-card:nth-child(2) .stat-card-icon {
+      color: #b45309;
+    }
+    
+    body.light-theme .stat-card:nth-child(3) {
+      background: linear-gradient(135deg, #fdf4ff 0%, #f5d0fe 100%);
+      border-color: rgba(232, 121, 249, 0.25);
+      color: #4a044e;
+    }
+    body.light-theme .stat-card:nth-child(3) .stat-card-title,
+    body.light-theme .stat-card:nth-child(3) .stat-card-icon {
+      color: #a21caf;
+    }
+    
+    body.light-theme .stat-card:nth-child(4) {
+      background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+      border-color: rgba(52, 211, 153, 0.25);
+      color: #064e3b;
+    }
+    body.light-theme .stat-card:nth-child(4) .stat-card-title,
+    body.light-theme .stat-card:nth-child(4) .stat-card-icon {
+      color: #047857;
+    }
+    
+    body.light-theme .stat-card:nth-child(5) {
+      background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%);
+      border-color: rgba(0, 242, 254, 0.25);
+      color: #042f2e;
+    }
+    body.light-theme .stat-card:nth-child(5) .stat-card-title,
+    body.light-theme .stat-card:nth-child(5) .stat-card-icon {
+      color: #0f766e;
+    }
+
+    /* Light Theme Screen Overrides */
+    body.light-theme #login-screen {
+      background: radial-gradient(circle at 15% 15%, #e0e7ff 0%, #f1f5f9 70%),
+                  radial-gradient(circle at 85% 85%, #ccfbf1 0%, #f1f5f9 70%);
+    }
+    body.light-theme .login-container {
+      background: rgba(255, 255, 255, 0.85);
+      border-color: var(--border-color);
+      color: #0f172a;
+    }
+    body.light-theme .login-container .app-title {
+      background: linear-gradient(135deg, #0f172a 30%, var(--accent-blue) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    body.light-theme .profile-card {
+      background: #ffffff;
+      border-color: #cbd5e1;
+    }
+    body.light-theme .profile-card:hover {
+      background: #f8fafc;
+      border-color: var(--accent-blue);
+    }
+    body.light-theme .sidebar {
+      background-color: #ffffff;
+    }
+    body.light-theme .detail-panel {
+      background-color: #ffffff;
+    }
+    body.light-theme .detail-update-block {
+      background-color: #f8fafc;
+    }
+    body.light-theme .remarks-textarea {
+      background-color: #ffffff;
+    }
   </style>
 </head>
 <body>
@@ -1595,6 +1725,11 @@
           <div class="sidebar-user-name" id="active-user-name">Loading...</div>
           <div class="sidebar-user-role" id="active-user-role">Role</div>
         </div>
+        <button class="logout-btn" id="theme-toggle-btn" title="Toggle Light/Dark Theme" style="margin-right: 8px;">
+          <svg id="theme-icon" style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <!-- Icon path dynamically generated -->
+          </svg>
+        </button>
         <button class="logout-btn" id="logout-btn" title="Logout Profile">
           <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -3478,6 +3613,40 @@
 
       // Log out button trigger
       document.getElementById("logout-btn").addEventListener("click", logout);
+
+      // Theme Toggle Logic
+      const themeToggleBtn = document.getElementById("theme-toggle-btn");
+      const themeIcon = document.getElementById("theme-icon");
+
+      function updateThemeUI(isLight) {
+        if (isLight) {
+          document.body.classList.add("light-theme");
+          // Sun Icon SVG Path
+          themeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+          `;
+          themeToggleBtn.title = "Switch to Dark Theme";
+        } else {
+          document.body.classList.remove("light-theme");
+          // Moon Icon SVG Path
+          themeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          `;
+          themeToggleBtn.title = "Switch to Light Theme";
+        }
+      }
+
+      // Check storage
+      const currentTheme = localStorage.getItem("valutrack_theme") || "dark";
+      updateThemeUI(currentTheme === "light");
+
+      themeToggleBtn.addEventListener("click", () => {
+        const isLightActive = document.body.classList.contains("light-theme");
+        const nextTheme = isLightActive ? "dark" : "light";
+        localStorage.setItem("valutrack_theme", nextTheme);
+        updateThemeUI(nextTheme === "light");
+        showToast(`Theme switched to ${nextTheme} mode!`, "success");
+      });
 
       // Detail Panel event listeners
       document.getElementById("detail-panel-close").addEventListener("click", closeDetailPanel);
