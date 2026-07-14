@@ -420,12 +420,21 @@
         display: none !important;
       }
 
-      /* Hide mobile card layout on desktop view by default */
+      /* Hide mobile card cell/layout on desktop view by default */
+      .mobile-card-cell,
       .mobile-card-view {
         display: none !important;
       }
 
       @media (max-width: 768px) {
+        /* Show mobile cell and stretch it */
+        .mobile-card-cell {
+          display: block !important;
+          width: 100% !important;
+          border: none !important;
+          padding: 0 !important;
+        }
+
         /* Hide desktop table cells completely on mobile */
         .desktop-cell {
           display: none !important;
@@ -3650,92 +3659,94 @@
         ` : "";
 
         tr.innerHTML = `
-          <!-- Mobile Custom Driving-Mode Card View (Screens <= 768px) -->
-          <div class="mobile-card-view">
-            <div class="mob-card-header">
-              <div class="mob-client-info">
-                <div class="mob-owner-name">${file.Owner}</div>
-                <div class="mob-owner-location">📍 ${file.Location || "-"}</div>
+          <!-- Mobile Custom Driving-Mode Card Cell (Screens <= 768px, Hidden on Desktop) -->
+          <td class="mobile-card-cell" colspan="10">
+            <div class="mobile-card-view">
+              <div class="mob-card-header">
+                <div class="mob-client-info">
+                  <div class="mob-owner-name">${file.Owner}</div>
+                  <div class="mob-owner-location">📍 ${file.Location || "-"}</div>
+                </div>
+                <div class="mob-status-badge">
+                  ${sBadge}
+                </div>
               </div>
-              <div class="mob-status-badge">
-                ${sBadge}
+              
+              <div class="mob-card-actions">
+                <!-- CALL ACTION BUTTON -->
+                <a href="tel:${file.Contact}" class="mob-circle-btn call-btn ${!file.Contact ? 'disabled' : ''}" title="Call Customer" onclick="event.stopPropagation();">
+                  <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                </a>
+
+                <!-- NAVIGATE ACTION BUTTON -->
+                <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(file.Coordinates || file.Location)}" target="_blank" class="mob-circle-btn navigate-btn" title="Navigate to Site" onclick="event.stopPropagation();">
+                  <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                  </svg>
+                </a>
+
+                <!-- ADVANCE STATUS ACTION BUTTON -->
+                <button class="mob-circle-btn advance-btn btn-next-status" ${!canAdvance ? 'disabled style="opacity: 0.2; cursor: not-allowed;"' : ''} title="Advance Status">
+                  <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+
+                <!-- VIEW DETAIL ACTION BUTTON -->
+                <button class="mob-circle-btn detail-btn btn-view-detail" title="Open Drawer">
+                  <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+
+                <!-- COLLAPSIBLE EXPAND BUTTON -->
+                <button class="mob-circle-btn expand-btn btn-expand-card" title="View More Info">
+                  <svg style="width: 22px; height: 22px; transition: transform 0.3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Collapsible drawer panel -->
+              <div class="mob-card-drawer">
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Case No</span>
+                  <span class="mob-drawer-value font-mono">${file.FileNo}</span>
+                </div>
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Ref No</span>
+                  <span class="mob-drawer-value font-mono">${file.RefNo || "-"}</span>
+                </div>
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Bank</span>
+                  <span class="mob-drawer-value">${file.Bank}</span>
+                </div>
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Engineer</span>
+                  <span class="mob-drawer-value">${file.Engineer}</span>
+                </div>
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Priority</span>
+                  <span class="mob-drawer-value">${pBadge}</span>
+                </div>
+                <div class="mob-drawer-row">
+                  <span class="mob-drawer-label">Date</span>
+                  <span class="mob-drawer-value font-mono">${file.Date ? file.Date.substring(0,10) : "-"}</span>
+                </div>
+                <div class="mob-drawer-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                  <span class="mob-drawer-label">Address</span>
+                  <span class="mob-drawer-value" style="text-align: left; line-height: 1.4; font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">${file.Address}</span>
+                </div>
+                <div class="mob-drawer-row" style="margin-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 10px;">
+                  <span class="mob-drawer-label">Drive Folder</span>
+                  <a href="${file.DriveLink}" target="_blank" class="drive-link-btn" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 6px;" onclick="event.stopPropagation();">Open Drive</a>
+                </div>
               </div>
             </div>
-            
-            <div class="mob-card-actions">
-              <!-- CALL ACTION BUTTON -->
-              <a href="tel:${file.Contact}" class="mob-circle-btn call-btn ${!file.Contact ? 'disabled' : ''}" title="Call Customer" onclick="event.stopPropagation();">
-                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                </svg>
-              </a>
-
-              <!-- NAVIGATE ACTION BUTTON -->
-              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(file.Coordinates || file.Location)}" target="_blank" class="mob-circle-btn navigate-btn" title="Navigate to Site" onclick="event.stopPropagation();">
-                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-              </a>
-
-              <!-- ADVANCE STATUS ACTION BUTTON -->
-              <button class="mob-circle-btn advance-btn btn-next-status" ${!canAdvance ? 'disabled style="opacity: 0.2; cursor: not-allowed;"' : ''} title="Advance Status">
-                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
-                </svg>
-              </button>
-
-              <!-- VIEW DETAIL ACTION BUTTON -->
-              <button class="mob-circle-btn detail-btn btn-view-detail" title="Open Drawer">
-                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-              </button>
-
-              <!-- COLLAPSIBLE EXPAND BUTTON -->
-              <button class="mob-circle-btn expand-btn btn-expand-card" title="View More Info">
-                <svg style="width: 22px; height: 22px; transition: transform 0.3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
-              </button>
-            </div>
-
-            <!-- Collapsible drawer panel -->
-            <div class="mob-card-drawer">
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Case No</span>
-                <span class="mob-drawer-value font-mono">${file.FileNo}</span>
-              </div>
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Ref No</span>
-                <span class="mob-drawer-value font-mono">${file.RefNo || "-"}</span>
-              </div>
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Bank</span>
-                <span class="mob-drawer-value">${file.Bank}</span>
-              </div>
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Engineer</span>
-                <span class="mob-drawer-value">${file.Engineer}</span>
-              </div>
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Priority</span>
-                <span class="mob-drawer-value">${pBadge}</span>
-              </div>
-              <div class="mob-drawer-row">
-                <span class="mob-drawer-label">Date</span>
-                <span class="mob-drawer-value font-mono">${file.Date ? file.Date.substring(0,10) : "-"}</span>
-              </div>
-              <div class="mob-drawer-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
-                <span class="mob-drawer-label">Address</span>
-                <span class="mob-drawer-value" style="text-align: left; line-height: 1.4; font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">${file.Address}</span>
-              </div>
-              <div class="mob-drawer-row" style="margin-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 10px;">
-                <span class="mob-drawer-label">Drive Folder</span>
-                <a href="${file.DriveLink}" target="_blank" class="drive-link-btn" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 6px;" onclick="event.stopPropagation();">Open Drive</a>
-              </div>
-            </div>
-          </div>
+          </td>
 
           <!-- Desktop Table Cells (Hidden on Mobile) -->
           <td class="desktop-cell file-no-col" data-label="File No">${file.FileNo}</td>
