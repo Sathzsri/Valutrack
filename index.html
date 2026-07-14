@@ -3295,6 +3295,9 @@
       // 2. Sidebar Filters
       if (state.filters.status) {
         result = result.filter(f => f.Status === state.filters.status);
+      } else {
+        // By default, hide closed cases (Report Submitted) from the list
+        result = result.filter(f => f.Status !== "Report Submitted");
       }
       if (state.filters.bank) {
         result = result.filter(f => f.Bank === state.filters.bank);
