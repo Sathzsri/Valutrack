@@ -419,16 +419,17 @@
       #main-app:not([data-mobile-tab="cases"]) .table-section {
         display: none !important;
       }
+    }
 
-      /* Hide mobile card cell/layout on desktop view by default */
-      .mobile-card-cell,
-      .mobile-card-view {
-        display: none !important;
-      }
+    /* Hide mobile card cell/layout on desktop view by default */
+    .mobile-card-cell,
+    .mobile-card-view {
+      display: none !important;
+    }
 
-      @media (max-width: 768px) {
-        /* Show mobile cell and stretch it */
-        .mobile-card-cell {
+    @media (max-width: 768px) {
+      /* Show mobile cell and stretch it */
+      .mobile-card-cell {
           display: block !important;
           width: 100% !important;
           border: none !important;
@@ -621,7 +622,6 @@
           color: #ffffff;
           font-weight: 600;
         }
-      }
     }
 
     .sidebar-brand {
