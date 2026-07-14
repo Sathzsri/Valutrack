@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ValuTrack - Property Valuation File Management System</title>
+  <!-- Google Sheets API Auto-Connection Config Fallback -->
+  <script src="config.js"></script>
   <!-- Google Fonts Sora & JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -418,91 +420,198 @@
         display: none !important;
       }
 
-      /* Responsive Case Cards layout for Tables */
-      .table-wrapper table, 
-      .table-wrapper thead, 
-      .table-wrapper tbody, 
-      .table-wrapper th, 
-      .table-wrapper td, 
-      .table-wrapper tr {
-        display: block;
-        width: 100% !important;
+      /* Hide mobile card layout on desktop view by default */
+      .mobile-card-view {
+        display: none !important;
       }
 
-      .table-wrapper thead {
-        display: none !important; /* Hide headings */
-      }
+      @media (max-width: 768px) {
+        /* Hide desktop table cells completely on mobile */
+        .desktop-cell {
+          display: none !important;
+        }
 
-      .table-wrapper tr {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        margin-bottom: 16px;
-        padding: 16px;
-        box-shadow: var(--shadow-sm);
-        transition: var(--transition-smooth);
-      }
+        .table-wrapper table, 
+        .table-wrapper thead, 
+        .table-wrapper tbody, 
+        .table-wrapper th, 
+        .table-wrapper td, 
+        .table-wrapper tr {
+          display: block;
+          width: 100% !important;
+        }
 
-      .table-wrapper tr:hover {
-        border-color: rgba(59, 130, 246, 0.4);
-        box-shadow: var(--shadow-md);
-      }
+        .table-wrapper thead {
+          display: none !important;
+        }
 
-      .table-wrapper td {
-        border: none !important;
-        padding: 8px 0 !important;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        text-align: right;
-        font-size: 0.85rem;
-      }
+        .table-wrapper tr {
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 16px;
+          margin-bottom: 16px;
+          padding: 16px;
+          box-shadow: var(--shadow-sm);
+          transition: var(--transition-smooth);
+        }
 
-      .table-wrapper td::before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-sub);
-        text-transform: uppercase;
-        font-size: 0.7rem;
-        letter-spacing: 0.5px;
-        text-align: left;
-        display: block;
-      }
+        .table-wrapper tr:hover {
+          border-color: rgba(59, 130, 246, 0.4);
+        }
 
-      .table-wrapper td.address-col {
-        white-space: normal !important;
-        max-width: none !important;
-        text-align: right;
-        display: flex;
-        flex-direction: row;
-        align-items: flex-start;
-      }
+        /* Show mobile driving-mode layout */
+        .mobile-card-view {
+          display: flex !important;
+          flex-direction: column;
+          gap: 12px;
+          width: 100%;
+        }
 
-      .table-wrapper td.address-col span {
-        max-width: 60%;
-        display: inline-block;
-        word-break: break-word;
-      }
+        .mob-card-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+          width: 100%;
+        }
 
-      .table-wrapper td.owner-col {
-        justify-content: space-between;
-      }
+        .mob-client-info {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          text-align: left;
+        }
 
-      .table-wrapper td.owner-col div {
-        justify-content: flex-end;
-      }
+        .mob-owner-name {
+          font-size: 1.15rem;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: -0.2px;
+        }
 
-      .table-wrapper td.text-center {
-        justify-content: space-between;
-        border-top: 1px dashed var(--border-color) !important;
-        margin-top: 8px;
-        padding-top: 12px !important;
-      }
+        .mob-owner-location {
+          font-size: 0.85rem;
+          color: var(--text-sub);
+          font-weight: 500;
+        }
 
-      /* Adjust action button alignments on cards */
-      .table-actions {
-        justify-content: flex-end;
-        width: 100%;
+        /* Spaced action row with large circle buttons */
+        .mob-card-actions {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          width: 100%;
+          margin-top: 6px;
+          border-top: 1px solid rgba(255,255,255,0.05);
+          padding-top: 12px;
+        }
+
+        .mob-circle-btn {
+          width: 48px;
+          height: 48px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+          text-decoration: none;
+        }
+
+        .mob-circle-btn:active {
+          transform: scale(0.92);
+        }
+
+        /* Button Colors and Vibrancy Highlights */
+        .mob-circle-btn.call-btn {
+          background: rgba(16, 185, 129, 0.15);
+          color: #10b981;
+        }
+        .mob-circle-btn.call-btn:active {
+          background: #10b981;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(16, 185, 129, 0.5);
+        }
+        .mob-circle-btn.call-btn.disabled {
+          opacity: 0.15;
+          pointer-events: none;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+
+        .mob-circle-btn.navigate-btn {
+          background: rgba(59, 130, 246, 0.15);
+          color: #3b82f6;
+        }
+        .mob-circle-btn.navigate-btn:active {
+          background: #3b82f6;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
+        }
+
+        .mob-circle-btn.advance-btn {
+          background: rgba(245, 158, 11, 0.15);
+          color: #f59e0b;
+        }
+        .mob-circle-btn.advance-btn:active {
+          background: #f59e0b;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(245, 158, 11, 0.5);
+        }
+
+        .mob-circle-btn.detail-btn {
+          background: rgba(139, 92, 246, 0.15);
+          color: #8b5cf6;
+        }
+        .mob-circle-btn.detail-btn:active {
+          background: #8b5cf6;
+          color: #ffffff;
+          box-shadow: 0 0 12px rgba(139, 92, 246, 0.5);
+        }
+
+        .mob-circle-btn.expand-btn {
+          background: rgba(255, 255, 255, 0.06);
+          color: var(--text-sub);
+          box-shadow: none;
+        }
+
+        /* Collapsible drawer details content */
+        .mob-card-drawer {
+          display: none;
+          flex-direction: column;
+          gap: 8px;
+          border-top: 1px dashed rgba(255,255,255,0.06);
+          padding-top: 12px;
+          margin-top: 4px;
+        }
+
+        tr.card-expanded .mob-card-drawer {
+          display: flex !important;
+        }
+
+        .mob-drawer-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.85rem;
+          padding: 3px 0;
+        }
+
+        .mob-drawer-label {
+          color: var(--text-muted);
+          font-weight: 500;
+          text-transform: uppercase;
+          font-size: 0.7rem;
+          letter-spacing: 0.5px;
+        }
+
+        .mob-drawer-value {
+          color: #ffffff;
+          font-weight: 600;
+        }
       }
     }
 
@@ -2759,7 +2868,7 @@
         engineer: null,
         priority: null
       },
-      sheetUrl: localStorage.getItem("valutrack_sheet_url") || "",
+      sheetUrl: localStorage.getItem("valutrack_sheet_url") || ((typeof CONFIG_SHEET_URL !== "undefined") ? CONFIG_SHEET_URL : ""),
       lastSynced: localStorage.getItem("valutrack_last_synced") || null,
       syncQueue: JSON.parse(localStorage.getItem("valutrack_sync_queue") || "[]")
     };
@@ -3541,21 +3650,109 @@
         ` : "";
 
         tr.innerHTML = `
-          <td class="file-no-col" data-label="File No">${file.FileNo}</td>
-          <td class="detail-value-mono" data-label="Ref No" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
-          <td class="owner-col" data-label="Owner">
+          <!-- Mobile Custom Driving-Mode Card View (Screens <= 768px) -->
+          <div class="mobile-card-view">
+            <div class="mob-card-header">
+              <div class="mob-client-info">
+                <div class="mob-owner-name">${file.Owner}</div>
+                <div class="mob-owner-location">📍 ${file.Location || "-"}</div>
+              </div>
+              <div class="mob-status-badge">
+                ${sBadge}
+              </div>
+            </div>
+            
+            <div class="mob-card-actions">
+              <!-- CALL ACTION BUTTON -->
+              <a href="tel:${file.Contact}" class="mob-circle-btn call-btn ${!file.Contact ? 'disabled' : ''}" title="Call Customer" onclick="event.stopPropagation();">
+                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                </svg>
+              </a>
+
+              <!-- NAVIGATE ACTION BUTTON -->
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(file.Coordinates || file.Location)}" target="_blank" class="mob-circle-btn navigate-btn" title="Navigate to Site" onclick="event.stopPropagation();">
+                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </a>
+
+              <!-- ADVANCE STATUS ACTION BUTTON -->
+              <button class="mob-circle-btn advance-btn btn-next-status" ${!canAdvance ? 'disabled style="opacity: 0.2; cursor: not-allowed;"' : ''} title="Advance Status">
+                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                </svg>
+              </button>
+
+              <!-- VIEW DETAIL ACTION BUTTON -->
+              <button class="mob-circle-btn detail-btn btn-view-detail" title="Open Drawer">
+                <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+
+              <!-- COLLAPSIBLE EXPAND BUTTON -->
+              <button class="mob-circle-btn expand-btn btn-expand-card" title="View More Info">
+                <svg style="width: 22px; height: 22px; transition: transform 0.3s;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Collapsible drawer panel -->
+            <div class="mob-card-drawer">
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Case No</span>
+                <span class="mob-drawer-value font-mono">${file.FileNo}</span>
+              </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Ref No</span>
+                <span class="mob-drawer-value font-mono">${file.RefNo || "-"}</span>
+              </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Bank</span>
+                <span class="mob-drawer-value">${file.Bank}</span>
+              </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Engineer</span>
+                <span class="mob-drawer-value">${file.Engineer}</span>
+              </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Priority</span>
+                <span class="mob-drawer-value">${pBadge}</span>
+              </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Date</span>
+                <span class="mob-drawer-value font-mono">${file.Date ? file.Date.substring(0,10) : "-"}</span>
+              </div>
+              <div class="mob-drawer-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+                <span class="mob-drawer-label">Address</span>
+                <span class="mob-drawer-value" style="text-align: left; line-height: 1.4; font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">${file.Address}</span>
+              </div>
+              <div class="mob-drawer-row" style="margin-top: 6px; border-top: 1px dashed rgba(255,255,255,0.06); padding-top: 10px;">
+                <span class="mob-drawer-label">Drive Folder</span>
+                <a href="${file.DriveLink}" target="_blank" class="drive-link-btn" style="padding: 6px 12px; font-size: 0.75rem; border-radius: 6px;" onclick="event.stopPropagation();">Open Drive</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop Table Cells (Hidden on Mobile) -->
+          <td class="desktop-cell file-no-col" data-label="File No">${file.FileNo}</td>
+          <td class="desktop-cell detail-value-mono" data-label="Ref No" style="font-size:0.8rem; font-weight:600; color:var(--text-sub);">${file.RefNo || "-"}</td>
+          <td class="desktop-cell owner-col" data-label="Owner">
             <div style="display: flex; align-items: center; gap: 4px; justify-content: flex-end;">
               <span>${file.Owner}</span>
               ${contactCallIcon}
             </div>
           </td>
-          <td class="address-col" data-label="Address" title="${file.Address}">${file.Address}</td>
-          <td data-label="Bank">${file.Bank}</td>
-          <td data-label="Engineer">${file.Engineer}</td>
-          <td data-label="Priority">${pBadge}</td>
-          <td data-label="Status">${sBadge}</td>
-          <td class="date-col" data-label="Date">${file.Date ? file.Date.substring(0,10) : "-"}</td>
-          <td class="text-center" data-label="Actions">
+          <td class="desktop-cell address-col" data-label="Address" title="${file.Address}">${file.Address}</td>
+          <td class="desktop-cell" data-label="Bank">${file.Bank}</td>
+          <td class="desktop-cell" data-label="Engineer">${file.Engineer}</td>
+          <td class="desktop-cell" data-label="Priority">${pBadge}</td>
+          <td class="desktop-cell" data-label="Status">${sBadge}</td>
+          <td class="desktop-cell date-col" data-label="Date">${file.Date ? file.Date.substring(0,10) : "-"}</td>
+          <td class="desktop-cell text-center" data-label="Actions">
             <div class="table-actions" style="justify-content: flex-end;">
               ${driveBtn}
               ${nextBtn}
@@ -3570,20 +3767,39 @@
 
         // Click row open detail
         tr.addEventListener("click", () => {
-          openDetailPanel(file.ID);
+          if (window.innerWidth > 768) {
+            openDetailPanel(file.ID);
+          }
         });
 
         // Quick next status click listener
-        if (canAdvance) {
-          tr.querySelector(".btn-next-status").addEventListener("click", (e) => {
+        tr.querySelectorAll(".btn-next-status").forEach(btn => {
+          btn.addEventListener("click", (e) => {
             e.stopPropagation();
             advanceFileStatus(file.ID);
           });
-        }
+        });
 
-        tr.querySelector(".btn-view-detail").addEventListener("click", (e) => {
-          e.stopPropagation();
-          openDetailPanel(file.ID);
+        tr.querySelectorAll(".btn-view-detail").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openDetailPanel(file.ID);
+          });
+        });
+
+        tr.querySelectorAll(".btn-expand-card").forEach(btn => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            tr.classList.toggle("card-expanded");
+            const icon = btn.querySelector("svg");
+            if (icon) {
+              if (tr.classList.contains("card-expanded")) {
+                icon.style.transform = "rotate(180deg)";
+              } else {
+                icon.style.transform = "rotate(0deg)";
+              }
+            }
+          });
         });
 
         tbody.appendChild(tr);
