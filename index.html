@@ -2997,17 +2997,32 @@
     }
 
     function loadEngineers() {
+      // Dynamic extraction of engineers from active files
+      const fileEngs = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))];
+      
       const cached = localStorage.getItem("valutrack_engineers");
       if (cached) {
         state.engineers = JSON.parse(cached);
       } else {
-        const defaults = ["Sathish", "Udhaya", "Engineer 1", "Engineer 2"];
-        const fileEngs = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))];
-        defaults.forEach(d => {
-          if (!fileEngs.includes(d)) fileEngs.push(d);
-        });
-        state.engineers = fileEngs.sort();
+        const defaults = ["Sathish", "Udhaya"];
+        state.engineers = [...defaults];
         localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
+      }
+
+      // Merge files assignees into the active state list
+      fileEngs.forEach(fe => {
+        if (!state.engineers.includes(fe)) {
+          state.engineers.push(fe);
+        }
+      });
+      state.engineers.sort();
+
+      // Filter out mock fallbacks if they are not assigned to any files
+      if (!fileEngs.includes("Engineer 1")) {
+        state.engineers = state.engineers.filter(e => e !== "Engineer 1");
+      }
+      if (!fileEngs.includes("Engineer 2")) {
+        state.engineers = state.engineers.filter(e => e !== "Engineer 2");
       }
 
       const cachedContacts = localStorage.getItem("valutrack_engineer_contacts");
@@ -3016,9 +3031,7 @@
       } else {
         state.engineerContacts = {
           "Sathish": { phone: "", apikey: "" },
-          "Udhaya": { phone: "", apikey: "" },
-          "Engineer 1": { phone: "", apikey: "" },
-          "Engineer 2": { phone: "", apikey: "" }
+          "Udhaya": { phone: "", apikey: "" }
         };
       }
     }
@@ -3197,7 +3210,7 @@
           saveLocalData();
           
           // Pull engineers contact details from Google Sheets response
-          if (result.engineers && Array.isArray(result.engineers)) {
+          if (result.engineers && Array.isArray(result.engineers) && result.engineers.length > 0) {
             const names = [];
             const contacts = {};
             result.engineers.forEach(eng => {
@@ -3215,6 +3228,13 @@
               localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
               localStorage.setItem("valutrack_engineer_contacts", JSON.stringify(state.engineerContacts));
             }
+          } else {
+            // Fallback: Parse engineers list directly from loaded case files
+            const fileEngs = [...new Set(state.files.map(f => f.Engineer).filter(Boolean))];
+            const defaults = ["Sathish", "Udhaya"];
+            const merged = [...new Set([...defaults, ...fileEngs])];
+            state.engineers = merged.sort();
+            localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
           }
           
           state.lastSynced = new Date().toLocaleString();
