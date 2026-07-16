@@ -380,7 +380,7 @@
       transform: scale(1);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       .mobile-nav-bar {
         display: flex;
       }
@@ -427,7 +427,7 @@
       display: none !important;
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 1024px) {
       /* Show mobile cell and stretch it */
       .mobile-card-cell {
           display: block !important;
@@ -919,6 +919,7 @@
       padding: 32px;
       gap: 32px;
       overflow-y: auto;
+      min-width: 0; /* Critical for grid children overflow-x scroll to function! */
     }
 
     @media (max-width: 600px) {
@@ -2135,6 +2136,21 @@
         </button>
       </div>
 
+      <!-- Filters Section: Date Range -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Date Range Filter</div>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">From Date</span>
+            <input type="date" id="filter-from-date" style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffffff; outline: none; font-family: var(--font-main);">
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;">To Date</span>
+            <input type="date" id="filter-to-date" style="background-color: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 8px 12px; font-size: 0.8rem; color: #ffffff; outline: none; font-family: var(--font-main);">
+          </div>
+        </div>
+      </div>
+
       <!-- Setup Button -->
       <button class="setup-trigger-btn" id="setup-trigger-btn">
         <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2875,7 +2891,9 @@
         status: null,
         bank: null,
         engineer: null,
-        priority: null
+        priority: null,
+        fromDate: null,
+        toDate: null
       },
       sheetUrl: localStorage.getItem("valutrack_sheet_url") || ((typeof CONFIG_SHEET_URL !== "undefined") ? CONFIG_SHEET_URL : ""),
       lastSynced: localStorage.getItem("valutrack_last_synced") || null,
@@ -3303,6 +3321,14 @@
         result = result.filter(f => f.Bank === state.filters.bank);
       }
 
+      // 2.5 Date Range Filter
+      if (state.filters.fromDate) {
+        result = result.filter(f => f.Date && f.Date.substring(0, 10) >= state.filters.fromDate);
+      }
+      if (state.filters.toDate) {
+        result = result.filter(f => f.Date && f.Date.substring(0, 10) <= state.filters.toDate);
+      }
+
       // 3. Header Dropdowns
       if (state.filters.priority) {
         result = result.filter(f => f.Priority === state.filters.priority);
@@ -3363,6 +3389,8 @@
       if (state.filters.bank) addIndicator("Bank", "bank", state.filters.bank);
       if (state.filters.engineer) addIndicator("Engineer", "engineer", state.filters.engineer);
       if (state.filters.priority) addIndicator("Priority", "priority", state.filters.priority);
+      if (state.filters.fromDate) addIndicator("From Date", "fromDate", state.filters.fromDate);
+      if (state.filters.toDate) addIndicator("To Date", "toDate", state.filters.toDate);
       
       const dropBank = document.getElementById("filter-bank").value;
       if (dropBank && !state.filters.bank) {
@@ -3389,6 +3417,14 @@
       }
       if (type === "bankDropdown") {
         document.getElementById("filter-bank").value = "";
+      }
+      if (type === "fromDate") {
+        state.filters.fromDate = null;
+        document.getElementById("filter-from-date").value = "";
+      }
+      if (type === "toDate") {
+        state.filters.toDate = null;
+        document.getElementById("filter-to-date").value = "";
       }
       renderAll();
     }
@@ -3801,7 +3837,7 @@
 
         // Click row open detail
         tr.addEventListener("click", () => {
-          if (window.innerWidth > 768) {
+          if (window.innerWidth > 1024) {
             openDetailPanel(file.ID);
           }
         });
@@ -4632,10 +4668,14 @@
         state.filters.engineer = null;
         state.filters.priority = null;
         state.filters.search = "";
+        state.filters.fromDate = null;
+        state.filters.toDate = null;
         document.getElementById("search-input").value = "";
         document.getElementById("filter-bank").value = "";
         document.getElementById("filter-engineer").value = "";
         document.getElementById("filter-priority").value = "";
+        document.getElementById("filter-from-date").value = "";
+        document.getElementById("filter-to-date").value = "";
         const topSelector = document.getElementById("header-user-select");
         if (topSelector) topSelector.value = "";
         renderAll();
@@ -4651,6 +4691,14 @@
       });
       document.getElementById("filter-priority").addEventListener("change", (e) => {
         state.filters.priority = e.target.value || null;
+        renderAll();
+      });
+      document.getElementById("filter-from-date").addEventListener("change", (e) => {
+        state.filters.fromDate = e.target.value || null;
+        renderAll();
+      });
+      document.getElementById("filter-to-date").addEventListener("change", (e) => {
+        state.filters.toDate = e.target.value || null;
         renderAll();
       });
 
