@@ -411,7 +411,7 @@
         display: none !important;
       }
 
-      #main-app:not([data-mobile-tab="stats"]) .dashboard-stats-grid {
+      #main-app:not([data-mobile-tab="stats"]) .stats-grid {
         display: none !important;
       }
 
@@ -888,6 +888,74 @@
     .sidebar-action-btn.delete:hover {
       color: #ef4444;
       background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Assignee Filter Circular Buttons */
+    .assignee-filter-icons {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .assignee-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 2px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      transition: all 0.3s ease;
+      position: relative;
+      outline: none;
+    }
+
+    .assignee-icon-btn:hover {
+      border-color: var(--text-muted);
+      color: #ffffff;
+      transform: translateY(-2px);
+    }
+
+    .assignee-icon-btn.active {
+      border-color: var(--accent-blue);
+      background-color: rgba(59, 130, 246, 0.15);
+      color: var(--accent-blue);
+      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Tooltip styling for engineer name */
+    .assignee-icon-btn::before {
+      content: attr(data-name);
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%) scale(0);
+      background: #0f172a;
+      border: 1px solid var(--border-color);
+      color: #ffffff;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      white-space: nowrap;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      opacity: 0;
+      z-index: 10;
+      font-weight: 500;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+
+    .assignee-icon-btn:hover::before {
+      transform: translateX(-50%) scale(1);
+      opacity: 1;
+      bottom: -36px;
     }
 
     .setup-trigger-btn {
@@ -2171,14 +2239,11 @@
         </div>
         
         <div style="display: flex; align-items: center; gap: 16px;">
-          <!-- Engineer Selector Filter -->
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Assignee Filter:</span>
-            <div style="position: relative; display: flex; align-items: center;">
-              <div style="position: absolute; left: 10px; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-blue); color: #070913; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; pointer-events: none;" id="header-user-avatar">ALL</div>
-              <select id="header-user-select" class="filter-select" style="padding: 8px 12px 8px 36px; border-radius: 20px; font-weight: 600; background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); cursor: pointer; outline: none; transition: var(--transition-smooth); width: 180px;">
-                <!-- Populated dynamically -->
-              </select>
+          <!-- Engineer Selector Filter Icons -->
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Assignee:</span>
+            <div id="assignee-filter-icons-list" class="assignee-filter-icons">
+              <!-- Populated dynamically by JS -->
             </div>
           </div>
           <span class="current-date-badge" id="current-date-display">2026-07-13</span>
@@ -3532,8 +3597,7 @@
         `;
         allEngItem.addEventListener("click", () => {
           state.filters.engineer = null;
-          const selector = document.getElementById("header-user-select");
-          if (selector) selector.value = "";
+          populateHeaderUserSelector();
           renderAll();
         });
         engList.appendChild(allEngItem);
@@ -3562,8 +3626,7 @@
           item.addEventListener("click", (e) => {
             if (e.target.closest(".sidebar-action-btn")) return;
             state.filters.engineer = eng;
-            const selector = document.getElementById("header-user-select");
-            if (selector) selector.value = eng;
+            populateHeaderUserSelector();
             renderAll();
           });
 
@@ -3629,32 +3692,51 @@
       populateHeaderUserSelector();
     }
 
-    function populateHeaderUserSelector() {
-      const select = document.getElementById("header-user-select");
-      if (!select) return;
-      const currentVal = select.value || "";
-      
-      select.innerHTML = '<option value="">All Cases</option>';
-      state.engineers.forEach(eng => {
-        const opt = document.createElement("option");
-        opt.value = eng;
-        opt.textContent = eng;
-        if (eng === currentVal) opt.selected = true;
-        select.appendChild(opt);
-      });
-
-      // Update avatar letter
-      const avatar = document.getElementById("header-user-avatar");
-      if (select.value === "") {
-        avatar.textContent = "ALL";
-        avatar.style.background = "var(--accent-blue)";
-        avatar.style.color = "#070913";
-      } else {
-        const name = select.value;
-        avatar.textContent = name.substring(0, 2).toUpperCase();
-        avatar.style.background = "var(--status-report-in-progress)";
-        avatar.style.color = "#ffffff";
+    function getInitials(name) {
+      if (!name) return "";
+      const parts = name.split(" ").filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
       }
+      return name.substring(0, 2).toUpperCase();
+    }
+
+    function populateHeaderUserSelector() {
+      const container = document.getElementById("assignee-filter-icons-list");
+      if (!container) return;
+      
+      const currentSelected = state.filters.engineer || "";
+      container.innerHTML = "";
+      
+      // 1. Create ALL cases button
+      const allBtn = document.createElement("button");
+      allBtn.className = `assignee-icon-btn ${currentSelected === "" ? "active" : ""}`;
+      allBtn.setAttribute("data-name", "All Cases");
+      allBtn.textContent = "ALL";
+      allBtn.addEventListener("click", () => {
+        state.filters.engineer = null;
+        const panelSelector = document.getElementById("filter-engineer");
+        if (panelSelector) panelSelector.value = "";
+        populateHeaderUserSelector();
+        renderAll();
+      });
+      container.appendChild(allBtn);
+      
+      // 2. Create button for each engineer
+      state.engineers.forEach(eng => {
+        const btn = document.createElement("button");
+        btn.className = `assignee-icon-btn ${currentSelected === eng ? "active" : ""}`;
+        btn.setAttribute("data-name", eng);
+        btn.textContent = getInitials(eng);
+        btn.addEventListener("click", () => {
+          state.filters.engineer = eng;
+          const panelSelector = document.getElementById("filter-engineer");
+          if (panelSelector) panelSelector.value = eng;
+          populateHeaderUserSelector();
+          renderAll();
+        });
+        container.appendChild(btn);
+      });
     }
 
     function renderTable() {
@@ -4510,8 +4592,7 @@
       // 2. Rename in active filters if changed
       if (isNameChange && state.filters.engineer === oldName) {
         state.filters.engineer = newName;
-        const selector = document.getElementById("header-user-select");
-        if (selector) selector.value = newName;
+        populateHeaderUserSelector();
       }
 
       // 3. Rename in all database cases if changed
@@ -4581,8 +4662,7 @@
       // 2. Clear from active filters
       if (state.filters.engineer === name) {
         state.filters.engineer = null;
-        const selector = document.getElementById("header-user-select");
-        if (selector) selector.value = "";
+        populateHeaderUserSelector();
       }
 
       // 3. Clear from all database cases (unassign)
@@ -4676,8 +4756,7 @@
         document.getElementById("filter-priority").value = "";
         document.getElementById("filter-from-date").value = "";
         document.getElementById("filter-to-date").value = "";
-        const topSelector = document.getElementById("header-user-select");
-        if (topSelector) topSelector.value = "";
+        populateHeaderUserSelector();
         renderAll();
       });
 
@@ -4685,8 +4764,7 @@
       document.getElementById("filter-bank").addEventListener("change", renderAll);
       document.getElementById("filter-engineer").addEventListener("change", (e) => {
         state.filters.engineer = e.target.value || null;
-        const topSelector = document.getElementById("header-user-select");
-        if (topSelector) topSelector.value = e.target.value || "";
+        populateHeaderUserSelector();
         renderAll();
       });
       document.getElementById("filter-priority").addEventListener("change", (e) => {
@@ -4701,17 +4779,6 @@
         state.filters.toDate = e.target.value || null;
         renderAll();
       });
-
-      // Header User Select Change
-      const headerSelector = document.getElementById("header-user-select");
-      if (headerSelector) {
-        headerSelector.addEventListener("change", (e) => {
-          state.filters.engineer = e.target.value || null;
-          const panelSelector = document.getElementById("filter-engineer");
-          if (panelSelector) panelSelector.value = e.target.value || "";
-          renderAll();
-        });
-      }
 
       // Manual sync button trigger
       document.getElementById("manual-sync-btn").addEventListener("click", () => {
