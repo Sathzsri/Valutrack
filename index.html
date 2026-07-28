@@ -2592,7 +2592,7 @@
           <div class="form-group-row">
             <div class="form-group">
               <label class="form-label" for="form-file-no">File / Case Number *</label>
-              <input type="text" class="form-input" id="form-file-no" required placeholder="e.g. VT-2026-001">
+              <input type="text" class="form-input" id="form-file-no" required placeholder="e.g. VT-2026-07-28-25">
             </div>
             <div class="form-group">
               <label class="form-label" for="form-priority">Priority *</label>
@@ -4259,9 +4259,12 @@
         document.getElementById("form-file-no").disabled = false;
         
         // Suggest automatic File number based on count
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
         const serial = state.files.length + 1;
-        const serialStr = serial < 100 ? (serial < 10 ? "00" + serial : "0" + serial) : serial;
-        document.getElementById("form-file-no").value = `VT-2026-${serialStr}`;
+        document.getElementById("form-file-no").value = `VT-${yyyy}-${mm}-${dd}-${serial}`;
         document.getElementById("form-date").value = getTodayString();
         document.getElementById("form-ref-no").value = "";
         document.getElementById("form-contact").value = "";
