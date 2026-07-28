@@ -488,10 +488,11 @@ function importCasesFromGmail() {
       var senderLower = sender.toLowerCase();
       var subjectLower = subject.toLowerCase();
       
-      if (senderLower.indexOf("truhome") !== -1 || subjectLower.indexOf("truhome") !== -1) bank = "Truhome";
-      else if (senderLower.indexOf("hdfc") !== -1 || subjectLower.indexOf("hdfc") !== -1) bank = "HDFC";
-      else if (senderLower.indexOf("equitas") !== -1 || subjectLower.indexOf("equitas") !== -1) bank = "Equitas";
-      else if (senderLower.indexOf("niwas") !== -1 || subjectLower.indexOf("niwas") !== -1) bank = "Niwas";
+      var bodyLower = body.toLowerCase();
+      if (senderLower.indexOf("truhome") !== -1 || subjectLower.indexOf("truhome") !== -1 || bodyLower.indexOf("truhome") !== -1) bank = "Truhome";
+      else if (senderLower.indexOf("hdfc") !== -1 || subjectLower.indexOf("hdfc") !== -1 || bodyLower.indexOf("hdfc") !== -1) bank = "HDFC";
+      else if (senderLower.indexOf("equitas") !== -1 || subjectLower.indexOf("equitas") !== -1 || bodyLower.indexOf("equitas") !== -1) bank = "Equitas";
+      else if (senderLower.indexOf("niwas") !== -1 || subjectLower.indexOf("niwas") !== -1 || bodyLower.indexOf("niwas") !== -1) bank = "Niwas";
       
       // 2. CHECK FOR DUPLICATES
       // If we found a name, let's verify if we already added it recently
