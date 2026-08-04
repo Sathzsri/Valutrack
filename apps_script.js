@@ -24,7 +24,7 @@ function getSheet() {
     "ID", "FileNo", "Owner", "Bank", "Address", 
     "Location", "Engineer", "Priority", "Status", "Date", 
     "Loan", "DriveLink", "Remarks", "History", "UpdatedBy", "UpdatedAt",
-    "RefNo", "Coordinates", "Contact"
+    "RefNo", "Coordinates", "Contact", "Contact2"
   ];
   
   if (!sheet) {
@@ -81,7 +81,7 @@ function doGet(e) {
   try {
     // 1. Get Cases List
     var sheet = getSheet();
-    var values = sheet.getDataRange().getValues();
+    var values = sheet.getDataRange().getDisplayValues();
     var headers = values[0];
     var data = [];
     
@@ -90,18 +90,14 @@ function doGet(e) {
       var record = {};
       for (var j = 0; j < headers.length; j++) {
         var value = row[j];
-        if (value instanceof Date) {
-          record[headers[j]] = Utilities.formatDate(value, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm:ss");
-        } else {
-          record[headers[j]] = value;
-        }
+        record[headers[j]] = value;
       }
       data.push(record);
     }
     
     // 2. Get Engineers Contact Details List
     var engSheet = getEngineersSheet();
-    var engValues = engSheet.getDataRange().getValues();
+    var engValues = engSheet.getDataRange().getDisplayValues();
     var engHeaders = engValues[0];
     var engineersData = [];
     
@@ -133,7 +129,7 @@ function doPost(e) {
     
     if (action === "add") {
       var sheet = getSheet();
-      var values = sheet.getDataRange().getValues();
+      var values = sheet.getDataRange().getDisplayValues();
       var headers = values[0];
       var rowData = requestData.data;
       rowData.ID = rowData.ID || Utilities.getUuid();
@@ -152,7 +148,7 @@ function doPost(e) {
         
     } else if (action === "update") {
       var sheet = getSheet();
-      var values = sheet.getDataRange().getValues();
+      var values = sheet.getDataRange().getDisplayValues();
       var headers = values[0];
       var rowData = requestData.data;
       var id = rowData.ID;
@@ -191,7 +187,7 @@ function doPost(e) {
         
     } else if (action === "delete") {
       var sheet = getSheet();
-      var values = sheet.getDataRange().getValues();
+      var values = sheet.getDataRange().getDisplayValues();
       var id = requestData.id;
       var rowIndex = -1;
       
@@ -264,7 +260,7 @@ function triggerCaseAssignmentNotification(file) {
   if (!file.Engineer) return;
   
   var engSheet = getEngineersSheet();
-  var values = engSheet.getDataRange().getValues();
+  var values = engSheet.getDataRange().getDisplayValues();
   var phone = "";
   var apikey = "";
   
@@ -296,7 +292,7 @@ function triggerCaseAssignmentNotification(file) {
 // daily time-driven reminder checking active jobs
 function sendMorningReminders() {
   var engSheet = getEngineersSheet();
-  var engValues = engSheet.getDataRange().getValues();
+  var engValues = engSheet.getDataRange().getDisplayValues();
   
   var engineerMap = {};
   for (var i = 1; i < engValues.length; i++) {
@@ -309,7 +305,7 @@ function sendMorningReminders() {
   }
   
   var sheet = getSheet();
-  var values = sheet.getDataRange().getValues();
+  var values = sheet.getDataRange().getDisplayValues();
   var headers = values[0];
   var activeCasesByEngineer = {};
   
@@ -379,7 +375,7 @@ function getAdminContact() {
   try {
     var engSheet = getEngineersSheet();
     if (!engSheet) return null;
-    var data = engSheet.getDataRange().getValues();
+    var data = engSheet.getDataRange().getDisplayValues();
     var headers = data[0];
     var nameCol = headers.indexOf("Name");
     var phoneCol = headers.indexOf("Phone");
@@ -422,7 +418,7 @@ function importCasesFromGmail() {
   }
   
   var sheet = getSheet();
-  var dataRange = sheet.getDataRange().getValues();
+  var dataRange = sheet.getDataRange().getDisplayValues();
   var headers = dataRange[0];
   
   // Get index positions for columns

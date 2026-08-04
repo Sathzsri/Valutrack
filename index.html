@@ -2609,13 +2609,20 @@
               <label class="form-label" for="form-owner">Owner / Applicant Name *</label>
               <input type="text" class="form-input" id="form-owner" required placeholder="Full Name of the Applicant">
             </div>
-            <div class="form-group" style="flex: 1;">
+            <div class="form-group" style="flex: 1.2;">
               <label class="form-label" for="form-ref-no">Reference Number</label>
               <input type="text" class="form-input" id="form-ref-no" placeholder="e.g. REF-10023">
             </div>
-            <div class="form-group" style="flex: 1.2;">
-              <label class="form-label" for="form-contact">Contact Number</label>
+          </div>
+
+          <div class="form-group-row">
+            <div class="form-group">
+              <label class="form-label" for="form-contact">Primary Contact</label>
               <input type="tel" class="form-input" id="form-contact" placeholder="e.g. 9876543210">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="form-contact-2">Additional Contact</label>
+              <input type="tel" class="form-input" id="form-contact-2" placeholder="e.g. 9876543211">
             </div>
           </div>
 
@@ -2845,6 +2852,21 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" id="delete-engineer-modal-cancel">Cancel</button>
         <button class="btn btn-primary" style="background-color: #ef4444;" id="delete-engineer-modal-confirm">Delete Engineer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALL OPTIONS MODAL -->
+  <div id="call-options-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 320px; border-radius: 16px;">
+      <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+        <div class="modal-title" style="font-size: 1.1rem; width: 100%; text-align: center;">Select Number to Call</div>
+      </div>
+      <div class="modal-body" id="call-options-list" style="display: flex; flex-direction: column; gap: 10px; padding: 20px 16px;">
+        <!-- Buttons dynamically added here -->
+      </div>
+      <div class="modal-footer" style="border-top: none; padding-top: 0; justify-content: center; padding-bottom: 20px;">
+        <button class="btn btn-secondary" onclick="closeCallModal()" style="width: 80%; justify-content: center;">Cancel</button>
       </div>
     </div>
   </div>
@@ -3810,8 +3832,9 @@
           </a>
         `;
 
-        const contactCallIcon = file.Contact ? `
-          <a href="tel:${file.Contact}" class="action-icon-btn call-icon-btn" title="Call Owner: ${file.Contact}" onclick="event.stopPropagation();" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); transition: var(--transition-smooth); margin-left: 8px; vertical-align: middle;">
+        const hasContacts = !!file.Contact || !!file.Contact2;
+        const contactCallIcon = hasContacts ? `
+          <a href="javascript:void(0);" onclick="event.stopPropagation(); triggerCall('${file.ID}');" class="action-icon-btn call-icon-btn" title="Call Owner" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); transition: var(--transition-smooth); margin-left: 8px; vertical-align: middle;">
             <svg style="width: 11px; height: 11px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
             </svg>
@@ -3834,7 +3857,7 @@
               
               <div class="mob-card-actions">
                 <!-- CALL ACTION BUTTON -->
-                <a href="tel:${file.Contact}" class="mob-circle-btn call-btn ${!file.Contact ? 'disabled' : ''}" title="Call Customer" onclick="event.stopPropagation();">
+                <a href="javascript:void(0);" onclick="event.stopPropagation(); triggerCall('${file.ID}');" class="mob-circle-btn call-btn ${(!file.Contact && !file.Contact2) ? 'disabled' : ''}" title="Call Customer">
                   <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                   </svg>
@@ -4029,15 +4052,25 @@
 
       const detailContact = document.getElementById("detail-contact");
       if (detailContact) {
-        if (file.Contact) {
-          detailContact.innerHTML = `
-            <a href="tel:${file.Contact}" class="phone-link" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-blue); text-decoration:none; font-weight:600;" title="Call now">
-              <svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-              </svg>
-              <span>${file.Contact}</span>
-            </a>
-          `;
+        const numbers = getCasePhoneNumbers(file);
+        if (numbers.length > 0) {
+          detailContact.innerHTML = "";
+          numbers.forEach((num, index) => {
+            const label = index === 0 ? "Primary" : index === 1 ? "Secondary" : "Alt";
+            const linkHtml = `
+              <div style="margin-bottom: 4px;">
+                <a href="javascript:void(0);" onclick="window.location.href='tel:${num}';" class="phone-link" style="display:inline-flex; align-items:center; gap:6px; color:var(--accent-blue); text-decoration:none; font-weight:600;" title="Call ${label} contact">
+                  <svg style="width:14px; height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                  <span>${num} <span style="font-size:0.75rem; color:var(--text-muted); font-weight:normal;">(${label})</span></span>
+                </a>
+              </div>
+            `;
+            const div = document.createElement("div");
+            div.innerHTML = linkHtml;
+            detailContact.appendChild(div.firstElementChild);
+          });
         } else {
           detailContact.textContent = "-";
         }
@@ -4241,6 +4274,7 @@
         document.getElementById("form-bank").value = file.Bank || "";
         document.getElementById("form-ref-no").value = file.RefNo || "";
         document.getElementById("form-contact").value = file.Contact || "";
+        document.getElementById("form-contact-2").value = file.Contact2 || "";
         document.getElementById("form-date").value = file.Date ? file.Date.substring(0,10) : "";
         document.getElementById("form-engineer").value = file.Engineer || "";
         document.getElementById("form-location").value = file.Location || "";
@@ -4268,6 +4302,7 @@
         document.getElementById("form-date").value = getTodayString();
         document.getElementById("form-ref-no").value = "";
         document.getElementById("form-contact").value = "";
+        document.getElementById("form-contact-2").value = "";
         document.getElementById("form-coordinates").value = "";
         document.getElementById("form-priority").value = "High"; // Default to High
         document.getElementById("form-status").value = "Site Visit Pending"; // Default initial status
@@ -4295,6 +4330,7 @@
       const bank = document.getElementById("form-bank").value.trim();
       const refNo = document.getElementById("form-ref-no").value.trim();
       const contact = document.getElementById("form-contact").value.trim();
+      const contact2 = document.getElementById("form-contact-2").value.trim();
       const date = document.getElementById("form-date").value;
       const engineer = document.getElementById("form-engineer").value;
       const location = document.getElementById("form-location").value.trim();
@@ -4336,6 +4372,7 @@
           Loan: "", // Loan Amount not needed
           RefNo: refNo,
           Contact: contact,
+          Contact2: contact2,
           Date: date,
           Engineer: engineer,
           Location: location,
@@ -4380,6 +4417,7 @@
           Loan: "", // Loan Amount not needed
           RefNo: refNo,
           Contact: contact,
+          Contact2: contact2,
           DriveLink: drive,
           Remarks: mergedRemarks,
           History: JSON.stringify(historyArray),
@@ -4392,6 +4430,75 @@
       }
 
       closeFileModal();
+    }
+
+    // Call Options Modal Controllers
+    function getCasePhoneNumbers(file) {
+      const numbers = [];
+      const addNumbersFromText = (text) => {
+        if (!text) return;
+        // Split by commas, slashes, semicolons, or whitespace
+        const parts = text.toString().split(/[,;\/\s]+/);
+        parts.forEach(p => {
+          // Keep digits and optional leading plus
+          const clean = p.replace(/[^0-9+]/g, "").trim();
+          if (clean.length >= 5) {
+            numbers.push(clean);
+          }
+        });
+      };
+
+      addNumbersFromText(file.Contact);
+      addNumbersFromText(file.Contact2);
+
+      // Remove duplicates
+      return [...new Set(numbers)];
+    }
+
+    function triggerCall(fileId) {
+      const file = state.files.find(f => f.ID === fileId);
+      if (!file) return;
+      const numbers = getCasePhoneNumbers(file);
+      if (numbers.length === 0) {
+        showToast("No contact numbers available for this case", "warning");
+      } else if (numbers.length === 1) {
+        window.location.href = `tel:${numbers[0]}`;
+      } else {
+        openCallModal(numbers);
+      }
+    }
+
+    function openCallModal(numbers) {
+      const listContainer = document.getElementById("call-options-list");
+      listContainer.innerHTML = "";
+      
+      numbers.forEach((num, index) => {
+        const btn = document.createElement("button");
+        btn.className = "btn btn-primary";
+        btn.style.width = "100%";
+        btn.style.justifyContent = "center";
+        btn.style.padding = "12px";
+        btn.style.fontSize = "0.95rem";
+        btn.style.borderRadius = "10px";
+        
+        let label = `Call Number ${index + 1}`;
+        if (index === 0) label = `Call Primary: ${num}`;
+        else if (index === 1) label = `Call Secondary: ${num}`;
+        else label = `Call Contact: ${num}`;
+        
+        btn.innerHTML = `📞 ${label}`;
+        btn.addEventListener("click", () => {
+          window.location.href = `tel:${num}`;
+          closeCallModal();
+        });
+        listContainer.appendChild(btn);
+      });
+      
+      document.getElementById("call-options-modal").classList.add("open");
+    }
+
+    function closeCallModal() {
+      document.getElementById("call-options-modal").classList.remove("open");
     }
 
     // 10. Delete confirmation flow
