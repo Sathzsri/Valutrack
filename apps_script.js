@@ -153,9 +153,11 @@ function doPost(e) {
       var rowData = requestData.data;
       var id = rowData.ID;
       var rowIndex = -1;
+      var idColIndex = headers.indexOf("ID");
+      if (idColIndex === -1) idColIndex = 0;
       
       for (var i = 1; i < values.length; i++) {
-        if (values[i][0] == id) {
+        if (values[i][idColIndex] == id) {
           rowIndex = i + 1; // 1-indexed, and header is row 1
           break;
         }
@@ -190,9 +192,14 @@ function doPost(e) {
       var values = sheet.getDataRange().getDisplayValues();
       var id = requestData.id;
       var rowIndex = -1;
+      var idColIndex = -1;
+      if (values.length > 0) {
+        idColIndex = values[0].indexOf("ID");
+      }
+      if (idColIndex === -1) idColIndex = 0;
       
       for (var i = 1; i < values.length; i++) {
-        if (values[i][0] == id) {
+        if (values[i][idColIndex] == id) {
           rowIndex = i + 1;
           break;
         }

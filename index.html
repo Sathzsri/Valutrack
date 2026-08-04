@@ -4312,15 +4312,34 @@
       document.getElementById("file-modal").classList.add("open");
     }
 
+    let isSavingFile = false;
+
     function closeFileModal() {
       document.getElementById("file-modal").classList.remove("open");
+      
+      // Reset submission lock and button state
+      isSavingFile = false;
+      const saveBtn = document.getElementById("file-modal-save");
+      if (saveBtn) {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Changes";
+      }
     }
 
     function saveFileForm() {
+      if (isSavingFile) return;
+
       const form = document.getElementById("file-form");
       if (!form.checkValidity()) {
         form.reportValidity();
         return;
+      }
+
+      isSavingFile = true;
+      const saveBtn = document.getElementById("file-modal-save");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.textContent = "Saving...";
       }
 
       const fileId = document.getElementById("form-file-id").value;
