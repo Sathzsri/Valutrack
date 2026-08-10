@@ -2395,7 +2395,7 @@
                 <th width="120">File No</th>
                 <th width="110">Ref No</th>
                 <th>Owner Name</th>
-                <th>Address</th>
+                <th>Area / Location</th>
                 <th>Bank</th>
                 <th>Engineer</th>
                 <th width="100">Priority</th>
@@ -2616,13 +2616,17 @@
           </div>
 
           <div class="form-group-row">
-            <div class="form-group">
+            <div class="form-group" style="flex: 1;">
               <label class="form-label" for="form-contact">Primary Contact</label>
               <input type="tel" class="form-input" id="form-contact" placeholder="e.g. 9876543210">
             </div>
-            <div class="form-group">
-              <label class="form-label" for="form-contact-2">Additional Contact</label>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-contact-2">Second Contact</label>
               <input type="tel" class="form-input" id="form-contact-2" placeholder="e.g. 9876543211">
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="form-contact-3">Third Contact</label>
+              <input type="tel" class="form-input" id="form-contact-3" placeholder="e.g. 9876543212">
             </div>
           </div>
 
@@ -3832,7 +3836,7 @@
           </a>
         `;
 
-        const hasContacts = !!file.Contact || !!file.Contact2;
+        const hasContacts = !!file.Contact || !!file.Contact2 || !!file.Contact3;
         const contactCallIcon = hasContacts ? `
           <a href="javascript:void(0);" onclick="event.stopPropagation(); triggerCall('${file.ID}');" class="action-icon-btn call-icon-btn" title="Call Owner" style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); transition: var(--transition-smooth); margin-left: 8px; vertical-align: middle;">
             <svg style="width: 11px; height: 11px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -3857,7 +3861,7 @@
               
               <div class="mob-card-actions">
                 <!-- CALL ACTION BUTTON -->
-                <a href="javascript:void(0);" onclick="event.stopPropagation(); triggerCall('${file.ID}');" class="mob-circle-btn call-btn ${(!file.Contact && !file.Contact2) ? 'disabled' : ''}" title="Call Customer">
+                <a href="javascript:void(0);" onclick="event.stopPropagation(); triggerCall('${file.ID}');" class="mob-circle-btn call-btn ${(!file.Contact && !file.Contact2 && !file.Contact3) ? 'disabled' : ''}" title="Call Customer">
                   <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                   </svg>
@@ -3940,7 +3944,7 @@
               ${contactCallIcon}
             </div>
           </td>
-          <td class="desktop-cell address-col" data-label="Address" title="${file.Address}">${file.Address}</td>
+          <td class="desktop-cell address-col" data-label="Area / Location" title="${file.Location || '-'}">📍 ${file.Location || "-"}</td>
           <td class="desktop-cell" data-label="Bank">${file.Bank}</td>
           <td class="desktop-cell" data-label="Engineer">${file.Engineer}</td>
           <td class="desktop-cell" data-label="Priority">${pBadge}</td>
@@ -4275,6 +4279,7 @@
         document.getElementById("form-ref-no").value = file.RefNo || "";
         document.getElementById("form-contact").value = file.Contact || "";
         document.getElementById("form-contact-2").value = file.Contact2 || "";
+        document.getElementById("form-contact-3").value = file.Contact3 || "";
         document.getElementById("form-date").value = file.Date ? file.Date.substring(0,10) : "";
         document.getElementById("form-engineer").value = file.Engineer || "";
         document.getElementById("form-location").value = file.Location || "";
@@ -4303,6 +4308,7 @@
         document.getElementById("form-ref-no").value = "";
         document.getElementById("form-contact").value = "";
         document.getElementById("form-contact-2").value = "";
+        document.getElementById("form-contact-3").value = "";
         document.getElementById("form-coordinates").value = "";
         document.getElementById("form-priority").value = "High"; // Default to High
         document.getElementById("form-status").value = "Site Visit Pending"; // Default initial status
@@ -4350,6 +4356,7 @@
       const refNo = document.getElementById("form-ref-no").value.trim();
       const contact = document.getElementById("form-contact").value.trim();
       const contact2 = document.getElementById("form-contact-2").value.trim();
+      const contact3 = document.getElementById("form-contact-3").value.trim();
       const date = document.getElementById("form-date").value;
       const engineer = document.getElementById("form-engineer").value;
       const location = document.getElementById("form-location").value.trim();
@@ -4392,6 +4399,7 @@
           RefNo: refNo,
           Contact: contact,
           Contact2: contact2,
+          Contact3: contact3,
           Date: date,
           Engineer: engineer,
           Location: location,
@@ -4437,6 +4445,7 @@
           RefNo: refNo,
           Contact: contact,
           Contact2: contact2,
+          Contact3: contact3,
           DriveLink: drive,
           Remarks: mergedRemarks,
           History: JSON.stringify(historyArray),
@@ -4469,6 +4478,7 @@
 
       addNumbersFromText(file.Contact);
       addNumbersFromText(file.Contact2);
+      addNumbersFromText(file.Contact3);
 
       // Remove duplicates
       return [...new Set(numbers)];
