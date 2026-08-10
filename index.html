@@ -2371,6 +2371,12 @@
         </div>
 
         <div class="action-buttons">
+          <button class="btn btn-secondary" id="travel-plan-btn" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; font-weight: 600;">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+            </svg>
+            Travel Plan
+          </button>
           <button class="btn btn-secondary" id="export-csv-btn">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -2427,6 +2433,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
         </svg>
         <span>Cases</span>
+      </button>
+      <button class="mobile-nav-btn" id="nav-btn-travel">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path>
+        </svg>
+        <span>Travel</span>
       </button>
       <button class="mobile-nav-btn" id="nav-btn-stats">
         <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2871,6 +2883,62 @@
       </div>
       <div class="modal-footer" style="border-top: none; padding-top: 0; justify-content: center; padding-bottom: 20px;">
         <button class="btn btn-secondary" onclick="closeCallModal()" style="width: 80%; justify-content: center;">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAVEL PLAN OPTIMIZER MODAL -->
+  <div id="travel-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 600px; width: 95%;">
+      <div class="modal-header">
+        <div class="modal-title">🚗 Travel Route Optimizer</div>
+        <button class="modal-close" onclick="closeTravelModal()">&times;</button>
+      </div>
+      <div class="modal-body" style="padding-top: 10px;">
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; line-height: 1.4;">
+          Select cases to visit today and choose your starting point. The app will calculate the most efficient path using GPS coordinates.
+        </p>
+
+        <!-- Start Location Selector -->
+        <div class="form-group-row" style="margin-bottom: 16px;">
+          <div class="form-group" style="flex: 2;">
+            <label class="form-label">Starting Location Coordinates</label>
+            <input type="text" class="form-input" id="travel-start-coords" placeholder="e.g. 12.971598, 79.159423">
+          </div>
+          <div class="form-group" style="flex: 1; align-self: flex-end;">
+            <button class="btn btn-secondary" onclick="fetchCurrentGPSLocation()" style="width: 100%; justify-content: center; height: 42px; padding: 0 8px; font-size: 0.82rem; font-weight: 600;">
+              📍 Use Current GPS
+            </button>
+          </div>
+        </div>
+
+        <div style="font-size: 0.9rem; font-weight: 600; color: var(--text-light); margin-bottom: 8px;">Select Cases to Include:</div>
+        <!-- Scrollable list of pending cases -->
+        <div id="travel-cases-list" style="max-height: 180px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 8px; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.15); margin-bottom: 16px;">
+          <!-- Populated dynamically -->
+        </div>
+
+        <!-- Optimize Button -->
+        <button class="btn btn-primary" onclick="generateTravelPlan()" style="width: 100%; justify-content: center; padding: 12px; font-size: 1rem; background: linear-gradient(135deg, #10b981, #059669); border: none; font-weight: 600;">
+          ⚡ Optimize Travel Route
+        </button>
+
+        <!-- Optimized Route Output -->
+        <div id="travel-route-result-container" class="hidden" style="margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+            <div style="font-size: 0.95rem; font-weight: 600; color: #10b981;">👉 Optimized Travel Path</div>
+            <a id="travel-maps-multi-link" href="#" target="_blank" class="btn btn-primary" style="font-size: 0.8rem; padding: 6px 12px; background: #3b82f6; border: none; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+              🗺️ Open Route in Google Maps
+            </a>
+          </div>
+          
+          <div id="travel-route-timeline" style="display: flex; flex-direction: column; gap: 12px; padding-left: 8px; border-left: 2px dashed rgba(16, 185, 129, 0.3); margin-left: 10px; max-height: 250px; overflow-y: auto; padding-top: 5px; padding-bottom: 5px;">
+            <!-- Optimized path stops -->
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeTravelModal()">Close</button>
       </div>
     </div>
   </div>
@@ -4530,6 +4598,254 @@
       document.getElementById("call-options-modal").classList.remove("open");
     }
 
+    // Travel Route Optimizer controllers
+    function openTravelModal() {
+      // Clear previous outputs
+      document.getElementById("travel-route-result-container").classList.add("hidden");
+      document.getElementById("travel-route-timeline").innerHTML = "";
+      
+      // Auto-populate start coordinates with cached coords or default to empty
+      const cachedCoords = localStorage.getItem("valutrack_last_gps") || "";
+      document.getElementById("travel-start-coords").value = cachedCoords;
+
+      // Populate list of pending cases
+      const listContainer = document.getElementById("travel-cases-list");
+      listContainer.innerHTML = "";
+
+      // Filter: get cases that are in "Site Visit Pending"
+      // If an engineer filter is active in the main app, default to their cases
+      const activeEngineer = state.filters.engineer;
+      let targetFiles = state.files.filter(f => f.Status === "Site Visit Pending");
+      
+      if (activeEngineer) {
+        targetFiles = targetFiles.filter(f => f.Engineer === activeEngineer);
+      }
+
+      if (targetFiles.length === 0) {
+        listContainer.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); padding: 15px; font-size: 0.85rem;">
+            No cases with status "Site Visit Pending" found ${activeEngineer ? `for ${activeEngineer}` : ""}.
+          </div>
+        `;
+      } else {
+        targetFiles.forEach(file => {
+          const item = document.createElement("div");
+          item.style.display = "flex";
+          item.style.alignItems = "center";
+          item.style.justifyContent = "space-between";
+          item.style.padding = "8px 10px";
+          item.style.background = "rgba(255,255,255,0.03)";
+          item.style.borderRadius = "6px";
+          item.style.border = "1px solid rgba(255,255,255,0.05)";
+
+          const hasCoords = !!file.Coordinates && file.Coordinates.split(",").length === 2;
+          const coordsBadge = hasCoords 
+            ? `<span style="background: rgba(16,185,129,0.15); color: #10b981; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600;">📍 Coords OK</span>`
+            : `<span style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 600;">⚠️ No Coords</span>`;
+
+          item.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+              <input type="checkbox" class="travel-case-checkbox" data-id="${file.ID}" checked style="width: 16px; height: 16px; cursor: pointer;">
+              <div style="min-width: 0; flex: 1;">
+                <div style="font-weight: 600; font-size: 0.85rem; color: var(--text-light); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  ${file.FileNo} - ${file.Owner}
+                </div>
+                <div style="font-size: 0.72rem; color: var(--text-muted); text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">
+                  📍 ${file.Location || "No location"}
+                </div>
+              </div>
+            </div>
+            <div style="margin-left: 8px; flex-shrink: 0;">
+              ${coordsBadge}
+            </div>
+          `;
+          listContainer.appendChild(item);
+        });
+      }
+
+      document.getElementById("travel-modal").classList.add("open");
+    }
+
+    function closeTravelModal() {
+      document.getElementById("travel-modal").classList.remove("open");
+    }
+
+    function fetchCurrentGPSLocation() {
+      const coordsInput = document.getElementById("travel-start-coords");
+      if (!navigator.geolocation) {
+        showToast("Geolocation is not supported by your browser", "error");
+        return;
+      }
+      showToast("Fetching GPS Location...", "info");
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude.toFixed(6);
+          const lng = position.coords.longitude.toFixed(6);
+          coordsInput.value = `${lat}, ${lng}`;
+          localStorage.setItem("valutrack_last_gps", `${lat}, ${lng}`);
+          showToast("GPS Coordinates loaded!", "success");
+        },
+        (error) => {
+          console.error("GPS Fetch error:", error);
+          showToast("Unable to fetch GPS location. Please type it in manually.", "error");
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      );
+    }
+
+    function parseCoordinatesHelper(coordsStr) {
+      if (!coordsStr) return null;
+      const parts = coordsStr.split(",");
+      if (parts.length === 2) {
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+        if (!isNaN(lat) && !isNaN(lng)) {
+          return { lat, lng };
+        }
+      }
+      return null;
+    }
+
+    function calculateDistanceHelper(lat1, lng1, lat2, lng2) {
+      const R = 6371; // km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function generateTravelPlan() {
+      const startInput = document.getElementById("travel-start-coords").value.trim();
+      const startCoords = parseCoordinatesHelper(startInput);
+
+      if (!startCoords) {
+        showToast("Please enter starting coordinates first (e.g. 12.9715, 79.1594) or click 'Use Current GPS'", "warning");
+        return;
+      }
+
+      // Gather selected cases
+      const checkboxes = document.querySelectorAll(".travel-case-checkbox");
+      const selectedIds = [];
+      checkboxes.forEach(cb => {
+        if (cb.checked) selectedIds.push(cb.getAttribute("data-id"));
+      });
+
+      if (selectedIds.length === 0) {
+        showToast("Please select at least one case file to visit", "warning");
+        return;
+      }
+
+      const selectedCases = state.files.filter(f => selectedIds.includes(f.ID));
+
+      // Solve TSP using Nearest Neighbor
+      let currentLat = startCoords.lat;
+      let currentLng = startCoords.lng;
+      
+      const unvisited = [...selectedCases];
+      const optimizedRoute = [];
+      
+      while (unvisited.length > 0) {
+        let nearestIndex = -1;
+        let minDistance = Infinity;
+
+        for (let i = 0; i < unvisited.length; i++) {
+          const item = unvisited[i];
+          const coords = parseCoordinatesHelper(item.Coordinates);
+          if (coords) {
+            const dist = calculateDistanceHelper(currentLat, currentLng, coords.lat, coords.lng);
+            if (dist < minDistance) {
+              minDistance = dist;
+              nearestIndex = i;
+            }
+          } else {
+            // Put coords-less files at the end
+            if (minDistance === Infinity && nearestIndex === -1) {
+              nearestIndex = i;
+            }
+          }
+        }
+
+        if (nearestIndex !== -1) {
+          const nextNode = unvisited.splice(nearestIndex, 1)[0];
+          const coords = parseCoordinatesHelper(nextNode.Coordinates);
+          
+          optimizedRoute.push({
+            file: nextNode,
+            distance: minDistance === Infinity ? null : minDistance
+          });
+
+          if (coords) {
+            currentLat = coords.lat;
+            currentLng = coords.lng;
+          }
+        } else {
+          break;
+        }
+      }
+
+      // Render timeline result
+      const timeline = document.getElementById("travel-route-timeline");
+      timeline.innerHTML = "";
+
+      optimizedRoute.forEach((node, idx) => {
+        const file = node.file;
+        const distStr = node.distance !== null 
+          ? `(~${node.distance.toFixed(1)} km from last stop)` 
+          : "(No coordinates provided)";
+        
+        const stopItem = document.createElement("div");
+        stopItem.style.position = "relative";
+        stopItem.style.padding = "4px 0 4px 15px";
+
+        stopItem.innerHTML = `
+          <div style="position: absolute; left: -18px; top: 8px; width: 14px; height: 14px; border-radius: 50%; background: #10b981; border: 3px solid var(--card-bg); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; font-weight: bold; color: white;"></div>
+          <div style="background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+              <div>
+                <span style="font-size: 0.72rem; font-weight: 700; color: #10b981; text-transform: uppercase;">Stop ${idx + 1}</span>
+                <h4 style="margin: 2px 0; font-size: 0.85rem; color: var(--text-light); font-weight: 600;">${file.FileNo} - ${file.Owner}</h4>
+              </div>
+              <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">${distStr}</span>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--text-sub); margin-bottom: 8px;">📍 ${file.Location || file.Address}</div>
+            
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-secondary" onclick="triggerCall('${file.ID}')" style="padding: 4px 8px; font-size: 0.72rem; height: 28px;">
+                📞 Call Customer
+              </button>
+              <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(file.Coordinates || file.Location || file.Address)}" target="_blank" class="btn btn-primary" style="padding: 4px 8px; font-size: 0.72rem; height: 28px; background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); border: none; text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                🗺️ Navigate Here
+              </a>
+            </div>
+          </div>
+        `;
+        timeline.appendChild(stopItem);
+      });
+
+      // Update multi-stop maps URL
+      const mapStops = [`${startCoords.lat},${startCoords.lng}`];
+      optimizedRoute.forEach(node => {
+        if (node.file.Coordinates) {
+          mapStops.push(node.file.Coordinates.trim());
+        } else if (node.file.Location) {
+          mapStops.push(encodeURIComponent(node.file.Location));
+        } else {
+          mapStops.push(encodeURIComponent(node.file.Address));
+        }
+      });
+      const multiStopUrl = `https://www.google.com/maps/dir/${mapStops.join("/")}`;
+      
+      const mapsLink = document.getElementById("travel-maps-multi-link");
+      mapsLink.href = multiStopUrl;
+
+      document.getElementById("travel-route-result-container").classList.remove("hidden");
+      showToast("Travel route successfully optimized!", "success");
+    }
+
     // 10. Delete confirmation flow
     function openDeleteConfirm(fileId) {
       const file = state.files.find(f => f.ID === fileId);
@@ -4994,6 +5310,10 @@
       document.getElementById("file-modal-close").addEventListener("click", closeFileModal);
       document.getElementById("file-modal-cancel").addEventListener("click", closeFileModal);
       document.getElementById("file-modal-save").addEventListener("click", saveFileForm);
+
+      // Travel modal triggers
+      document.getElementById("travel-plan-btn").addEventListener("click", openTravelModal);
+      document.getElementById("nav-btn-travel").addEventListener("click", openTravelModal);
 
       // Setup Modal triggers
       document.getElementById("setup-trigger-btn").addEventListener("click", openSetupModal);
