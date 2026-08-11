@@ -102,12 +102,12 @@
       font-family: var(--font-main);
       background-color: var(--bg-dark);
       background-image: 
-        radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.03) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.02) 0px, transparent 50%),
-        radial-gradient(at 50% 50%, rgba(0, 242, 254, 0.01) 0px, transparent 70%),
-        linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+        radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(0, 242, 254, 0.02) 0px, transparent 70%),
+        linear-gradient(rgba(0, 242, 254, 0.018) 1.2px, transparent 1.2px),
+        linear-gradient(90deg, rgba(0, 242, 254, 0.018) 1.2px, transparent 1.2px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -118,11 +118,55 @@
 
     body.light-theme {
       background-image: 
-        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.02) 0px, transparent 50%),
-        linear-gradient(rgba(0, 0, 0, 0.01) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.08) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.06) 0px, transparent 50%),
+        linear-gradient(rgba(37, 99, 235, 0.02) 1.2px, transparent 1.2px),
+        linear-gradient(90deg, rgba(37, 99, 235, 0.02) 1.2px, transparent 1.2px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    /* Blueprint visual decorations in backdrop */
+    .blueprint-grid-decor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: -1;
+      opacity: 0.035;
+      overflow: hidden;
+    }
+    .blueprint-grid-decor .circle {
+      position: absolute;
+      border: 1px dashed var(--accent-blue);
+      border-radius: 50%;
+    }
+    .blueprint-grid-decor .circle.c1 {
+      top: -100px;
+      left: -100px;
+      width: 500px;
+      height: 500px;
+    }
+    .blueprint-grid-decor .circle.c2 {
+      bottom: -150px;
+      right: -150px;
+      width: 600px;
+      height: 600px;
+    }
+    .blueprint-grid-decor .line-h {
+      position: absolute;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      border-top: 1px dashed var(--accent-blue);
+    }
+    .blueprint-grid-decor .line-v {
+      position: absolute;
+      top: 0;
+      width: 1px;
+      height: 100%;
+      border-left: 1px dashed var(--accent-blue);
     }
 
     /* Custom Scrollbar */
@@ -2150,6 +2194,16 @@
 </head>
 <body>
 
+  <!-- Blueprint Layout Grid Visual Backdrops -->
+  <div class="blueprint-grid-decor">
+    <div class="circle c1"></div>
+    <div class="circle c2"></div>
+    <div class="line-h" style="top: 25%;"></div>
+    <div class="line-h" style="top: 75%;"></div>
+    <div class="line-v" style="left: 30%;"></div>
+    <div class="line-v" style="left: 80%;"></div>
+  </div>
+
   <!-- Fullscreen Loading Spinner -->
   <div id="global-loader">
     <div class="spinner"></div>
@@ -3173,7 +3227,13 @@
       if (cleaned === "Documents Received" || cleaned === "Site Visit Pending") {
         return "Site Visit Pending";
       }
-      return "Completed & Report Sent";
+      if (cleaned === "Site Visit Done" || cleaned === "Site Visit Completed" || cleaned === "Report Progress" || cleaned === "Completed") {
+        return "Site Visit Completed";
+      }
+      if (cleaned === "Report Submitted" || cleaned === "Completed & Report Sent" || cleaned === "Report Sent" || cleaned === "Query Process") {
+        return "Report Sent";
+      }
+      return cleaned;
     }
 
     function loadLocalData() {
