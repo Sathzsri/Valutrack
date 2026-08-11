@@ -101,8 +101,13 @@
     body {
       font-family: var(--font-main);
       background-color: var(--bg-dark);
-      background-image: radial-gradient(rgba(0, 242, 254, 0.06) 1.5px, transparent 1.5px);
-      background-size: 24px 24px;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(0, 242, 254, 0.03) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.02) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(0, 242, 254, 0.01) 0px, transparent 70%),
+        linear-gradient(rgba(255, 255, 255, 0.005) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.005) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 100% 100%, 30px 30px, 30px 30px;
       color: var(--text-main);
       min-height: 100vh;
       display: flex;
@@ -112,7 +117,12 @@
     }
 
     body.light-theme {
-      background-image: radial-gradient(rgba(37, 99, 235, 0.05) 1.5px, transparent 1.5px);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.03) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.02) 0px, transparent 50%),
+        linear-gradient(rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 30px 30px, 30px 30px;
     }
 
     /* Custom Scrollbar */
@@ -1399,6 +1409,12 @@
       border: 1px solid rgba(245, 158, 11, 0.2);
     }
 
+    .status-badge.visit-completed {
+      background: var(--status-visit-completed-bg);
+      color: var(--status-visit-completed);
+      border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
     .status-badge.completed-sent {
       background: var(--status-report-submitted-bg);
       color: var(--status-report-submitted);
@@ -2260,17 +2276,6 @@
 
       <!-- Stat Cards Grid -->
       <section class="stats-grid">
-        <!-- Total Files -->
-        <div class="stat-card" id="card-total-files" style="cursor: pointer;">
-          <div class="stat-card-header">
-            <span class="stat-card-title">Total Cases</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-            </svg>
-          </div>
-          <div class="stat-card-value" id="stat-total-files">0</div>
-          <div class="stat-card-deco"></div>
-        </div>
         <!-- Site Visit Pending -->
         <div class="stat-card" id="card-visit-pending" style="cursor: pointer;">
           <div class="stat-card-header">
@@ -2282,15 +2287,37 @@
           <div class="stat-card-value" style="color: var(--status-visit-pending);" id="stat-visit-pending">0</div>
           <div class="stat-card-deco"></div>
         </div>
-        <!-- Completed & Report Sent -->
-        <div class="stat-card" id="card-completed-sent" style="cursor: pointer;">
+        <!-- Site Visit Completed -->
+        <div class="stat-card" id="card-visit-completed" style="cursor: pointer;">
           <div class="stat-card-header">
-            <span class="stat-card-title">Completed & Report Sent</span>
+            <span class="stat-card-title">Completed</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-completed);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--status-visit-completed);" id="stat-visit-completed">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Report Sent -->
+        <div class="stat-card" id="card-report-sent" style="cursor: pointer;">
+          <div class="stat-card-header">
+            <span class="stat-card-title">Report Sent</span>
             <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-report-submitted);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
             </svg>
           </div>
-          <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-completed-sent">0</div>
+          <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-report-sent">0</div>
+          <div class="stat-card-deco"></div>
+        </div>
+        <!-- Total Files / All Cases -->
+        <div class="stat-card" id="card-total-files" style="cursor: pointer;">
+          <div class="stat-card-header">
+            <span class="stat-card-title">All Cases</span>
+            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--accent-blue);">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="stat-card-value" style="color: var(--accent-blue);" id="stat-total-files">0</div>
           <div class="stat-card-deco"></div>
         </div>
       </section>
@@ -2507,7 +2534,8 @@
           <span class="form-label" style="font-size: 0.65rem;">Workflow Stage</span>
           <select class="form-input" id="detail-status-select">
             <option value="Site Visit Pending">Site Visit Pending</option>
-            <option value="Completed & Report Sent">Completed & Report Sent</option>
+            <option value="Site Visit Completed">Site Visit Completed</option>
+            <option value="Report Sent">Report Sent</option>
           </select>
         </div>
         
@@ -2630,7 +2658,8 @@
               <label class="form-label" for="form-status">Initial Status *</label>
               <select class="form-input" id="form-status" required>
                 <option value="Site Visit Pending" selected>Site Visit Pending</option>
-                <option value="Completed & Report Sent">Completed & Report Sent</option>
+                <option value="Site Visit Completed">Site Visit Completed</option>
+                <option value="Report Sent">Report Sent</option>
               </select>
             </div>
           </div>
@@ -2916,7 +2945,8 @@
 
     const STAGES = [
       "Site Visit Pending",
-      "Completed & Report Sent"
+      "Site Visit Completed",
+      "Report Sent"
     ];
 
     const MOCK_FILES = [
@@ -3028,7 +3058,8 @@
         engineer: null,
         priority: null,
         fromDate: null,
-        toDate: null
+        toDate: null,
+        quickDateRange: "today"
       },
       sheetUrl: localStorage.getItem("valutrack_sheet_url") || ((typeof CONFIG_SHEET_URL !== "undefined") ? CONFIG_SHEET_URL : ""),
       lastSynced: localStorage.getItem("valutrack_last_synced") || null,
@@ -3077,7 +3108,8 @@
     function getStatusClass(status) {
       switch (status) {
         case "Site Visit Pending": return "visit-pending";
-        case "Completed & Report Sent": return "completed-sent";
+        case "Site Visit Completed": return "visit-completed";
+        case "Report Sent": return "completed-sent";
         default: return "visit-pending";
       }
     }
@@ -3464,19 +3496,46 @@
       if (state.filters.status) {
         result = result.filter(f => f.Status === state.filters.status);
       } else {
-        // By default, hide closed cases (Report Submitted) from the list
-        result = result.filter(f => f.Status !== "Report Submitted");
+        // By default, hide closed cases (Report Sent) from the list
+        result = result.filter(f => f.Status !== "Report Sent");
       }
       if (state.filters.bank) {
         result = result.filter(f => f.Bank === state.filters.bank);
       }
 
       // 2.5 Date Range Filter
-      if (state.filters.fromDate) {
-        result = result.filter(f => f.Date && f.Date.substring(0, 10) >= state.filters.fromDate);
-      }
-      if (state.filters.toDate) {
-        result = result.filter(f => f.Date && f.Date.substring(0, 10) <= state.filters.toDate);
+      const todayStr = getTodayString();
+      if (state.filters.quickDateRange === "today") {
+        result = result.filter(f => {
+          const caseDate = f.Date ? f.Date.substring(0, 10) : "";
+          if (caseDate === todayStr) return true;
+          // Yesterday or earlier pending site visit
+          if (caseDate && caseDate < todayStr && f.Status === "Site Visit Pending") return true;
+          return false;
+        });
+      } else if (state.filters.quickDateRange === "yesterday") {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yestStr = yesterday.toISOString().substring(0, 10);
+        result = result.filter(f => {
+          const caseDate = f.Date ? f.Date.substring(0, 10) : "";
+          return caseDate === yestStr;
+        });
+      } else if (state.filters.quickDateRange === "all") {
+        // No date range filters
+      } else if (state.filters.quickDateRange && state.filters.quickDateRange.length === 7) {
+        // Month filter e.g. "2026-08"
+        result = result.filter(f => {
+          return f.Date && f.Date.substring(0, 7) === state.filters.quickDateRange;
+        });
+      } else {
+        // Fallback to manual date inputs
+        if (state.filters.fromDate) {
+          result = result.filter(f => f.Date && f.Date.substring(0, 10) >= state.filters.fromDate);
+        }
+        if (state.filters.toDate) {
+          result = result.filter(f => f.Date && f.Date.substring(0, 10) <= state.filters.toDate);
+        }
       }
 
       // 3. Header Dropdowns
@@ -3588,11 +3647,13 @@
 
       const total = filesScope.length;
       const visitPending = filesScope.filter(f => f.Status === "Site Visit Pending").length;
-      const completedSent = filesScope.filter(f => f.Status === "Completed & Report Sent").length;
+      const visitCompleted = filesScope.filter(f => f.Status === "Site Visit Completed").length;
+      const reportSent = filesScope.filter(f => f.Status === "Report Sent").length;
 
       document.getElementById("stat-total-files").textContent = total;
       document.getElementById("stat-visit-pending").textContent = visitPending;
-      document.getElementById("stat-completed-sent").textContent = completedSent;
+      document.getElementById("stat-visit-completed").textContent = visitCompleted;
+      document.getElementById("stat-report-sent").textContent = reportSent;
     }
 
     function renderSidebarFilters() {
@@ -3818,6 +3879,20 @@
       });
     }
 
+    function createSectionHeaderRow(title, count) {
+      const tr = document.createElement("tr");
+      tr.className = "table-section-header-row";
+      tr.innerHTML = `
+        <td colspan="10" style="background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--accent-blue); padding: 12px 16px; font-weight: 700; color: var(--text-light); text-align: left; font-size: 0.85rem; letter-spacing: 0.5px; text-transform: uppercase;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span>${title}</span>
+            <span style="background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 12px; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">${count} ${count === 1 ? 'case' : 'cases'}</span>
+          </div>
+        </td>
+      `;
+      return tr;
+    }
+
     function renderTable() {
       const tbody = document.getElementById("files-table-body");
       const emptyState = document.getElementById("empty-state");
@@ -3832,7 +3907,7 @@
       
       emptyState.classList.add("hidden");
 
-      filesToShow.forEach(file => {
+      function renderRowHelper(file) {
         const tr = document.createElement("tr");
         
         // Format priority element
@@ -3880,9 +3955,9 @@
         ` : "";
 
         const caseDate = file.Date ? file.Date.substring(0, 10) : "";
-        const todayStr = getTodayString();
         let dateHtml = "";
         if (caseDate) {
+          const todayStr = getTodayString();
           if (caseDate < todayStr && file.Status === "Site Visit Pending") {
             dateHtml = `<span class="overdue-badge" style="color: #ef4444; font-weight: 700; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 3px;">⚠️ Overdue: ${caseDate}</span>`;
           } else {
@@ -3924,7 +3999,7 @@
                 </a>
 
                 <!-- ADVANCE STATUS ACTION BUTTON -->
-                <button class="mob-circle-btn advance-btn btn-next-status" ${!canAdvance ? 'disabled style="opacity: 0.2; cursor: not-allowed;"' : ''} title="Advance Status">
+                <button class="mob-circle-btn advance-btn btn-next-status" title="Advance Status" ${!canAdvance ? 'disabled style="opacity: 0.2; cursor: not-allowed;"' : ''}>
                   <svg style="width: 22px; height: 22px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
                   </svg>
@@ -4048,8 +4123,39 @@
           });
         });
 
-        tbody.appendChild(tr);
-      });
+        return tr;
+      }
+
+      const todayStr = getTodayString();
+
+      if (state.filters.quickDateRange === "today") {
+        const overdueFiles = filesToShow.filter(f => {
+          const dStr = f.Date ? f.Date.substring(0, 10) : "";
+          return dStr && dStr < todayStr && f.Status === "Site Visit Pending";
+        });
+        const todayFiles = filesToShow.filter(f => {
+          const dStr = f.Date ? f.Date.substring(0, 10) : "";
+          return dStr === todayStr;
+        });
+
+        if (overdueFiles.length > 0) {
+          tbody.appendChild(createSectionHeaderRow("⚠️ Overdue / Pending Cases (Yesterday & Earlier)", overdueFiles.length));
+          overdueFiles.forEach(file => {
+            tbody.appendChild(renderRowHelper(file));
+          });
+        }
+
+        if (todayFiles.length > 0) {
+          tbody.appendChild(createSectionHeaderRow("📅 Today's Cases", todayFiles.length));
+          todayFiles.forEach(file => {
+            tbody.appendChild(renderRowHelper(file));
+          });
+        }
+      } else {
+        filesToShow.forEach(file => {
+          tbody.appendChild(renderRowHelper(file));
+        });
+      }
     }
 
     // 9. VALUATIONS CRUD OPERATIONS
@@ -4579,75 +4685,66 @@
     }
 
     // Scrollable Quick Date Filters implementation
-    function initializeQuickDateFilters() {
-      const chips = document.querySelectorAll(".date-filter-chip");
-      chips.forEach(chip => {
-        chip.addEventListener("click", () => {
-          // Remove active from all chips
-          chips.forEach(c => c.classList.remove("active"));
-          // Add active to current chip
-          chip.classList.add("active");
-
-          const range = chip.getAttribute("data-range");
-          applyQuickDateFilter(range);
-        });
-      });
+    function generateMonthFilters() {
+      const months = [];
+      const date = new Date();
+      const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      
+      // Let's generate the current month and the past 11 months
+      for (let i = 0; i < 12; i++) {
+        const y = date.getFullYear();
+        const m = date.getMonth();
+        const label = `${monthNames[m]} ${y}`;
+        const queryVal = `${y}-${String(m + 1).padStart(2, '0')}`; // e.g. "2026-08"
+        months.push({ label, val: queryVal });
+        date.setMonth(date.getMonth() - 1);
+      }
+      return months;
     }
 
-    function applyQuickDateFilter(rangeType) {
-      const fromInput = document.getElementById("filter-from-date");
-      const toInput = document.getElementById("filter-to-date");
-      
-      const today = new Date();
-      const getFormattedDate = (dateObj) => {
-        const yyyy = dateObj.getFullYear();
-        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-        const dd = String(dateObj.getDate()).padStart(2, '0');
-        return `${yyyy}-${mm}-${dd}`;
-      };
+    function initializeQuickDateFilters() {
+      const container = document.querySelector(".scrollable-date-filters");
+      if (!container) return;
 
-      let fromVal = "";
-      let toVal = "";
+      const activeRange = state.filters.quickDateRange || "today";
 
-      switch (rangeType) {
-        case "today":
-          fromVal = getFormattedDate(today);
-          toVal = getFormattedDate(today);
-          break;
-        case "yesterday":
-          const yesterday = new Date(today);
-          yesterday.setDate(today.getDate() - 1);
-          fromVal = getFormattedDate(yesterday);
-          toVal = getFormattedDate(yesterday);
-          break;
-        case "week":
-          const day = today.getDay();
-          const diff = today.getDate() - day + (day === 0 ? -6 : 1);
-          const monday = new Date(today.setDate(diff));
-          fromVal = getFormattedDate(monday);
-          toVal = getFormattedDate(new Date()); // up to today
-          break;
-        case "month":
-          const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-          const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-          fromVal = getFormattedDate(firstDay);
-          toVal = getFormattedDate(lastDay);
-          break;
-        case "all":
-        default:
-          fromVal = "";
-          toVal = "";
-          break;
-      }
+      let html = `
+        <button class="date-filter-chip ${activeRange === 'today' ? 'active' : ''}" data-range="today" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">📅 Today</button>
+        <button class="date-filter-chip ${activeRange === 'yesterday' ? 'active' : ''}" data-range="yesterday" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">Yesterday</button>
+      `;
 
-      fromInput.value = fromVal;
-      toInput.value = toVal;
-      
-      // Update state filters
-      state.filters.fromDate = fromVal || null;
-      state.filters.toDate = toVal || null;
+      const months = generateMonthFilters();
+      months.forEach(m => {
+        const isActive = activeRange === m.val;
+        html += `
+          <button class="date-filter-chip ${isActive ? 'active' : ''}" data-range="${m.val}" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">${m.label}</button>
+        `;
+      });
 
-      renderAll();
+      html += `
+        <button class="date-filter-chip ${activeRange === 'all' ? 'active' : ''}" data-range="all" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">All Dates</button>
+      `;
+
+      container.innerHTML = html;
+
+      // Re-bind click event listeners
+      const chips = container.querySelectorAll(".date-filter-chip");
+      chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          chips.forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          const range = chip.getAttribute("data-range");
+          state.filters.quickDateRange = range;
+          
+          // Clear standard fromDate and toDate input UI since we are using quick range
+          document.getElementById("filter-from-date").value = "";
+          document.getElementById("filter-to-date").value = "";
+          state.filters.fromDate = null;
+          state.filters.toDate = null;
+
+          renderAll();
+        });
+      });
     }
 
     // Travel Route Optimizer controllers
@@ -5288,10 +5385,11 @@
         document.getElementById("filter-from-date").value = "";
         document.getElementById("filter-to-date").value = "";
 
-        // Reset horizontal scrollable date chips
+        // Reset horizontal scrollable date chips to Today priority
+        state.filters.quickDateRange = "today";
         document.querySelectorAll(".date-filter-chip").forEach(c => {
           c.classList.remove("active");
-          if (c.getAttribute("data-range") === "all") c.classList.add("active");
+          if (c.getAttribute("data-range") === "today") c.classList.add("active");
         });
 
         populateHeaderUserSelector();
@@ -5398,8 +5496,12 @@
         state.filters.status = "Site Visit Pending";
         renderAll();
       });
-      document.getElementById("card-completed-sent").addEventListener("click", () => {
-        state.filters.status = "Completed & Report Sent";
+      document.getElementById("card-visit-completed").addEventListener("click", () => {
+        state.filters.status = "Site Visit Completed";
+        renderAll();
+      });
+      document.getElementById("card-report-sent").addEventListener("click", () => {
+        state.filters.status = "Report Sent";
         renderAll();
       });
 
