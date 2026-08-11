@@ -324,8 +324,8 @@ function sendMorningReminders() {
     }
     
     var status = record.Status;
-    // Active statuses: Site Visit Pending, Site Visit Completed, Report Progress
-    if (record.Engineer && (status === "Site Visit Pending" || status === "Site Visit Completed" || status === "Report Progress")) {
+    // Active statuses: Site Visit Pending
+    if (record.Engineer && status === "Site Visit Pending") {
       var eng = record.Engineer;
       if (!activeCasesByEngineer[eng]) {
         activeCasesByEngineer[eng] = [];

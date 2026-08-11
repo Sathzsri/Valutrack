@@ -1369,6 +1369,13 @@
       border: 1px solid rgba(59, 130, 246, 0.2);
     }
 
+    .date-filter-chip.active {
+      background: linear-gradient(135deg, var(--accent-blue), #2563eb) !important;
+      color: white !important;
+      border-color: var(--accent-blue) !important;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    }
+
     .status-badge {
       display: inline-flex;
       align-items: center;
@@ -1392,28 +1399,10 @@
       border: 1px solid rgba(245, 158, 11, 0.2);
     }
 
-    .status-badge.visit-completed {
-      background: var(--status-visit-completed-bg);
-      color: var(--status-visit-completed);
-      border: 1px solid rgba(168, 85, 247, 0.2);
-    }
-
-    .status-badge.report-progress {
-      background: var(--status-report-progress-bg);
-      color: var(--status-report-progress);
-      border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-
-    .status-badge.submitted {
+    .status-badge.completed-sent {
       background: var(--status-report-submitted-bg);
       color: var(--status-report-submitted);
       border: 1px solid rgba(16, 185, 129, 0.2);
-    }
-
-    .status-badge.query-process {
-      background: var(--status-query-process-bg);
-      color: var(--status-query-process);
-      border: 1px solid rgba(244, 63, 94, 0.2);
     }
 
     .date-col {
@@ -2272,7 +2261,7 @@
       <!-- Stat Cards Grid -->
       <section class="stats-grid">
         <!-- Total Files -->
-        <div class="stat-card">
+        <div class="stat-card" id="card-total-files" style="cursor: pointer;">
           <div class="stat-card-header">
             <span class="stat-card-title">Total Cases</span>
             <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -2283,7 +2272,7 @@
           <div class="stat-card-deco"></div>
         </div>
         <!-- Site Visit Pending -->
-        <div class="stat-card">
+        <div class="stat-card" id="card-visit-pending" style="cursor: pointer;">
           <div class="stat-card-header">
             <span class="stat-card-title">Visit Pending</span>
             <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-pending);">
@@ -2293,48 +2282,15 @@
           <div class="stat-card-value" style="color: var(--status-visit-pending);" id="stat-visit-pending">0</div>
           <div class="stat-card-deco"></div>
         </div>
-        <!-- Site Visit Completed -->
-        <div class="stat-card">
+        <!-- Completed & Report Sent -->
+        <div class="stat-card" id="card-completed-sent" style="cursor: pointer;">
           <div class="stat-card-header">
-            <span class="stat-card-title">Visit Completed</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-visit-completed);">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <div class="stat-card-value" style="color: var(--status-visit-completed);" id="stat-visit-completed">0</div>
-          <div class="stat-card-deco"></div>
-        </div>
-        <!-- Report Progress -->
-        <div class="stat-card">
-          <div class="stat-card-header">
-            <span class="stat-card-title">Report Progress</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-report-progress);">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-            </svg>
-          </div>
-          <div class="stat-card-value" style="color: var(--status-report-progress);" id="stat-report-progress">0</div>
-          <div class="stat-card-deco"></div>
-        </div>
-        <!-- Report Submitted -->
-        <div class="stat-card">
-          <div class="stat-card-header">
-            <span class="stat-card-title">Submitted</span>
+            <span class="stat-card-title">Completed & Report Sent</span>
             <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-report-submitted);">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
             </svg>
           </div>
-          <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-report-submitted">0</div>
-          <div class="stat-card-deco"></div>
-        </div>
-        <!-- Query Process -->
-        <div class="stat-card">
-          <div class="stat-card-header">
-            <span class="stat-card-title">Query Process</span>
-            <svg class="stat-card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="color: var(--status-query-process);">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </div>
-          <div class="stat-card-value" style="color: var(--status-query-process);" id="stat-query-process">0</div>
+          <div class="stat-card-value" style="color: var(--status-report-submitted);" id="stat-completed-sent">0</div>
           <div class="stat-card-deco"></div>
         </div>
       </section>
@@ -2344,6 +2300,15 @@
         <span style="font-size: 0.8rem; display: flex; align-items: center; color: var(--text-muted);">Active Filters:</span>
         <div id="active-filters-list" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
         <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px;" id="clear-all-filters-btn">Clear All</button>
+      </div>
+
+      <!-- Horizontal Scrollable Quick Date Filters -->
+      <div class="scrollable-date-filters" style="display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 12px; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 14px;">
+        <button class="date-filter-chip active" data-range="all" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">📅 All Dates</button>
+        <button class="date-filter-chip" data-range="today" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">Today</button>
+        <button class="date-filter-chip" data-range="yesterday" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">Yesterday</button>
+        <button class="date-filter-chip" data-range="week" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">This Week</button>
+        <button class="date-filter-chip" data-range="month" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">This Month</button>
       </div>
 
       <!-- Search & Filters Panel -->
@@ -2541,11 +2506,8 @@
         <div class="form-group">
           <span class="form-label" style="font-size: 0.65rem;">Workflow Stage</span>
           <select class="form-input" id="detail-status-select">
-            <option value="Documents Received">Documents Received</option>
             <option value="Site Visit Pending">Site Visit Pending</option>
-            <option value="Site Visit Done">Site Visit Done</option>
-            <option value="Report In Progress">Report In Progress</option>
-            <option value="Report Submitted">Report Submitted</option>
+            <option value="Completed & Report Sent">Completed & Report Sent</option>
           </select>
         </div>
         
@@ -2668,10 +2630,7 @@
               <label class="form-label" for="form-status">Initial Status *</label>
               <select class="form-input" id="form-status" required>
                 <option value="Site Visit Pending" selected>Site Visit Pending</option>
-                <option value="Site Visit Completed">Site Visit Completed</option>
-                <option value="Report Progress">Report Progress</option>
-                <option value="Report Submitted">Report Submitted</option>
-                <option value="Query Process">Query Process</option>
+                <option value="Completed & Report Sent">Completed & Report Sent</option>
               </select>
             </div>
           </div>
@@ -2900,13 +2859,14 @@
         </p>
 
         <!-- Start Location Selector -->
-        <div class="form-group-row" style="margin-bottom: 16px;">
-          <div class="form-group" style="flex: 2;">
-            <label class="form-label">Starting Location Coordinates</label>
-            <input type="text" class="form-input" id="travel-start-coords" placeholder="e.g. 12.971598, 79.159423">
-          </div>
-          <div class="form-group" style="flex: 1; align-self: flex-end;">
-            <button class="btn btn-secondary" onclick="fetchCurrentGPSLocation()" style="width: 100%; justify-content: center; height: 42px; padding: 0 8px; font-size: 0.82rem; font-weight: 600;">
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label class="form-label">Starting Point Coordinates (Manual Entry Enabled)</label>
+          <input type="text" class="form-input" id="travel-start-coords" placeholder="e.g. 12.232446, 79.646344">
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <button class="btn btn-secondary" onclick="setStartCoordsHome()" style="flex: 1; justify-content: center; height: 36px; font-size: 0.8rem; font-weight: 600;">
+              🏠 Home Location
+            </button>
+            <button class="btn btn-secondary" onclick="fetchCurrentGPSLocation()" style="flex: 1; justify-content: center; height: 36px; font-size: 0.8rem; font-weight: 600;">
               📍 Use Current GPS
             </button>
           </div>
@@ -2956,10 +2916,7 @@
 
     const STAGES = [
       "Site Visit Pending",
-      "Site Visit Completed",
-      "Report Progress",
-      "Report Submitted",
-      "Query Process"
+      "Completed & Report Sent"
     ];
 
     const MOCK_FILES = [
@@ -3120,10 +3077,7 @@
     function getStatusClass(status) {
       switch (status) {
         case "Site Visit Pending": return "visit-pending";
-        case "Site Visit Completed": return "visit-completed";
-        case "Report Progress": return "report-progress";
-        case "Report Submitted": return "submitted";
-        case "Query Process": return "query-process";
+        case "Completed & Report Sent": return "completed-sent";
         default: return "visit-pending";
       }
     }
@@ -3181,12 +3135,27 @@
     }
 
     // 5. Offline Sync & Database Handling
+    function sanitizeFileStatus(statusStr) {
+      if (!statusStr) return "Site Visit Pending";
+      const cleaned = statusStr.trim();
+      if (cleaned === "Documents Received" || cleaned === "Site Visit Pending") {
+        return "Site Visit Pending";
+      }
+      return "Completed & Report Sent";
+    }
+
     function loadLocalData() {
       const filesCache = localStorage.getItem("valutrack_files");
       if (filesCache) {
-        state.files = JSON.parse(filesCache);
+        state.files = JSON.parse(filesCache).map(file => ({
+          ...file,
+          Status: sanitizeFileStatus(file.Status)
+        }));
       } else {
-        state.files = [...MOCK_FILES];
+        state.files = MOCK_FILES.map(file => ({
+          ...file,
+          Status: sanitizeFileStatus(file.Status)
+        }));
         localStorage.setItem("valutrack_files", JSON.stringify(state.files));
       }
       loadEngineers();
@@ -3402,7 +3371,10 @@
         const result = await response.json();
         
         if (result.success) {
-          state.files = result.data || [];
+          state.files = (result.data || []).map(file => ({
+            ...file,
+            Status: sanitizeFileStatus(file.Status)
+          }));
           saveLocalData();
           
           // Pull engineers contact details from Google Sheets response
@@ -3616,17 +3588,11 @@
 
       const total = filesScope.length;
       const visitPending = filesScope.filter(f => f.Status === "Site Visit Pending").length;
-      const visitCompleted = filesScope.filter(f => f.Status === "Site Visit Completed").length;
-      const reportProgress = filesScope.filter(f => f.Status === "Report Progress").length;
-      const submitted = filesScope.filter(f => f.Status === "Report Submitted").length;
-      const queryProcess = filesScope.filter(f => f.Status === "Query Process").length;
+      const completedSent = filesScope.filter(f => f.Status === "Completed & Report Sent").length;
 
       document.getElementById("stat-total-files").textContent = total;
       document.getElementById("stat-visit-pending").textContent = visitPending;
-      document.getElementById("stat-visit-completed").textContent = visitCompleted;
-      document.getElementById("stat-report-progress").textContent = reportProgress;
-      document.getElementById("stat-report-submitted").textContent = submitted;
-      document.getElementById("stat-query-process").textContent = queryProcess;
+      document.getElementById("stat-completed-sent").textContent = completedSent;
     }
 
     function renderSidebarFilters() {
@@ -3913,6 +3879,17 @@
           </a>
         ` : "";
 
+        const caseDate = file.Date ? file.Date.substring(0, 10) : "";
+        const todayStr = getTodayString();
+        let dateHtml = "";
+        if (caseDate) {
+          if (caseDate < todayStr && file.Status === "Site Visit Pending") {
+            dateHtml = `<span class="overdue-badge" style="color: #ef4444; font-weight: 700; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 3px;">⚠️ Overdue: ${caseDate}</span>`;
+          } else {
+            dateHtml = `<span style="color: var(--text-muted); font-size: 0.72rem; display: inline-flex; align-items: center; gap: 3px;">📅 ${caseDate}</span>`;
+          }
+        }
+
         tr.innerHTML = `
           <!-- Mobile Custom Driving-Mode Card Cell (Screens <= 768px, Hidden on Desktop) -->
           <td class="mobile-card-cell" colspan="10">
@@ -3920,7 +3897,10 @@
               <div class="mob-card-header">
                 <div class="mob-client-info">
                   <div class="mob-owner-name">${file.Owner}</div>
-                  <div class="mob-owner-location">📍 ${file.Location || "-"}</div>
+                  <div class="mob-owner-location" style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
+                    <span>📍 ${file.Location || "-"}</span>
+                    ${dateHtml}
+                  </div>
                 </div>
                 <div class="mob-status-badge">
                   ${sBadge}
@@ -4017,7 +3997,7 @@
           <td class="desktop-cell" data-label="Engineer">${file.Engineer}</td>
           <td class="desktop-cell" data-label="Priority">${pBadge}</td>
           <td class="desktop-cell" data-label="Status">${sBadge}</td>
-          <td class="desktop-cell date-col" data-label="Date">${file.Date ? file.Date.substring(0,10) : "-"}</td>
+          <td class="desktop-cell date-col" data-label="Date">${dateHtml || "-"}</td>
           <td class="desktop-cell text-center" data-label="Actions">
             <div class="table-actions" style="justify-content: flex-end;">
               ${driveBtn}
@@ -4598,15 +4578,87 @@
       document.getElementById("call-options-modal").classList.remove("open");
     }
 
+    // Scrollable Quick Date Filters implementation
+    function initializeQuickDateFilters() {
+      const chips = document.querySelectorAll(".date-filter-chip");
+      chips.forEach(chip => {
+        chip.addEventListener("click", () => {
+          // Remove active from all chips
+          chips.forEach(c => c.classList.remove("active"));
+          // Add active to current chip
+          chip.classList.add("active");
+
+          const range = chip.getAttribute("data-range");
+          applyQuickDateFilter(range);
+        });
+      });
+    }
+
+    function applyQuickDateFilter(rangeType) {
+      const fromInput = document.getElementById("filter-from-date");
+      const toInput = document.getElementById("filter-to-date");
+      
+      const today = new Date();
+      const getFormattedDate = (dateObj) => {
+        const yyyy = dateObj.getFullYear();
+        const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const dd = String(dateObj.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+      };
+
+      let fromVal = "";
+      let toVal = "";
+
+      switch (rangeType) {
+        case "today":
+          fromVal = getFormattedDate(today);
+          toVal = getFormattedDate(today);
+          break;
+        case "yesterday":
+          const yesterday = new Date(today);
+          yesterday.setDate(today.getDate() - 1);
+          fromVal = getFormattedDate(yesterday);
+          toVal = getFormattedDate(yesterday);
+          break;
+        case "week":
+          const day = today.getDay();
+          const diff = today.getDate() - day + (day === 0 ? -6 : 1);
+          const monday = new Date(today.setDate(diff));
+          fromVal = getFormattedDate(monday);
+          toVal = getFormattedDate(new Date()); // up to today
+          break;
+        case "month":
+          const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+          const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          fromVal = getFormattedDate(firstDay);
+          toVal = getFormattedDate(lastDay);
+          break;
+        case "all":
+        default:
+          fromVal = "";
+          toVal = "";
+          break;
+      }
+
+      fromInput.value = fromVal;
+      toInput.value = toVal;
+      
+      // Update state filters
+      state.filters.fromDate = fromVal || null;
+      state.filters.toDate = toVal || null;
+
+      renderAll();
+    }
+
     // Travel Route Optimizer controllers
     function openTravelModal() {
       // Clear previous outputs
       document.getElementById("travel-route-result-container").classList.add("hidden");
       document.getElementById("travel-route-timeline").innerHTML = "";
       
-      // Auto-populate start coordinates with cached coords or default to empty
-      const cachedCoords = localStorage.getItem("valutrack_last_gps") || "";
-      document.getElementById("travel-start-coords").value = cachedCoords;
+      // Auto-populate start coordinates with home coords by default
+      const homeCoords = "12.232446, 79.646344";
+      document.getElementById("travel-start-coords").value = homeCoords;
 
       // Populate list of pending cases
       const listContainer = document.getElementById("travel-cases-list");
@@ -4668,6 +4720,11 @@
 
     function closeTravelModal() {
       document.getElementById("travel-modal").classList.remove("open");
+    }
+
+    function setStartCoordsHome() {
+      document.getElementById("travel-start-coords").value = "12.232446, 79.646344";
+      showToast("Start coordinates set to Home", "success");
     }
 
     function fetchCurrentGPSLocation() {
@@ -5230,6 +5287,13 @@
         document.getElementById("filter-priority").value = "";
         document.getElementById("filter-from-date").value = "";
         document.getElementById("filter-to-date").value = "";
+
+        // Reset horizontal scrollable date chips
+        document.querySelectorAll(".date-filter-chip").forEach(c => {
+          c.classList.remove("active");
+          if (c.getAttribute("data-range") === "all") c.classList.add("active");
+        });
+
         populateHeaderUserSelector();
         renderAll();
       });
@@ -5324,6 +5388,23 @@
 
       // CSV Download trigger
       document.getElementById("export-csv-btn").addEventListener("click", exportToCSV);
+
+      // Dashboard stat cards filter click listeners
+      document.getElementById("card-total-files").addEventListener("click", () => {
+        state.filters.status = null;
+        renderAll();
+      });
+      document.getElementById("card-visit-pending").addEventListener("click", () => {
+        state.filters.status = "Site Visit Pending";
+        renderAll();
+      });
+      document.getElementById("card-completed-sent").addEventListener("click", () => {
+        state.filters.status = "Completed & Report Sent";
+        renderAll();
+      });
+
+      // Initialize Scrollable Date Filters
+      initializeQuickDateFilters();
 
       // Delete Modal triggers
       document.getElementById("delete-modal-cancel").addEventListener("click", closeDeleteConfirm);
