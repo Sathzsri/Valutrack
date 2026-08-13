@@ -2383,14 +2383,7 @@
         <button class="btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 6px;" id="clear-all-filters-btn">Clear All</button>
       </div>
 
-      <!-- Horizontal Scrollable Quick Date Filters -->
-      <div class="scrollable-date-filters" style="display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 12px; scrollbar-width: none; -ms-overflow-style: none; -webkit-overflow-scrolling: touch; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 14px;">
-        <button class="date-filter-chip active" data-range="all" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">📅 All Dates</button>
-        <button class="date-filter-chip" data-range="today" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">Today</button>
-        <button class="date-filter-chip" data-range="yesterday" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">Yesterday</button>
-        <button class="date-filter-chip" data-range="week" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">This Week</button>
-        <button class="date-filter-chip" data-range="month" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">This Month</button>
-      </div>
+
 
       <!-- Search & Filters Panel -->
       <section class="controls-panel">
@@ -3113,7 +3106,7 @@
         priority: null,
         fromDate: null,
         toDate: null,
-        quickDateRange: "today"
+        quickDateRange: "all"
       },
       sheetUrl: localStorage.getItem("valutrack_sheet_url") || ((typeof CONFIG_SHEET_URL !== "undefined") ? CONFIG_SHEET_URL : ""),
       lastSynced: localStorage.getItem("valutrack_last_synced") || null,
@@ -3620,6 +3613,17 @@
           (f.Location && f.Location.toLowerCase().includes(query))
         );
       }
+
+      // Sort descending to show the last case first (newest case first)
+      result.sort((a, b) => {
+        const dateA = a.Date ? a.Date.substring(0, 10) : "";
+        const dateB = b.Date ? b.Date.substring(0, 10) : "";
+        if (dateA !== dateB) return dateB.localeCompare(dateA);
+        
+        const fileNoA = a.FileNo || "";
+        const fileNoB = b.FileNo || "";
+        return fileNoB.localeCompare(fileNoA);
+      });
 
       return result;
     }
@@ -5445,12 +5449,8 @@
         document.getElementById("filter-from-date").value = "";
         document.getElementById("filter-to-date").value = "";
 
-        // Reset horizontal scrollable date chips to Today priority
-        state.filters.quickDateRange = "today";
-        document.querySelectorAll(".date-filter-chip").forEach(c => {
-          c.classList.remove("active");
-          if (c.getAttribute("data-range") === "today") c.classList.add("active");
-        });
+        // Reset quick date range to all
+        state.filters.quickDateRange = "all";
 
         populateHeaderUserSelector();
         renderAll();
@@ -5565,8 +5565,7 @@
         renderAll();
       });
 
-      // Initialize Scrollable Date Filters
-      initializeQuickDateFilters();
+
 
       // Delete Modal triggers
       document.getElementById("delete-modal-cancel").addEventListener("click", closeDeleteConfirm);
