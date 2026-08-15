@@ -3601,17 +3601,30 @@
         result = result.filter(f => f.Bank === dropBank);
       }
 
-      // 4. Search Filter
+      // 4. Search Filter (Universal Search)
       if (state.filters.search) {
-        const query = state.filters.search.toLowerCase();
-        result = result.filter(f => 
-          (f.FileNo && f.FileNo.toLowerCase().includes(query)) ||
-          (f.Owner && f.Owner.toLowerCase().includes(query)) ||
-          (f.Address && f.Address.toLowerCase().includes(query)) ||
-          (f.Bank && f.Bank.toLowerCase().includes(query)) ||
-          (f.Engineer && f.Engineer.toLowerCase().includes(query)) ||
-          (f.Location && f.Location.toLowerCase().includes(query))
-        );
+        const query = state.filters.search.toLowerCase().trim();
+        result = result.filter(f => {
+          const matchStr = [
+            f.FileNo,
+            f.RefNo,
+            f.Owner,
+            f.Address,
+            f.Location,
+            f.Bank,
+            f.Engineer,
+            f.Contact,
+            f.Contact2,
+            f.Contact3,
+            f.Coordinates,
+            f.Priority,
+            f.Status,
+            f.Date,
+            f.Remarks
+          ].map(val => val ? String(val).toLowerCase() : "").join(" | ");
+          
+          return matchStr.includes(query);
+        });
       }
 
       // Sort descending to show the last case first (newest case first)
