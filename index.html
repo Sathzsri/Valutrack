@@ -3540,6 +3540,58 @@
     function getFilteredFiles() {
       let result = [...state.files];
       
+      // If there is an active search query, run a global universal search bypassing other filters
+      if (state.filters.search) {
+        const query = state.filters.search.toLowerCase().trim();
+        const numericQuery = query.replace(/\D/g, "");
+        
+        result = result.filter(f => {
+          const matchStr = [
+            f.FileNo,
+            f.RefNo,
+            f.Owner,
+            f.Address,
+            f.Location,
+            f.Bank,
+            f.Engineer,
+            f.Contact,
+            f.Contact2,
+            f.Contact3,
+            f.Coordinates,
+            f.Priority,
+            f.Status,
+            f.Date,
+            f.Remarks
+          ].map(val => val ? String(val).toLowerCase() : "").join(" | ");
+          
+          if (matchStr.includes(query)) return true;
+          
+          // Match stripped numerical phone numbers
+          if (numericQuery.length >= 4) {
+            const c1 = String(f.Contact || "").replace(/\D/g, "");
+            const c2 = String(f.Contact2 || "").replace(/\D/g, "");
+            const c3 = String(f.Contact3 || "").replace(/\D/g, "");
+            if (c1.includes(numericQuery) || c2.includes(numericQuery) || c3.includes(numericQuery)) {
+              return true;
+            }
+          }
+          return false;
+        });
+
+        // Sort descending to show the last case first
+        result.sort((a, b) => {
+          const dateA = a.Date ? a.Date.substring(0, 10) : "";
+          const dateB = b.Date ? b.Date.substring(0, 10) : "";
+          if (dateA !== dateB) return dateB.localeCompare(dateA);
+          
+          const fileNoA = a.FileNo || "";
+          const fileNoB = b.FileNo || "";
+          return fileNoB.localeCompare(fileNoA);
+        });
+
+        return result;
+      }
+
       // 1. Sidebar/Header Engineer Filter
       if (state.filters.engineer) {
         result = result.filter(f => f.Engineer === state.filters.engineer);
@@ -3599,32 +3651,6 @@
       const dropBank = document.getElementById("filter-bank").value;
       if (dropBank) {
         result = result.filter(f => f.Bank === dropBank);
-      }
-
-      // 4. Search Filter (Universal Search)
-      if (state.filters.search) {
-        const query = state.filters.search.toLowerCase().trim();
-        result = result.filter(f => {
-          const matchStr = [
-            f.FileNo,
-            f.RefNo,
-            f.Owner,
-            f.Address,
-            f.Location,
-            f.Bank,
-            f.Engineer,
-            f.Contact,
-            f.Contact2,
-            f.Contact3,
-            f.Coordinates,
-            f.Priority,
-            f.Status,
-            f.Date,
-            f.Remarks
-          ].map(val => val ? String(val).toLowerCase() : "").join(" | ");
-          
-          return matchStr.includes(query);
-        });
       }
 
       // Sort descending to show the last case first (newest case first)
