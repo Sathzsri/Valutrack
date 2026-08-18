@@ -169,16 +169,26 @@
       border-left: 1px dashed var(--accent-blue);
     }
 
-    /* Bank Badges Colors Styles */
+    /* Bank Badges Colors Styles (Soft Filled Gradient Pill) */
     .bank-tag {
-      background-color: var(--bg-c-dark);
+      background: linear-gradient(135deg, var(--bg-c-dark-start), var(--bg-c-dark-end));
       color: var(--text-c-dark);
       border: 1px solid var(--border-c-dark);
+      border-radius: 12px;
+      padding: 3px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
     }
     body.light-theme .bank-tag {
-      background-color: var(--bg-c-light);
+      background: linear-gradient(135deg, var(--bg-c-light-start), var(--bg-c-light-end));
       color: var(--text-c-light);
       border: 1px solid var(--border-c-light);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
     /* Custom Scrollbar */
@@ -3198,18 +3208,18 @@
       const cleaned = bankName.trim();
       const lower = cleaned.toLowerCase();
       
-      // Palettes: [bgDark, textDark, borderDark, bgLight, textLight, borderLight]
+      // Palettes mapping to: [bgDarkStart, bgDarkEnd, textDark, borderDark, bgLightStart, bgLightEnd, textLight, borderLight]
       const palettes = {
-        hdfc: ["rgba(30, 64, 175, 0.18)", "#60a5fa", "rgba(96, 165, 250, 0.3)", "rgba(59, 130, 246, 0.12)", "#1e40af", "rgba(30, 64, 175, 0.25)"],
-        icici: ["rgba(249, 115, 22, 0.18)", "#fb923c", "rgba(251, 146, 60, 0.3)", "rgba(249, 115, 22, 0.12)", "#c2410c", "rgba(194, 65, 12, 0.25)"],
-        axis: ["rgba(190, 24, 74, 0.18)", "#fb7185", "rgba(251, 113, 133, 0.3)", "rgba(225, 29, 72, 0.1)", "#9f1239", "rgba(159, 18, 57, 0.25)"],
-        niwas: ["rgba(6, 182, 212, 0.18)", "#22d3ee", "rgba(34, 211, 238, 0.3)", "rgba(6, 182, 212, 0.12)", "#0891b2", "rgba(8, 145, 178, 0.25)"],
-        centrum: ["rgba(168, 85, 247, 0.18)", "#c084fc", "rgba(192, 132, 252, 0.3)", "rgba(168, 85, 247, 0.12)", "#6b21a8", "rgba(107, 33, 168, 0.25)"],
-        truhome: ["rgba(16, 185, 129, 0.18)", "#34d399", "rgba(52, 211, 153, 0.3)", "rgba(16, 185, 129, 0.12)", "#065f46", "rgba(6, 95, 70, 0.25)"],
-        equitas: ["rgba(234, 179, 8, 0.18)", "#facc15", "rgba(250, 204, 21, 0.3)", "rgba(234, 179, 8, 0.12)", "#854d0e", "rgba(133, 77, 14, 0.25)"],
-        mahindra: ["rgba(239, 68, 68, 0.18)", "#f87171", "rgba(248, 113, 113, 0.3)", "rgba(239, 68, 68, 0.12)", "#991b1b", "rgba(153, 27, 27, 0.25)"],
-        growxcd: ["rgba(236, 72, 153, 0.18)", "#f472b6", "rgba(244, 114, 182, 0.3)", "rgba(236, 72, 153, 0.12)", "#9d174d", "rgba(157, 23, 77, 0.25)"],
-        state: ["rgba(59, 130, 246, 0.18)", "#60a5fa", "rgba(96, 165, 250, 0.3)", "rgba(59, 130, 246, 0.12)", "#1e40af", "rgba(30, 64, 175, 0.25)"]
+        hdfc: ["rgba(59, 130, 246, 0.22)", "rgba(59, 130, 246, 0.04)", "#60a5fa", "rgba(59, 130, 246, 0.35)", "rgba(59, 130, 246, 0.12)", "rgba(59, 130, 246, 0.02)", "#1d4ed8", "rgba(59, 130, 246, 0.25)"],
+        icici: ["rgba(249, 115, 22, 0.22)", "rgba(249, 115, 22, 0.04)", "#fb923c", "rgba(249, 115, 22, 0.35)", "rgba(249, 115, 22, 0.12)", "rgba(249, 115, 22, 0.02)", "#c2410c", "rgba(194, 65, 12, 0.25)"],
+        axis: ["rgba(190, 24, 74, 0.22)", "rgba(190, 24, 74, 0.04)", "#fb7185", "rgba(251, 113, 133, 0.35)", "rgba(225, 29, 72, 0.12)", "rgba(225, 29, 72, 0.02)", "#be123c", "rgba(159, 18, 57, 0.25)"],
+        niwas: ["rgba(6, 182, 212, 0.22)", "rgba(6, 182, 212, 0.04)", "#22d3ee", "rgba(34, 211, 238, 0.35)", "rgba(6, 182, 212, 0.12)", "rgba(6, 182, 212, 0.02)", "#0891b2", "rgba(8, 145, 178, 0.25)"],
+        centrum: ["rgba(168, 85, 247, 0.22)", "rgba(168, 85, 247, 0.04)", "#c084fc", "rgba(192, 132, 252, 0.35)", "rgba(168, 85, 247, 0.12)", "rgba(168, 85, 247, 0.02)", "#7e22ce", "rgba(107, 33, 168, 0.25)"],
+        truhome: ["rgba(16, 185, 129, 0.22)", "rgba(16, 185, 129, 0.04)", "#34d399", "rgba(52, 211, 153, 0.35)", "rgba(16, 185, 129, 0.12)", "rgba(16, 185, 129, 0.02)", "#047857", "rgba(6, 95, 70, 0.25)"],
+        equitas: ["rgba(234, 179, 8, 0.22)", "rgba(234, 179, 8, 0.04)", "#facc15", "rgba(250, 204, 21, 0.35)", "rgba(234, 179, 8, 0.12)", "rgba(234, 179, 8, 0.02)", "#a16207", "rgba(133, 77, 14, 0.25)"],
+        mahindra: ["rgba(239, 68, 68, 0.22)", "rgba(239, 68, 68, 0.04)", "#f87171", "rgba(248, 113, 113, 0.35)", "rgba(239, 68, 68, 0.12)", "rgba(239, 68, 68, 0.02)", "#b91c1c", "rgba(153, 27, 27, 0.25)"],
+        growxcd: ["rgba(236, 72, 153, 0.22)", "rgba(236, 72, 153, 0.04)", "#f472b6", "rgba(244, 114, 182, 0.35)", "rgba(236, 72, 153, 0.12)", "rgba(236, 72, 153, 0.02)", "#be185d", "rgba(157, 23, 77, 0.25)"],
+        state: ["rgba(59, 130, 246, 0.22)", "rgba(59, 130, 246, 0.04)", "#60a5fa", "rgba(59, 130, 246, 0.35)", "rgba(59, 130, 246, 0.12)", "rgba(59, 130, 246, 0.02)", "#1d4ed8", "rgba(30, 64, 175, 0.25)"]
       };
       
       let p = null;
@@ -3228,24 +3238,28 @@
         const hue = Math.abs(hash % 360);
         return `
           <span class="bank-tag" style="
-            --bg-c-dark: hsla(${hue}, 70%, 15%, 0.4);
+            --bg-c-dark-start: hsla(${hue}, 70%, 20%, 0.3);
+            --bg-c-dark-end: hsla(${hue}, 70%, 10%, 0.08);
             --text-c-dark: hsl(${hue}, 85%, 75%);
-            --border-c-dark: hsla(${hue}, 85%, 75%, 0.25);
-            --bg-c-light: hsla(${hue}, 60%, 94%, 1);
-            --text-c-light: hsl(${hue}, 75%, 25%);
-            --border-c-light: hsla(${hue}, 75%, 25%, 0.15);
+            --border-c-dark: hsla(${hue}, 85%, 75%, 0.3);
+            --bg-c-light-start: hsla(${hue}, 60%, 94%, 0.8);
+            --bg-c-light-end: hsla(${hue}, 60%, 98%, 0.3);
+            --text-c-light: hsl(${hue}, 75%, 30%);
+            --border-c-light: hsla(${hue}, 75%, 30%, 0.2);
           ">${cleaned}</span>
         `;
       }
       
       return `
         <span class="bank-tag" style="
-          --bg-c-dark: ${p[0]};
-          --text-c-dark: ${p[1]};
-          --border-c-dark: ${p[2]};
-          --bg-c-light: ${p[3]};
-          --text-c-light: ${p[4]};
-          --border-c-light: ${p[5]};
+          --bg-c-dark-start: ${p[0]};
+          --bg-c-dark-end: ${p[1]};
+          --text-c-dark: ${p[2]};
+          --border-c-dark: ${p[3]};
+          --bg-c-light-start: ${p[4]};
+          --bg-c-light-end: ${p[5]};
+          --text-c-light: ${p[6]};
+          --border-c-light: ${p[7]};
         ">${cleaned}</span>
       `;
     }
