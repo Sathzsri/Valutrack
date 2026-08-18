@@ -169,6 +169,18 @@
       border-left: 1px dashed var(--accent-blue);
     }
 
+    /* Bank Badges Colors Styles */
+    .bank-tag {
+      background-color: var(--bg-c-dark);
+      color: var(--text-c-dark);
+      border: 1px solid var(--border-c-dark);
+    }
+    body.light-theme .bank-tag {
+      background-color: var(--bg-c-light);
+      color: var(--text-c-light);
+      border: 1px solid var(--border-c-light);
+    }
+
     /* Custom Scrollbar */
     ::-webkit-scrollbar {
       width: 8px;
@@ -3124,6 +3136,25 @@
       return `${yyyy}-${mm}-${dd}`;
     }
 
+    function isCaseOverdue(dateStr, status) {
+      if (status !== "Site Visit Pending" || !dateStr) return false;
+      
+      const todayStr = getTodayString();
+      const caseDateStr = dateStr.substring(0, 10);
+      
+      // Parse dates explicitly to avoid local timezone offset errors
+      const tParts = todayStr.split("-");
+      const cParts = caseDateStr.split("-");
+      
+      const tDate = new Date(tParts[0], tParts[1] - 1, tParts[2]);
+      const cDate = new Date(cParts[0], cParts[1] - 1, cParts[2]);
+      
+      const diffTime = tDate - cDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays >= 2;
+    }
+
     function getTimestamp() {
       const d = new Date();
       const yyyy = d.getFullYear();
@@ -3159,6 +3190,64 @@
         case "Report Sent": return "completed-sent";
         default: return "visit-pending";
       }
+    }
+
+    function getBankBadgeHtml(bankName) {
+      if (!bankName) return "-";
+      
+      const cleaned = bankName.trim();
+      const lower = cleaned.toLowerCase();
+      
+      // Palettes: [bgDark, textDark, borderDark, bgLight, textLight, borderLight]
+      const palettes = {
+        hdfc: ["rgba(30, 64, 175, 0.18)", "#60a5fa", "rgba(96, 165, 250, 0.3)", "rgba(59, 130, 246, 0.12)", "#1e40af", "rgba(30, 64, 175, 0.25)"],
+        icici: ["rgba(249, 115, 22, 0.18)", "#fb923c", "rgba(251, 146, 60, 0.3)", "rgba(249, 115, 22, 0.12)", "#c2410c", "rgba(194, 65, 12, 0.25)"],
+        axis: ["rgba(190, 24, 74, 0.18)", "#fb7185", "rgba(251, 113, 133, 0.3)", "rgba(225, 29, 72, 0.1)", "#9f1239", "rgba(159, 18, 57, 0.25)"],
+        niwas: ["rgba(6, 182, 212, 0.18)", "#22d3ee", "rgba(34, 211, 238, 0.3)", "rgba(6, 182, 212, 0.12)", "#0891b2", "rgba(8, 145, 178, 0.25)"],
+        centrum: ["rgba(168, 85, 247, 0.18)", "#c084fc", "rgba(192, 132, 252, 0.3)", "rgba(168, 85, 247, 0.12)", "#6b21a8", "rgba(107, 33, 168, 0.25)"],
+        truhome: ["rgba(16, 185, 129, 0.18)", "#34d399", "rgba(52, 211, 153, 0.3)", "rgba(16, 185, 129, 0.12)", "#065f46", "rgba(6, 95, 70, 0.25)"],
+        equitas: ["rgba(234, 179, 8, 0.18)", "#facc15", "rgba(250, 204, 21, 0.3)", "rgba(234, 179, 8, 0.12)", "#854d0e", "rgba(133, 77, 14, 0.25)"],
+        mahindra: ["rgba(239, 68, 68, 0.18)", "#f87171", "rgba(248, 113, 113, 0.3)", "rgba(239, 68, 68, 0.12)", "#991b1b", "rgba(153, 27, 27, 0.25)"],
+        growxcd: ["rgba(236, 72, 153, 0.18)", "#f472b6", "rgba(244, 114, 182, 0.3)", "rgba(236, 72, 153, 0.12)", "#9d174d", "rgba(157, 23, 77, 0.25)"],
+        state: ["rgba(59, 130, 246, 0.18)", "#60a5fa", "rgba(96, 165, 250, 0.3)", "rgba(59, 130, 246, 0.12)", "#1e40af", "rgba(30, 64, 175, 0.25)"]
+      };
+      
+      let p = null;
+      for (const key in palettes) {
+        if (lower.includes(key)) {
+          p = palettes[key];
+          break;
+        }
+      }
+      
+      if (!p) {
+        let hash = 0;
+        for (let i = 0; i < lower.length; i++) {
+          hash = lower.charCodeAt(i) + ((hash << 5) - hash);
+        }
+        const hue = Math.abs(hash % 360);
+        return `
+          <span class="bank-tag" style="
+            --bg-c-dark: hsla(${hue}, 70%, 15%, 0.4);
+            --text-c-dark: hsl(${hue}, 85%, 75%);
+            --border-c-dark: hsla(${hue}, 85%, 75%, 0.25);
+            --bg-c-light: hsla(${hue}, 60%, 94%, 1);
+            --text-c-light: hsl(${hue}, 75%, 25%);
+            --border-c-light: hsla(${hue}, 75%, 25%, 0.15);
+          ">${cleaned}</span>
+        `;
+      }
+      
+      return `
+        <span class="bank-tag" style="
+          --bg-c-dark: ${p[0]};
+          --text-c-dark: ${p[1]};
+          --border-c-dark: ${p[2]};
+          --bg-c-light: ${p[3]};
+          --text-c-light: ${p[4]};
+          --border-c-light: ${p[5]};
+        ">${cleaned}</span>
+      `;
     }
 
     function getPriorityClass(priority) {
@@ -4060,8 +4149,7 @@
         const caseDate = file.Date ? file.Date.substring(0, 10) : "";
         let dateHtml = "";
         if (caseDate) {
-          const todayStr = getTodayString();
-          if (caseDate < todayStr && file.Status === "Site Visit Pending") {
+          if (isCaseOverdue(caseDate, file.Status)) {
             dateHtml = `<span class="overdue-badge" style="color: #ef4444; font-weight: 700; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; display: inline-flex; align-items: center; gap: 3px;">⚠️ Overdue: ${caseDate}</span>`;
           } else {
             dateHtml = `<span style="color: var(--text-muted); font-size: 0.72rem; display: inline-flex; align-items: center; gap: 3px;">📅 ${caseDate}</span>`;
@@ -4133,10 +4221,10 @@
                   <span class="mob-drawer-label">Ref No</span>
                   <span class="mob-drawer-value font-mono">${file.RefNo || "-"}</span>
                 </div>
-                <div class="mob-drawer-row">
-                  <span class="mob-drawer-label">Bank</span>
-                  <span class="mob-drawer-value">${file.Bank}</span>
-                </div>
+              <div class="mob-drawer-row">
+                <span class="mob-drawer-label">Bank</span>
+                <span class="mob-drawer-value">${getBankBadgeHtml(file.Bank)}</span>
+              </div>
                 <div class="mob-drawer-row">
                   <span class="mob-drawer-label">Engineer</span>
                   <span class="mob-drawer-value">${file.Engineer}</span>
@@ -4171,7 +4259,7 @@
             </div>
           </td>
           <td class="desktop-cell address-col" data-label="Area / Location" title="${file.Location || '-'}">📍 ${file.Location || "-"}</td>
-          <td class="desktop-cell" data-label="Bank">${file.Bank}</td>
+          <td class="desktop-cell" data-label="Bank">${getBankBadgeHtml(file.Bank)}</td>
           <td class="desktop-cell" data-label="Engineer">${file.Engineer}</td>
           <td class="desktop-cell" data-label="Priority">${pBadge}</td>
           <td class="desktop-cell" data-label="Status">${sBadge}</td>
@@ -4234,7 +4322,7 @@
       if (state.filters.quickDateRange === "today") {
         const overdueFiles = filesToShow.filter(f => {
           const dStr = f.Date ? f.Date.substring(0, 10) : "";
-          return dStr && dStr < todayStr && f.Status === "Site Visit Pending";
+          return dStr && isCaseOverdue(dStr, f.Status);
         });
         const todayFiles = filesToShow.filter(f => {
           const dStr = f.Date ? f.Date.substring(0, 10) : "";
