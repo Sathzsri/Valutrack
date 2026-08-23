@@ -3328,18 +3328,49 @@
       return cleaned;
     }
 
+    function deduplicateFiles(filesArray) {
+      const map = {};
+      filesArray.forEach(file => {
+        if (!file.ID) return;
+        const existing = map[file.ID];
+        if (!existing) {
+          map[file.ID] = file;
+        } else {
+          let existingHistoryLen = 0;
+          let fileHistoryLen = 0;
+          try {
+            existingHistoryLen = existing.History ? JSON.parse(existing.History).length : 0;
+          } catch(e) {}
+          try {
+            fileHistoryLen = file.History ? JSON.parse(file.History).length : 0;
+          } catch(e) {}
+
+          if (fileHistoryLen > existingHistoryLen) {
+            map[file.ID] = file;
+          } else if (fileHistoryLen === existingHistoryLen) {
+            if (file.Status === "Report Sent" && existing.Status !== "Report Sent") {
+              map[file.ID] = file;
+            }
+          }
+        }
+      });
+      return Object.values(map);
+    }
+
     function loadLocalData() {
       const filesCache = localStorage.getItem("valutrack_files");
       if (filesCache) {
-        state.files = JSON.parse(filesCache).map(file => ({
+        const rawFiles = JSON.parse(filesCache).map(file => ({
           ...file,
           Status: sanitizeFileStatus(file.Status)
         }));
+        state.files = deduplicateFiles(rawFiles);
       } else {
-        state.files = MOCK_FILES.map(file => ({
+        const rawFiles = MOCK_FILES.map(file => ({
           ...file,
           Status: sanitizeFileStatus(file.Status)
         }));
+        state.files = deduplicateFiles(rawFiles);
         localStorage.setItem("valutrack_files", JSON.stringify(state.files));
       }
       loadEngineers();
@@ -3555,10 +3586,11 @@
         const result = await response.json();
         
         if (result.success) {
-          state.files = (result.data || []).map(file => ({
+          const rawFiles = (result.data || []).map(file => ({
             ...file,
             Status: sanitizeFileStatus(file.Status)
           }));
+          state.files = deduplicateFiles(rawFiles);
           saveLocalData();
           
           // Pull engineers contact details from Google Sheets response
@@ -4328,34 +4360,45 @@
       }
 
       const todayStr = getTodayString();
+      
+      const overdueFiles = [];
+      const todayFiles = [];
+      const futureFiles = [];
+      const completedFiles = [];
 
-      if (state.filters.quickDateRange === "today") {
-        const overdueFiles = filesToShow.filter(f => {
-          const dStr = f.Date ? f.Date.substring(0, 10) : "";
-          return dStr && isCaseOverdue(dStr, f.Status);
-        });
-        const todayFiles = filesToShow.filter(f => {
-          const dStr = f.Date ? f.Date.substring(0, 10) : "";
-          return dStr === todayStr;
-        });
-
-        if (overdueFiles.length > 0) {
-          tbody.appendChild(createSectionHeaderRow("⚠️ Overdue / Pending Cases (Yesterday & Earlier)", overdueFiles.length));
-          overdueFiles.forEach(file => {
-            tbody.appendChild(renderRowHelper(file));
-          });
+      filesToShow.forEach(file => {
+        const dStr = file.Date ? file.Date.substring(0, 10) : "";
+        if (file.Status === "Report Sent") {
+          completedFiles.push(file);
+        } else if (dStr && dStr < todayStr) {
+          overdueFiles.push(file);
+        } else if (dStr && dStr === todayStr) {
+          todayFiles.push(file);
+        } else if (dStr && dStr > todayStr) {
+          futureFiles.push(file);
+        } else {
+          overdueFiles.push(file);
         }
+      });
 
-        if (todayFiles.length > 0) {
-          tbody.appendChild(createSectionHeaderRow("📅 Today's Cases", todayFiles.length));
-          todayFiles.forEach(file => {
-            tbody.appendChild(renderRowHelper(file));
-          });
-        }
-      } else {
-        filesToShow.forEach(file => {
-          tbody.appendChild(renderRowHelper(file));
-        });
+      if (overdueFiles.length > 0) {
+        tbody.appendChild(createSectionHeaderRow("⚠️ Overdue / Pending Cases (Yesterday & Earlier)", overdueFiles.length));
+        overdueFiles.forEach(file => tbody.appendChild(renderRowHelper(file)));
+      }
+
+      if (todayFiles.length > 0) {
+        tbody.appendChild(createSectionHeaderRow("📅 Today's Cases", todayFiles.length));
+        todayFiles.forEach(file => tbody.appendChild(renderRowHelper(file)));
+      }
+
+      if (futureFiles.length > 0) {
+        tbody.appendChild(createSectionHeaderRow("🔮 Future / Rescheduled Cases (Tomorrow & Later)", futureFiles.length));
+        futureFiles.forEach(file => tbody.appendChild(renderRowHelper(file)));
+      }
+
+      if (completedFiles.length > 0) {
+        tbody.appendChild(createSectionHeaderRow("✔️ Completed Cases (Report Sent)", completedFiles.length));
+        completedFiles.forEach(file => tbody.appendChild(renderRowHelper(file)));
       }
     }
 
@@ -4485,7 +4528,8 @@
 
       STAGES.forEach((stage, idx) => {
         const isCompleted = idx <= currentStatusIndex;
-        const isActive = idx === currentStatusIndex;
+        // If the status is Report Sent (closed), there is no active pending stage
+        const isActive = (file.Status !== "Report Sent") && (idx === currentStatusIndex);
 
         // Find matches in history log
         const logEntry = historyArray.filter(h => h.status === stage).pop();

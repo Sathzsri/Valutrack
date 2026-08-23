@@ -81,6 +81,7 @@ function doGet(e) {
   try {
     // 1. Get Cases List
     var sheet = getSheet();
+    deduplicateSheetRows(sheet);
     var values = sheet.getDataRange().getDisplayValues();
     var headers = values[0];
     var data = [];
@@ -132,13 +133,35 @@ function doPost(e) {
       var values = sheet.getDataRange().getDisplayValues();
       var headers = values[0];
       var rowData = requestData.data;
-      rowData.ID = rowData.ID || Utilities.getUuid();
+      var id = rowData.ID || Utilities.getUuid();
+      rowData.ID = id;
       
-      var newRow = [];
-      for (var i = 0; i < headers.length; i++) {
-        newRow.push(rowData[headers[i]] !== undefined ? rowData[headers[i]] : "");
+      var rowIndex = -1;
+      var idColIndex = headers.indexOf("ID");
+      if (idColIndex === -1) idColIndex = 0;
+      
+      for (var i = 1; i < values.length; i++) {
+        if (values[i][idColIndex] == id) {
+          rowIndex = i + 1;
+          break;
+        }
       }
-      sheet.appendRow(newRow);
+      
+      if (rowIndex !== -1) {
+        // Record already exists, update instead of append to prevent duplicates
+        for (var j = 0; j < headers.length; j++) {
+          var header = headers[j];
+          if (rowData[header] !== undefined) {
+            sheet.getRange(rowIndex, j + 1).setValue(rowData[header]);
+          }
+        }
+      } else {
+        var newRow = [];
+        for (var i = 0; i < headers.length; i++) {
+          newRow.push(rowData[headers[i]] !== undefined ? rowData[headers[i]] : "");
+        }
+        sheet.appendRow(newRow);
+      }
       
       // Trigger background WhatsApp message to assigned engineer
       triggerCaseAssignmentNotification(rowData);
@@ -588,4 +611,49 @@ function setupGmailImportTrigger() {
     .timeBased()
     .everyMinutes(10)
     .create();
+}
+
+function deduplicateSheetRows(sheet) {
+  var values = sheet.getDataRange().getDisplayValues();
+  var headers = values[0];
+  var idColIndex = headers.indexOf("ID");
+  var historyColIndex = headers.indexOf("History");
+  if (idColIndex === -1) return;
+  
+  var idMap = {};
+  var rowsToDelete = [];
+  
+  for (var i = 1; i < values.length; i++) {
+    var id = values[i][idColIndex];
+    if (!id) continue;
+    
+    var historyStr = historyColIndex !== -1 ? values[i][historyColIndex] : "";
+    var historyLen = 0;
+    try {
+      historyLen = historyStr ? JSON.parse(historyStr).length : 0;
+    } catch (e) {
+      historyLen = 0;
+    }
+    
+    var rowIndex = i + 1;
+    
+    if (idMap[id]) {
+      var existing = idMap[id];
+      if (historyLen > existing.historyLen) {
+        rowsToDelete.push(existing.rowIndex);
+        idMap[id] = { rowIndex: rowIndex, historyLen: historyLen };
+      } else {
+        rowsToDelete.push(rowIndex);
+      }
+    } else {
+      idMap[id] = { rowIndex: rowIndex, historyLen: historyLen };
+    }
+  }
+  
+  if (rowsToDelete.length > 0) {
+    rowsToDelete.sort(function(a, b) { return b - a; });
+    for (var k = 0; k < rowsToDelete.length; k++) {
+      sheet.deleteRow(rowsToDelete[k]);
+    }
+  }
 }
