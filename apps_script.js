@@ -439,7 +439,7 @@ function getAdminContact() {
 // Automatically processes unread emails matching specific keywords
 function importCasesFromGmail() {
   // Define search query (customizable - looking for unread valuation emails)
-  var query = 'is:unread (subject:"valuation" OR subject:"property valuation" OR subject:"request" OR subject:"initiate")';
+  var query = 'is:unread (subject:"REQUESTING TO INITIATE THE TECHNICAL VALUATION" OR subject:"Tech Report" OR subject:"Tech initiation" OR subject:"Technical Vendor Initiation" OR subject:"Tech Initiation" OR subject:"Need Valuation Report" OR subject:"Reg: Technical visit" OR subject:"Tech Valuation Report Request" OR subject:"Tech Initiate" OR subject:"Technical initiate" OR subject:"TECH VISIT REQUEST" OR subject:"valuation" OR subject:"initiate")';
   var threads = GmailApp.search(query, 0, 10); // Process top 10 threads at a time
   
   if (threads.length === 0) {
@@ -510,15 +510,32 @@ function importCasesFromGmail() {
       }
       
       // D. Determine Bank
-      var bank = "Unknown Bank";
+      var bank = "Others";
       var senderLower = sender.toLowerCase();
       var subjectLower = subject.toLowerCase();
-      
       var bodyLower = body.toLowerCase();
-      if (senderLower.indexOf("truhome") !== -1 || subjectLower.indexOf("truhome") !== -1 || bodyLower.indexOf("truhome") !== -1) bank = "Truhome";
-      else if (senderLower.indexOf("hdfc") !== -1 || subjectLower.indexOf("hdfc") !== -1 || bodyLower.indexOf("hdfc") !== -1) bank = "HDFC";
-      else if (senderLower.indexOf("equitas") !== -1 || subjectLower.indexOf("equitas") !== -1 || bodyLower.indexOf("equitas") !== -1) bank = "Equitas";
-      else if (senderLower.indexOf("niwas") !== -1 || subjectLower.indexOf("niwas") !== -1 || bodyLower.indexOf("niwas") !== -1) bank = "Niwas";
+      
+      function checkKeywords(keywords) {
+        for (var k = 0; k < keywords.length; k++) {
+          var kw = keywords[k].toLowerCase();
+          if (senderLower.indexOf(kw) !== -1 || subjectLower.indexOf(kw) !== -1 || bodyLower.indexOf(kw) !== -1) {
+            return true;
+          }
+        }
+        return false;
+      }
+      
+      if (checkKeywords(["centrum", "peoplehome"])) bank = "Centrum";
+      else if (checkKeywords(["crotis", "nivara", "crotisindia"])) bank = "Crotisindia";
+      else if (checkKeywords(["mahindra"])) bank = "Mahindra";
+      else if (checkKeywords(["growxcd"])) bank = "GrowXCD";
+      else if (checkKeywords(["equitas"])) bank = "Equitas";
+      else if (checkKeywords(["niwas", "niwas home"])) bank = "Niwas";
+      else if (checkKeywords(["truhome"])) bank = "Truhome";
+      else if (checkKeywords(["hdfc"])) bank = "HDFC";
+      else if (checkKeywords(["icici"])) bank = "ICICI";
+      else if (checkKeywords(["axis"])) bank = "Axis";
+      else if (checkKeywords(["sbi", "state bank"])) bank = "SBI";
       
       // 2. CHECK FOR DUPLICATES
       // If we found a name, let's verify if we already added it recently
