@@ -523,11 +523,17 @@ function importCasesFromGmail() {
       // 2. PARSE REFERENCE NUMBER (Case ID / Lead ID / Application Number)
       var refNo = "";
       if (horizTable) {
-        refNo = horizTable["LEAD ID"] || horizTable["LEAD ID:"] || horizTable["LEADID"] ||
-                horizTable["LOS NUMBER"] || horizTable["LOS NUMBER:"] ||
-                horizTable["APPLICATION NUMBER"] || horizTable["APPLICATION NUMBER:"] ||
-                horizTable["CASE ID"] || horizTable["CASE ID:"] ||
-                horizTable["TECH ID"] || horizTable["TECH ID:"] || "";
+        function getVal(partKey) {
+          var keys = Object.keys(horizTable);
+          for (var k = 0; k < keys.length; k++) {
+            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+              return horizTable[keys[k]];
+            }
+          }
+          return "";
+        }
+        refNo = getVal("LEAD ID") || getVal("LEADID") || getVal("APPLICATION NUMBER") || 
+                getVal("LOS NUMBER") || getVal("CASE ID") || getVal("TECH ID") || getVal("REF NO");
       }
       
       if (!refNo) {
@@ -567,13 +573,29 @@ function importCasesFromGmail() {
         }
       }
       
+      // Fallback bank classification by RefNo format if currently "Others"
+      if (bank === "Others" && refNo) {
+        var refUpper = refNo.toUpperCase();
+        if (refUpper.indexOf("A0000") === 0) bank = "Mahindra";
+        else if (refUpper.indexOf("DLVLP") === 0 || refUpper.indexOf("DLPON") === 0) bank = "Niwas";
+        else if (refUpper.indexOf("LOS-") === 0) bank = "Equitas";
+        else if (refUpper.indexOf("PDY") === 0) bank = "Centrum";
+      }
+      
       // 3. PARSE CUSTOMER NAME (Owner)
       var owner = "";
       if (horizTable) {
-        owner = horizTable["CUSTOMER NAME"] || horizTable["CUSTOMER NAME:"] ||
-                horizTable["APPLICANT NAME"] || horizTable["APPLICANT NAME:"] ||
-                horizTable["PROPERTY OWNER NAME"] || horizTable["PROPERTY OWNER NAME:"] ||
-                horizTable["APPLICANT & CO APP. NAME"] || horizTable["APPLICANT & CO APP. NAME:"] || "";
+        function getVal(partKey) {
+          var keys = Object.keys(horizTable);
+          for (var k = 0; k < keys.length; k++) {
+            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+              return horizTable[keys[k]];
+            }
+          }
+          return "";
+        }
+        owner = getVal("CUSTOMER NAME") || getVal("APPLICANT NAME") || getVal("APPLICANT / CO APP. NAME") ||
+                getVal("APPLICANT & CO APP. NAME") || getVal("NAME") || getVal("PROPERTY OWNER NAME");
       }
       
       if (!owner) {
@@ -654,8 +676,16 @@ function importCasesFromGmail() {
       // 4. PARSE PROPERTY ADDRESS
       var address = "";
       if (horizTable) {
-        address = horizTable["PROPERTY ADDRESS"] || horizTable["PROPERTY ADDRESS:"] ||
-                  horizTable["ADDRESS"] || horizTable["ADDRESS:"] || "";
+        function getVal(partKey) {
+          var keys = Object.keys(horizTable);
+          for (var k = 0; k < keys.length; k++) {
+            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+              return horizTable[keys[k]];
+            }
+          }
+          return "";
+        }
+        address = getVal("PROPERTY ADDRESS") || getVal("ADDRESS");
       }
       
       if (!address) {
@@ -673,23 +703,42 @@ function importCasesFromGmail() {
       // 5. PARSE AREA / LOCATION (Branch Name)
       var location = "";
       if (horizTable) {
-        location = horizTable["BRANCH"] || horizTable["BRANCH:"] ||
-                   horizTable["BRANCH NAME"] || horizTable["BRANCH NAME:"] ||
-                   horizTable["LOCATION"] || horizTable["LOCATION:"] || "";
+        function getVal(partKey) {
+          var keys = Object.keys(horizTable);
+          for (var k = 0; k < keys.length; k++) {
+            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+              return horizTable[keys[k]];
+            }
+          }
+          return "";
+        }
+        location = getVal("LOCATION") || getVal("BRANCH");
       }
       
       if (!location) {
-        var locMatch = body.match(/(?:Sourcing\s*|Branch\s*)?Branch\s*(?:Name)?\s*(?::|-|\s|\t)\s*([\w-]+)/i) ||
-                       body.match(/Branch\s*Credit\s*Manager,\s*([\w-]+)\s*Branch/i) ||
-                       body.match(/([\w-]+)\s*Branch\b/i) ||
-                       subject.match(/([\w-]+)\s*Branch\b/i) ||
-                       body.match(/Location\s*(?::|-|\s|\t)\s*([\w-]+)/i);
-                       
-        if (locMatch) {
-          location = locMatch[1].replace(/Branch/ig, "").trim();
+        // Collect all possible matches of Branch in body or subject
+        var locMatches = [];
+        var bodyMatches = body.match(/([\w-]+)\s*Branch\b/gi) || [];
+        var subjectMatches = subject.match(/([\w-]+)\s*Branch\b/gi) || [];
+        
+        // Merge matches
+        var allMatches = bodyMatches.concat(subjectMatches);
+        
+        for (var m = 0; m < allMatches.length; m++) {
+          var wordMatch = allMatches[m].match(/([\w-]+)\s*Branch\b/i);
+          if (wordMatch) {
+            var word = wordMatch[1].replace(/[^a-zA-Z]/g, "");
+            if (word) {
+              var formatted = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+              if (formatted !== "Credit" && formatted !== "Sourcing" && formatted !== "Vendor" && formatted !== "Admin" && formatted !== "Initiations" && formatted !== "Manager") {
+                location = formatted;
+                break;
+              }
+            }
+          }
         }
         
-        // Double slash subject Location check (Equitas / Niwas)
+        // Double slash subject Location check fallback (Equitas / Niwas)
         if (!location) {
           var cleanSub = subject.replace(/^[Ff][Ww]:\s*/, "").replace(/^[Rr][Ee]:\s*/, "");
           if (cleanSub.indexOf("//") !== -1) {
