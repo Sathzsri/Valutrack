@@ -439,7 +439,7 @@ function getAdminContact() {
 // Automatically processes unread emails matching specific keywords
 function importCasesFromGmail() {
   // Define search query (customizable - looking for unread valuation emails)
-  var query = 'is:unread (subject:"REQUESTING TO INITIATE THE TECHNICAL VALUATION" OR subject:"Tech Report" OR subject:"Tech initiation" OR subject:"Technical Vendor Initiation" OR subject:"Tech Initiation" OR subject:"Need Valuation Report" OR subject:"Reg: Technical visit" OR subject:"Tech Valuation Report Request" OR subject:"Tech Initiate" OR subject:"Technical initiate" OR subject:"TECH VISIT REQUEST" OR subject:"valuation" OR subject:"initiate")';
+  var query = 'is:unread (subject:valuation OR subject:initiate OR subject:request OR subject:tech OR subject:technical)';
   var threads = GmailApp.search(query, 0, 15); // Process top 15 threads at a time
   
   if (threads.length === 0) {
