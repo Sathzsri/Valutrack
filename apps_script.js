@@ -485,6 +485,7 @@ function importCasesFromGmail() {
       if (!msg.isUnread()) continue;
       
       var body = msg.getPlainBody();
+      var html = msg.getBody();
       var subject = msg.getSubject();
       var sender = msg.getFrom();
       
@@ -492,8 +493,8 @@ function importCasesFromGmail() {
       var subjectLower = subject.toLowerCase();
       var bodyLower = body.toLowerCase();
       
-      // Check for horizontal table data
-      var horizTable = parseHorizontalTable(body);
+      // Check for horizontal table data (HTML or plain text fallback)
+      var horizTable = parseHtmlTable(html) || parseHorizontalTable(body);
       
       // 1. DETERMINE BANK
       var bank = "Others";
@@ -866,6 +867,62 @@ function importCasesFromGmail() {
       msg.markRead();
     }
   }
+}
+
+// Helper to parse HTML tables directly from raw Gmail HTML
+function parseHtmlTable(htmlText) {
+  if (!htmlText) return null;
+  // Look for all table rows <tr>...</tr>
+  var rowRegex = /<tr[^>]*>([\s\S]+?)<\/tr>/gi;
+  var cellRegex = /<t[dh][^>]*>([\s\S]+?)<\/t[dh]>/gi;
+  var rows = [];
+  var match;
+  
+  while ((match = rowRegex.exec(htmlText)) !== null) {
+    var rowHtml = match[1];
+    var cells = [];
+    var cellMatch;
+    while ((cellMatch = cellRegex.exec(rowHtml)) !== null) {
+      var cellText = cellMatch[1].replace(/<[^>]+>/g, "")
+                                  .replace(/&nbsp;/gi, " ")
+                                  .replace(/&amp;/gi, "&")
+                                  .replace(/&lt;/gi, "<")
+                                  .replace(/&gt;/gi, ">")
+                                  .trim();
+      cells.push(cellText);
+    }
+    if (cells.length > 0) {
+      rows.push(cells);
+    }
+  }
+  
+  // Find the row containing "CUSTOMER NAME" or "APPLICANT NAME" or "LEAD ID"
+  for (var r = 0; r < rows.length; r++) {
+    var row = rows[r];
+    var upperRow = row.map(function(c) { return c.toUpperCase(); });
+    var customerIdx = -1;
+    for (var c = 0; c < upperRow.length; c++) {
+      if (upperRow[c].indexOf("CUSTOMER NAME") !== -1 || upperRow[c].indexOf("APPLICANT NAME") !== -1 || upperRow[c].indexOf("LEAD ID") !== -1) {
+        customerIdx = c;
+        break;
+      }
+    }
+    
+    if (customerIdx !== -1) {
+      // Find the first row after this one that has cells
+      var valueRow = rows[r + 1];
+      if (valueRow) {
+        var data = {};
+        for (var col = 0; col < row.length; col++) {
+          var headerName = row[col].toUpperCase().trim();
+          var val = valueRow[col] ? valueRow[col].trim() : "";
+          data[headerName] = val;
+        }
+        return data;
+      }
+    }
+  }
+  return null;
 }
 
 // Helper to parse horizontal tables in Gmail body text
