@@ -440,7 +440,7 @@ function getAdminContact() {
 function importCasesFromGmail() {
   // Define search query (customizable - looking for unread valuation emails)
   var query = 'is:unread (subject:"REQUESTING TO INITIATE THE TECHNICAL VALUATION" OR subject:"Tech Report" OR subject:"Tech initiation" OR subject:"Technical Vendor Initiation" OR subject:"Tech Initiation" OR subject:"Need Valuation Report" OR subject:"Reg: Technical visit" OR subject:"Tech Valuation Report Request" OR subject:"Tech Initiate" OR subject:"Technical initiate" OR subject:"TECH VISIT REQUEST" OR subject:"valuation" OR subject:"initiate")';
-  var threads = GmailApp.search(query, 0, 10); // Process top 10 threads at a time
+  var threads = GmailApp.search(query, 0, 15); // Process top 15 threads at a time
   
   if (threads.length === 0) {
     Logger.log("No new unread valuation emails found.");
@@ -457,10 +457,13 @@ function importCasesFromGmail() {
   var ownerCol = headers.indexOf("Owner");
   var bankCol = headers.indexOf("Bank");
   var addressCol = headers.indexOf("Address");
+  var locationCol = headers.indexOf("Location");
   var priorityCol = headers.indexOf("Priority");
   var statusCol = headers.indexOf("Status");
   var dateCol = headers.indexOf("Date");
   var contactCol = headers.indexOf("Contact");
+  var contact2Col = headers.indexOf("Contact2");
+  var contact3Col = headers.indexOf("Contact3");
   var refNoCol = headers.indexOf("RefNo");
   
   var now = new Date();
@@ -485,36 +488,12 @@ function importCasesFromGmail() {
       var subject = msg.getSubject();
       var sender = msg.getFrom();
       
-      // 1. EXTRACT DATA VIA REGEX
-      // A. Extract Owner/Customer Name
-      var owner = "";
-      var ownerMatch = body.match(/(?:owner|customer|borrower|applicant)?\s*name\s*:\s*([^\n\r]+)/i) || 
-                       body.match(/valuation\s*for\s*:\s*([^\n\r]+)/i);
-      if (ownerMatch) {
-        owner = ownerMatch[1].trim();
-      }
-      
-      // B. Extract Contact Number (looks for 10-12 digit numbers)
-      var contact = "";
-      var contactMatch = body.match(/(?:contact|phone|mobile|tel)?\s*(?:no|number)?\s*:\s*([+0-9\s-]{10,15})/i) ||
-                         body.match(/\b\d{10}\b/);
-      if (contactMatch) {
-        contact = contactMatch[1].replace(/[^0-9+]/g, "").trim();
-      }
-      
-      // C. Extract Reference Number
-      var refNo = "";
-      var refMatch = body.match(/(?:ref|reference|case)?\s*(?:no|number)?\s*:\s*([a-zA-Z0-9_-]+)/i);
-      if (refMatch) {
-        refNo = refMatch[1].trim();
-      }
-      
-      // D. Determine Bank
-      var bank = "Others";
       var senderLower = sender.toLowerCase();
       var subjectLower = subject.toLowerCase();
       var bodyLower = body.toLowerCase();
       
+      // 1. DETERMINE BANK
+      var bank = "Others";
       function checkKeywords(keywords) {
         for (var k = 0; k < keywords.length; k++) {
           var kw = keywords[k].toLowerCase();
@@ -537,8 +516,208 @@ function importCasesFromGmail() {
       else if (checkKeywords(["axis"])) bank = "Axis";
       else if (checkKeywords(["sbi", "state bank"])) bank = "SBI";
       
-      // 2. CHECK FOR DUPLICATES
-      // If we found a name, let's verify if we already added it recently
+      // 2. PARSE REFERENCE NUMBER (Case ID / Lead ID / Application Number)
+      var refNo = "";
+      if (bank === "Centrum") {
+        var match = body.match(/Application\s*Number\s*(?::|-|\s|\t)\s*([A-Za-z0-9\/-]+)/i);
+        if (match) refNo = match[1].trim();
+      } else if (bank === "Equitas") {
+        var match = body.match(/Lead\s*Number\s*(?::|-|\s|\t)\s*([A-Za-z0-9\/-]+)/i);
+        if (match) refNo = match[1].trim();
+        else {
+          var match2 = subject.match(/(LOS-\d+)/i) || body.match(/(LOS-\d+)/i);
+          if (match2) refNo = match2[1].trim();
+        }
+      } else if (bank === "Mahindra") {
+        var match = subject.match(/(A00000\d+)/i) || body.match(/(A00000\d+)/i);
+        if (match) refNo = match[1].trim();
+      } else if (bank === "Niwas") {
+        var match = subject.match(/(DLVLP[A-Za-z0-9_-]+)/i) || body.match(/(DLVLP[A-Za-z0-9_-]+)/i) ||
+                    subject.match(/(DLPON[A-Za-z0-9_-]+)/i) || body.match(/(DLPON[A-Za-z0-9_-]+)/i);
+        if (match) refNo = match[1].trim();
+      } else if (bank === "Truhome") {
+        var match = body.match(/Lead\s*ID\s*(?::|-|\s|\t)\s*([A-Za-z0-9_-]+)/i) ||
+                    body.match(/LEAD\s*ID\s*(?::|-|\s|\t)\s*([A-Za-z0-9_-]+)/i);
+        if (match) refNo = match[1].trim();
+      }
+      
+      // Fallback for general Case ID patterns
+      if (!refNo) {
+        var match = body.match(/(?:Lead|LOS|Case|Ref|Reference)?\s*(?:No|Number|ID)?\s*(?::|-)\s*([A-Za-z0-9\/-]+)/i);
+        if (match) refNo = match[1].trim();
+      }
+      
+      // 3. PARSE CUSTOMER NAME (Owner)
+      var owner = "";
+      if (bank === "Centrum") {
+        var match = body.match(/Applicant\s*Name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i);
+        if (match) owner = match[1].trim();
+      } else if (bank === "Equitas") {
+        var match = body.match(/Applicant\s*(?:\/|\s*&\s*Co\s*App\.)\s*Name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i) ||
+                    body.match(/Applicant\s*\/?\s*Co\s*App\.\s*Name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i);
+        if (match) {
+          owner = match[1].trim();
+        } else {
+          // Parse subject slash format: NEED VALUATION REPORT-.../LOCATION/PONDY/Mr.NAME/NAME-LOS-861961
+          var cleanSub = subject.replace(/^[Ff][Ww]:\s*/, "").replace(/^[Rr][Ee]:\s*/, "");
+          var parts = cleanSub.split("/");
+          if (parts.length >= 4) {
+            var name1 = parts[3].replace(/Mr\.|Mrs\.|Ms\./ig, "").trim();
+            var name2 = "";
+            if (parts[4]) {
+              var dashIdx = parts[4].indexOf("-");
+              name2 = (dashIdx !== -1 ? parts[4].substring(0, dashIdx) : parts[4]).replace(/Mr\.|Mrs\.|Ms\./ig, "").trim();
+            }
+            owner = name1 + (name2 ? " & " + name2 : "");
+          }
+        }
+      } else if (bank === "Mahindra") {
+        var match = body.match(/Customer\s*Name\s*-\s*([^\n\r]+)/i) ||
+                    body.match(/Property\s*inspection\s*for\s*([^-]+)-/i) ||
+                    subject.match(/Final\s*Stage\s*-\s*([^-]+)\s*-/i);
+        if (match) owner = match[1].trim();
+      } else if (bank === "Crotisindia") {
+        var match = body.match(/Name\s*of\s*the\s*Applicant\s*(?::|-|\s|\t)\s*([^\n\r]+)/i) ||
+                    body.match(/Owner\s*of\s*the\s*Property\s*(?::|-|\s|\t)\s*([^\n\r]+)/i) ||
+                    body.match(/1\.\s*Customer\s*name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i);
+        if (match) owner = match[1].trim();
+      } else if (bank === "Niwas") {
+        var match = body.match(/Property\s*Owner\s*Name\s*(?:\([^\)]+\))?\s*(?::|-|\s|\t)\s*([^\n\r]+)/i) ||
+                    body.match(/Name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i);
+        if (match) owner = match[1].trim();
+      } else if (bank === "Truhome") {
+        var match = body.match(/Customer\s*Name\s*(?::|-|\s|\t)\s*([^\n\r]+)/i) ||
+                    body.match(/CUSTOMER\s*NAME\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i);
+        if (match) owner = match[1].trim();
+      }
+      
+      // Universal double slash subject fallback (Niwas / Centrum): Customer Name // Mr. X // RefNo // Branch
+      if (!owner && subject.indexOf("//") !== -1) {
+        var parts = subject.split("//");
+        if (parts.length >= 3) {
+          for (var p = 0; p < parts.length; p++) {
+            var part = parts[p].trim();
+            if (part.match(/(?:Mr\.|Mrs\.|Ms\.)/i) || (!part.match(/^(?:PDY|LOS|DLVLP|DLPON|A000)\d+/i) && !part.match(/^[A-Za-z0-9_-]+-\d+$/) && part.indexOf("Branch") === -1 && part.indexOf("Stage") === -1 && part.indexOf("Reg") === -1 && part.length > 3)) {
+              owner = part;
+              break;
+            }
+          }
+        }
+      }
+      
+      // Global fallback for Owner/Applicant Name
+      if (!owner) {
+        var match = body.match(/(?:Customer|Applicant|Borrower|Owner)?\s*Name\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i);
+        if (match) owner = match[1].trim();
+      }
+      
+      // Clean up Name salutations
+      if (owner) {
+        owner = owner.replace(/Mr\.\s*|Mrs\.\s*|Ms\.\s*|Mr\s+|Mrs\s+|Ms\s+/ig, "").replace(/,\s*$/g, "").trim();
+      }
+      
+      // 4. PARSE PROPERTY ADDRESS
+      var address = "";
+      var addrMatch = body.match(/Property\s*Address\s*(?:\([^\)]+\))?\s*(?::|-|\s|\t)\s*([\s\S]+?)(?=\r?\n\s*(?:[A-Za-z0-9#\-\.\s_\[\]]+(?::|-|\t)|\r?\n|$))/i) ||
+                      body.match(/9\.\s*Property\s*Address\s*(?::|-|\s|\t)\s*([\s\S]+?)(?=\r?\n\s*(?:[A-Za-z0-9#\-\.\s_\[\]]+(?::|-|\t)|\r?\n|$))/i) ||
+                      body.match(/Property\s*Address\s*-\s*([^\n\r]+)/i) ||
+                      body.match(/PROPERTY\s*ADDRESS\s*(?::|-|\s|\t)\s*([\s\S]+?)(?=\r?\n\s*(?:[A-Za-z0-9#\-\.\s_\[\]]+(?::|-|\t)|\r?\n|$))/i) ||
+                      body.match(/Property\s*Address\s*(?::|-|\s|\t)\s*([^\n\r]+)/i);
+                      
+      if (addrMatch) {
+        address = addrMatch[1].trim();
+      }
+      
+      // 5. PARSE AREA / LOCATION (Branch Name)
+      var location = "";
+      var locMatch = body.match(/(?:Sourcing\s*|Branch\s*)?Branch\s*(?:Name)?\s*(?::|-|\s|\t)\s*([A-Za-z0-9\s_-]+)/i) ||
+                     body.match(/Branch\s*Credit\s*Manager,\s*([A-Za-z0-9\s_-]+)\s*Branch/i) ||
+                     body.match(/([A-Za-z0-9\s_-]+)\s*Branch\b/i) ||
+                     subject.match(/([A-Za-z0-9\s_-]+)\s*Branch\b/i) ||
+                     body.match(/Location\s*(?::|-|\s|\t)\s*([A-Za-z0-9\s_-]+)/i);
+                     
+      if (locMatch) {
+        location = locMatch[1].replace(/Branch/ig, "").trim();
+      }
+      
+      // Double slash subject Location check (Equitas / Niwas)
+      if (!location) {
+        var cleanSub = subject.replace(/^[Ff][Ww]:\s*/, "").replace(/^[Rr][Ee]:\s*/, "");
+        if (cleanSub.indexOf("//") !== -1) {
+          var parts = cleanSub.split("//");
+          for (var p = 0; p < parts.length; p++) {
+            var part = parts[p].trim();
+            if (part.indexOf("Branch") !== -1) {
+              location = part.replace(/Branch/ig, "").trim();
+              break;
+            }
+          }
+        } else if (bank === "Equitas") {
+          var parts = cleanSub.split("/");
+          if (parts.length >= 3) {
+            location = parts[1].trim();
+          }
+        }
+      }
+      
+      // Clean location formatting (e.g. "VILLUPURAM-1" -> "Villupuram")
+      if (location) {
+        location = location.split(" ")[0]; // Take first word
+        location = location.replace(/[^a-zA-Z]/g, ""); // Keep only letters
+        if (location) {
+          location = location.charAt(0).toUpperCase() + location.slice(1).toLowerCase();
+        }
+      }
+      
+      // 6. PARSE CONTACT NUMBERS (Up to 3 unique numbers)
+      var contactLine = "";
+      var numMatch = body.match(/Contact\s*Person\s*(?:Name\s*and\s*Number|&\s*Numbers)\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/Contact\s*(?:Person\s*)?Number\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/Customer\s*Contact\s*No\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/4\.\s*Mobile\s*No\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/Phone\s*number\s*-\s*([^\n\r]+)/i) ||
+                     body.match(/Mobile\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/CONTACT\s*NUMBER\s*(?::|-|\s|\t)\s*([^\n\r\t]+)/i) ||
+                     body.match(/(?:contact|phone|mobile|tel)?\s*(?:no|number)?\s*(?::|-)\s*([^\n\r]+)/i);
+      
+      if (numMatch) {
+        contactLine = numMatch[1].trim();
+      }
+      
+      var phoneNumbers = [];
+      if (contactLine) {
+        // Merge spaces in numbers like "97916 93845" -> "9791693845"
+        var cleanedLine = contactLine.replace(/(\d)\s+(\d)/g, "$1$2");
+        var digitsMatches = cleanedLine.match(/\b\d{10,12}\b/g) || [];
+        for (var p = 0; p < digitsMatches.length; p++) {
+          var num = digitsMatches[p].replace(/^0+/, "");
+          if (num.length === 12 && num.startsWith("91")) {
+            num = num.substring(2);
+          }
+          if (num.length === 10) {
+            phoneNumbers.push(num);
+          }
+        }
+      }
+      
+      // Fallback: search entire body text for any 10-digit number
+      if (phoneNumbers.length === 0) {
+        var rawMatches = body.match(/\b\d{10}\b/g) || [];
+        phoneNumbers = rawMatches;
+      }
+      
+      var uniquePhones = [];
+      for (var u = 0; u < phoneNumbers.length; u++) {
+        if (uniquePhones.indexOf(phoneNumbers[u]) === -1) {
+          uniquePhones.push(phoneNumbers[u]);
+        }
+      }
+      
+      var contact1 = uniquePhones[0] || "";
+      var contact2 = uniquePhones[1] || "";
+      var contact3 = uniquePhones[2] || "";
+      
+      // 7. CHECK FOR DUPLICATES (By Owner or by RefNo)
       if (owner) {
         var isDuplicate = false;
         for (var r = 1; r < dataRange.length; r++) {
@@ -560,12 +739,12 @@ function importCasesFromGmail() {
           continue;
         }
         
-        // 3. GENERATE AUTOMATIC ROW DATA
+        // 8. GENERATE AUTO CASE ROW
         var fileId = generateUUID();
         var fileNo = "VT-" + yyyy + "-" + mm + "-" + dd + "-" + nextSerial;
         nextSerial++;
         
-        // Create full row array matching headers
+        // Create full row array matching sheet headers
         var newRow = [];
         for (var c = 0; c < headers.length; c++) {
           var header = headers[c];
@@ -573,8 +752,8 @@ function importCasesFromGmail() {
           else if (header === "FileNo") newRow.push(fileNo);
           else if (header === "Owner") newRow.push(owner);
           else if (header === "Bank") newRow.push(bank);
-          else if (header === "Address") newRow.push("");
-          else if (header === "Location") newRow.push("");
+          else if (header === "Address") newRow.push(address);
+          else if (header === "Location") newRow.push(location);
           else if (header === "Engineer") newRow.push(""); // Unassigned initially
           else if (header === "Priority") newRow.push("High");
           else if (header === "Status") newRow.push("Site Visit Pending");
@@ -587,7 +766,9 @@ function importCasesFromGmail() {
           else if (header === "UpdatedAt") newRow.push(todayStr + " 00:00:00");
           else if (header === "RefNo") newRow.push(refNo);
           else if (header === "Coordinates") newRow.push("");
-          else if (header === "Contact") newRow.push(contact);
+          else if (header === "Contact") newRow.push(contact1);
+          else if (header === "Contact2") newRow.push(contact2);
+          else if (header === "Contact3") newRow.push(contact3);
           else newRow.push("");
         }
         
@@ -595,7 +776,7 @@ function importCasesFromGmail() {
         sheet.appendRow(newRow);
         Logger.log("Successfully imported case from Gmail: " + owner);
         
-        // 4. SEND WHATSAPP NOTIFICATION TO ADMIN
+        // 9. SEND WHATSAPP NOTIFICATION
         var admin = getAdminContact();
         if (admin && admin.phone && admin.apikey) {
           var text = "🔔 *ValuTrack Auto-Import*\n\n" +
@@ -603,7 +784,8 @@ function importCasesFromGmail() {
                      "▪️ *Case No:* " + fileNo + "\n" +
                      "▪️ *Owner:* " + owner + "\n" +
                      "▪️ *Bank:* " + bank + "\n" +
-                     "▪️ *Contact:* " + (contact || "Not specified") + "\n\n" +
+                     "▪️ *Area:* " + (location || "Not specified") + "\n" +
+                     "▪️ *Contact:* " + (contact1 || "Not specified") + "\n\n" +
                      "Open dashboard: https://sathzsri.github.io/Valutrack/";
           sendCallMeBotMessage(admin.phone, admin.apikey, text);
         }
