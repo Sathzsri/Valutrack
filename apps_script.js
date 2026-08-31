@@ -1001,6 +1001,8 @@ function parseHorizontalTable(bodyText) {
       }
       return data;
     }
+  }
+  return null;
 }
 
 // Helper to look up key substrings from mapped table data
