@@ -551,8 +551,25 @@ function importCasesFromGmail() {
       // 3. PARSE CUSTOMER NAME (Owner)
       var owner = "";
       if (horizTable) {
-        owner = getVal(horizTable, "CUSTOMER NAME") || getVal(horizTable, "APPLICANT NAME") || getVal(horizTable, "APPLICANT / CO APP. NAME") ||
-                getVal(horizTable, "APPLICANT & CO APP. NAME") || getVal(horizTable, "NAME") || getVal(horizTable, "PROPERTY OWNER NAME");
+        owner = getVal(horizTable, "APPLICANT") ||
+                getVal(horizTable, "CUSTOMER") ||
+                getVal(horizTable, "BORROWER") ||
+                getVal(horizTable, "OWNER OF THE PROPERTY") ||
+                getVal(horizTable, "PROPERTY OWNER");
+                
+        if (!owner) {
+          var keys = Object.keys(horizTable);
+          for (var k = 0; k < keys.length; k++) {
+            var keyUpper = keys[k].toUpperCase().trim();
+            if (keyUpper.indexOf("S.O") !== -1 || keyUpper.indexOf("SO ") !== -1 || keyUpper.indexOf("BRANCH") !== -1 || keyUpper.indexOf("CONTACT") !== -1) {
+              continue;
+            }
+            if (keyUpper === "NAME" || keyUpper === "NAME:" || keyUpper === "CUSTOMER NAME" || keyUpper === "APPLICANT NAME") {
+              owner = horizTable[keys[k]];
+              break;
+            }
+          }
+        }
       }
       
       if (!owner) {
@@ -627,7 +644,10 @@ function importCasesFromGmail() {
       
       // Clean up Name salutations
       if (owner) {
-        owner = owner.replace(/Mr\.\s*|Mrs\.\s*|Ms\.\s*|Mr\s+|Mrs\s+|Ms\s+/ig, "").replace(/,\s*$/g, "").trim();
+        owner = owner.replace(/Mr\.\s*|Mrs\.\s*|Ms\.\s*|Mr\s+|Mrs\s+|Ms\s+/ig, "")
+                     .replace(/_/g, " & ")
+                     .replace(/,\s*$/g, "")
+                     .trim();
       }
       
       // 4. PARSE PROPERTY ADDRESS
@@ -707,10 +727,12 @@ function importCasesFromGmail() {
       // 6. PARSE CONTACT NUMBERS (Up to 3 unique numbers)
       var uniquePhones = [];
       if (horizTable) {
-        var rawContact = horizTable["CONTACT NUMBER"] || horizTable["CONTACT NUMBER:"] ||
-                         horizTable["CUSTOMER CONTACT NO"] || horizTable["CUSTOMER CONTACT NO:"] ||
-                         horizTable["CONTACT PERSON PHONE NO"] || horizTable["CONTACT PERSON PHONE NO:"] ||
-                         horizTable["PHONE NUMBER"] || horizTable["PHONE NUMBER:"] || "";
+        var rawContact = getVal(horizTable, "CONTACT PERSON") ||
+                         getVal(horizTable, "CUSTOMER CONTACT") ||
+                         getVal(horizTable, "CONTACT NUMBER") ||
+                         getVal(horizTable, "PHONE NUMBER") ||
+                         getVal(horizTable, "MOBILE") ||
+                         horizTable["CONTACT NUMBER"] || "";
         if (rawContact) {
           var cleaned = rawContact.replace(/(\d)\s+(\d)/g, "$1$2");
           var matches = cleaned.match(/\b\d{10,12}\b/g) || [];
@@ -1015,8 +1037,14 @@ function parseHorizontalTable(bodyText) {
 function getVal(data, partKey) {
   if (!data) return "";
   var keys = Object.keys(data);
+  var partUpper = partKey.toUpperCase().trim();
   for (var k = 0; k < keys.length; k++) {
-    if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+    var keyUpper = keys[k].toUpperCase().trim();
+    // Exclude Sales Officer (S.O) or Branch keys from matching applicant/customer/contact
+    if ((partUpper === "APPLICANT" || partUpper === "CUSTOMER" || partUpper === "BORROWER" || partUpper === "OWNER" || partUpper === "CONTACT" || partUpper === "PHONE" || partUpper === "MOBILE") && (keyUpper.indexOf("S.O") !== -1 || keyUpper.indexOf("SO ") !== -1 || keyUpper.indexOf("S.O.") !== -1)) {
+      continue;
+    }
+    if (keyUpper.indexOf(partUpper) !== -1) {
       return data[keys[k]];
     }
   }
