@@ -523,17 +523,8 @@ function importCasesFromGmail() {
       // 2. PARSE REFERENCE NUMBER (Case ID / Lead ID / Application Number)
       var refNo = "";
       if (horizTable) {
-        function getVal(partKey) {
-          var keys = Object.keys(horizTable);
-          for (var k = 0; k < keys.length; k++) {
-            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
-              return horizTable[keys[k]];
-            }
-          }
-          return "";
-        }
-        refNo = getVal("LEAD ID") || getVal("LEADID") || getVal("APPLICATION NUMBER") || 
-                getVal("LOS NUMBER") || getVal("CASE ID") || getVal("TECH ID") || getVal("REF NO");
+        refNo = getVal(horizTable, "LEAD ID") || getVal(horizTable, "LEADID") || getVal(horizTable, "APPLICATION NUMBER") || 
+                getVal(horizTable, "LOS NUMBER") || getVal(horizTable, "CASE ID") || getVal(horizTable, "TECH ID") || getVal(horizTable, "REF NO");
       }
       
       // Clean refNo if it extracted generic garbage like branch names
@@ -560,17 +551,8 @@ function importCasesFromGmail() {
       // 3. PARSE CUSTOMER NAME (Owner)
       var owner = "";
       if (horizTable) {
-        function getVal(partKey) {
-          var keys = Object.keys(horizTable);
-          for (var k = 0; k < keys.length; k++) {
-            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
-              return horizTable[keys[k]];
-            }
-          }
-          return "";
-        }
-        owner = getVal("CUSTOMER NAME") || getVal("APPLICANT NAME") || getVal("APPLICANT / CO APP. NAME") ||
-                getVal("APPLICANT & CO APP. NAME") || getVal("NAME") || getVal("PROPERTY OWNER NAME");
+        owner = getVal(horizTable, "CUSTOMER NAME") || getVal(horizTable, "APPLICANT NAME") || getVal(horizTable, "APPLICANT / CO APP. NAME") ||
+                getVal(horizTable, "APPLICANT & CO APP. NAME") || getVal(horizTable, "NAME") || getVal(horizTable, "PROPERTY OWNER NAME");
       }
       
       if (!owner) {
@@ -651,16 +633,7 @@ function importCasesFromGmail() {
       // 4. PARSE PROPERTY ADDRESS
       var address = "";
       if (horizTable) {
-        function getVal(partKey) {
-          var keys = Object.keys(horizTable);
-          for (var k = 0; k < keys.length; k++) {
-            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
-              return horizTable[keys[k]];
-            }
-          }
-          return "";
-        }
-        address = getVal("PROPERTY ADDRESS") || getVal("ADDRESS");
+        address = getVal(horizTable, "PROPERTY ADDRESS") || getVal(horizTable, "ADDRESS");
       }
       
       if (!address) {
@@ -678,25 +651,13 @@ function importCasesFromGmail() {
       // 5. PARSE AREA / LOCATION (Branch Name)
       var location = "";
       if (horizTable) {
-        function getVal(partKey) {
-          var keys = Object.keys(horizTable);
-          for (var k = 0; k < keys.length; k++) {
-            if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
-              return horizTable[keys[k]];
-            }
-          }
-          return "";
-        }
-        location = getVal("LOCATION") || getVal("BRANCH");
+        location = getVal(horizTable, "LOCATION") || getVal(horizTable, "BRANCH");
       }
       
       if (!location) {
         // Collect all possible matches of Branch in body or subject
-        var locMatches = [];
         var bodyMatches = body.match(/([\w-]+)\s*Branch\b/gi) || [];
         var subjectMatches = subject.match(/([\w-]+)\s*Branch\b/gi) || [];
-        
-        // Merge matches
         var allMatches = bodyMatches.concat(subjectMatches);
         
         for (var m = 0; m < allMatches.length; m++) {
@@ -1040,8 +1001,18 @@ function parseHorizontalTable(bodyText) {
       }
       return data;
     }
+}
+
+// Helper to look up key substrings from mapped table data
+function getVal(data, partKey) {
+  if (!data) return "";
+  var keys = Object.keys(data);
+  for (var k = 0; k < keys.length; k++) {
+    if (keys[k].indexOf(partKey.toUpperCase()) !== -1) {
+      return data[keys[k]];
+    }
   }
-  return null;
+  return "";
 }
 
 // Run this once inside the Apps Script Editor to check Gmail every 10 minutes automatically
