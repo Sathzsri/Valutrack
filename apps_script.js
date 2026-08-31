@@ -438,8 +438,8 @@ function getAdminContact() {
 // NATIVE GMAIL AUTO-CAPTURE SYSTEM
 // Automatically processes unread emails matching specific keywords
 function importCasesFromGmail() {
-  // Define search query (customizable - looking for unread valuation emails)
-  var query = 'is:unread (subject:valuation OR subject:initiate OR subject:request OR subject:tech OR subject:technical)';
+  // Broad search query matching unread valuation emails across subject & body
+  var query = 'is:unread (valuation OR initiate OR initiation OR request OR tech OR technical OR login OR inspection OR visit OR "property address" OR "lead id" OR "application number" OR "applicant name")';
   var threads = GmailApp.search(query, 0, 15); // Process top 15 threads at a time
   
   if (threads.length === 0) {
