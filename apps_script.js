@@ -587,7 +587,7 @@ function importCasesFromGmail() {
                      "▪️ *Owner:* " + owner + "\n" +
                      "▪️ *Bank:* " + bank + "\n" +
                      "▪️ *Contact:* " + (contact || "Not specified") + "\n\n" +
-                     "Open dashboard: https://graceful-starship-658d6e.netlify.app";
+                     "Open dashboard: https://sathzsri.github.io/Valutrack/";
           sendCallMeBotMessage(admin.phone, admin.apikey, text);
         }
       }
