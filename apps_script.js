@@ -536,41 +536,16 @@ function importCasesFromGmail() {
                 getVal("LOS NUMBER") || getVal("CASE ID") || getVal("TECH ID") || getVal("REF NO");
       }
       
+      // Clean refNo if it extracted generic garbage like branch names
+      if (refNo) {
+        var refNoLower = refNo.toLowerCase();
+        if (refNoLower.indexOf("kanchipuram") !== -1 || refNoLower.indexOf("pondicherry") !== -1 || refNoLower.indexOf("villupuram") !== -1 || refNoLower.indexOf("tindivanam") !== -1 || refNoLower.indexOf("customer") !== -1) {
+          refNo = "";
+        }
+      }
+      
       if (!refNo) {
-        if (bank === "Centrum") {
-          var match = body.match(/Application\s*Number\s*(?::|-|\s|\t)\s*([A-Za-z0-9\/-]+)/i);
-          if (match) refNo = match[1].trim();
-        } else if (bank === "Equitas") {
-          var match = body.match(/Lead\s*Number\s*(?::|-|\s|\t)\s*([A-Za-z0-9\/-]+)/i);
-          if (match) refNo = match[1].trim();
-          else {
-            var match2 = subject.match(/(LOS-\d+)/i) || body.match(/(LOS-\d+)/i);
-            if (match2) refNo = match2[1].trim();
-          }
-        } else if (bank === "Mahindra") {
-          var match = subject.match(/(A00000\d+)/i) || body.match(/(A00000\d+)/i);
-          if (match) refNo = match[1].trim();
-        } else if (bank === "Niwas") {
-          var match = subject.match(/(DLVLP[A-Za-z0-9_-]+)/i) || body.match(/(DLVLP[A-Za-z0-9_-]+)/i) ||
-                      subject.match(/(DLPON[A-Za-z0-9_-]+)/i) || body.match(/(DLPON[A-Za-z0-9_-]+)/i);
-          if (match) refNo = match[1].trim();
-        } else if (bank === "Truhome") {
-          var match = body.match(/Lead\s*ID\s*(?::|-|\s|\t)\s*([A-Za-z0-9_-]+)/i) ||
-                      body.match(/LEAD\s*ID\s*(?::|-|\s|\t)\s*([A-Za-z0-9_-]+)/i);
-          if (match) refNo = match[1].trim();
-        }
-        
-        // Subject fallback for Truhome subject containing "LEAD ID"
-        if (!refNo && bank === "Truhome") {
-          var matchSub = subject.match(/LEAD\s*ID\s*(\d+)/i);
-          if (matchSub) refNo = matchSub[1].trim();
-        }
-        
-        // Fallback for general Case ID patterns
-        if (!refNo) {
-          var match = body.match(/(?:Lead|LOS|Case|Ref|Reference)?\s*(?:No|Number|ID)?\s*(?::|-)\s*([A-Za-z0-9\/-]+)/i);
-          if (match) refNo = match[1].trim();
-        }
+        refNo = extractCleanRefNo(subject, body, bank);
       }
       
       // Fallback bank classification by RefNo format if currently "Others"
@@ -730,7 +705,7 @@ function importCasesFromGmail() {
             var word = wordMatch[1].replace(/[^a-zA-Z]/g, "");
             if (word) {
               var formatted = word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-              if (formatted !== "Credit" && formatted !== "Sourcing" && formatted !== "Vendor" && formatted !== "Admin" && formatted !== "Initiations" && formatted !== "Manager") {
+              if (formatted !== "Credit" && formatted !== "Sourcing" && formatted !== "Vendor" && formatted !== "Admin" && formatted !== "Initiations" && formatted !== "Manager" && formatted !== "Name" && formatted !== "Branch") {
                 location = formatted;
                 break;
               }
@@ -945,33 +920,87 @@ function parseHtmlTable(htmlText) {
     }
   }
   
-  // Find the row containing "CUSTOMER NAME" or "APPLICANT NAME" or "LEAD ID"
+  if (rows.length === 0) return null;
+  
+  // Check if it is a vertical table (where each row has exactly 2 columns: header | value)
+  var isVertical = true;
   for (var r = 0; r < rows.length; r++) {
-    var row = rows[r];
-    var upperRow = row.map(function(c) { return c.toUpperCase(); });
-    var customerIdx = -1;
-    for (var c = 0; c < upperRow.length; c++) {
-      if (upperRow[c].indexOf("CUSTOMER NAME") !== -1 || upperRow[c].indexOf("APPLICANT NAME") !== -1 || upperRow[c].indexOf("LEAD ID") !== -1) {
-        customerIdx = c;
-        break;
-      }
+    if (rows[r].length !== 2) {
+      isVertical = false;
+      break;
     }
-    
-    if (customerIdx !== -1) {
-      // Find the first row after this one that has cells
-      var valueRow = rows[r + 1];
-      if (valueRow) {
-        var data = {};
-        for (var col = 0; col < row.length; col++) {
-          var headerName = row[col].toUpperCase().trim();
-          var val = valueRow[col] ? valueRow[col].trim() : "";
-          data[headerName] = val;
+  }
+  
+  var data = {};
+  if (isVertical) {
+    for (var r = 0; r < rows.length; r++) {
+      var header = rows[r][0].toUpperCase().trim();
+      var val = rows[r][1].trim();
+      data[header] = val;
+    }
+    return data;
+  } else {
+    // Find the row containing "CUSTOMER NAME" or "APPLICANT NAME" or "LEAD ID"
+    for (var r = 0; r < rows.length; r++) {
+      var row = rows[r];
+      var upperRow = row.map(function(c) { return c.toUpperCase(); });
+      var customerIdx = -1;
+      for (var c = 0; c < upperRow.length; c++) {
+        if (upperRow[c].indexOf("CUSTOMER NAME") !== -1 || upperRow[c].indexOf("APPLICANT NAME") !== -1 || upperRow[c].indexOf("LEAD ID") !== -1) {
+          customerIdx = c;
+          break;
         }
-        return data;
+      }
+      
+      if (customerIdx !== -1) {
+        // Find the first row after this one that has cells
+        var valueRow = rows[r + 1];
+        if (valueRow) {
+          for (var col = 0; col < row.length; col++) {
+            var headerName = row[col].toUpperCase().trim();
+            var val = valueRow[col] ? valueRow[col].trim() : "";
+            data[headerName] = val;
+          }
+          return data;
+        }
       }
     }
   }
   return null;
+}
+
+// Helper to extract clean reference numbers based on bank formats
+function extractCleanRefNo(subject, body, bank) {
+  var text = subject + " " + body;
+  
+  // 1. Bank-specific patterns first
+  var truhomeMatch = text.match(/\b(202\d{11})\b/); // Matches 14-digit numbers starting with 202
+  if (truhomeMatch) return truhomeMatch[1];
+  
+  var niwasMatch = text.match(/\b(DL[A-Za-z0-9_-]{5,20})\b/i); // Matches DLVLP0HL, DLPONOHL, etc.
+  if (niwasMatch) return niwasMatch[1];
+  
+  var centrumMatch = text.match(/\b(PDY[A-Za-z0-9\/-]{5,20})\b/i); // Matches PDY26PD064015
+  if (centrumMatch) return centrumMatch[1];
+  
+  var equitasMatch = text.match(/\b(LOS-\d+)\b/i);
+  if (equitasMatch) return equitasMatch[1];
+  
+  var mahindraMatch = text.match(/\b(A00000\d+)\b/i);
+  if (mahindraMatch) return mahindraMatch[1];
+  
+  // 2. Generic fallback if bank-specific formats not found
+  // Look for Lead ID, Application Number, etc. in body
+  var generalMatch = body.match(/(?:Lead|LOS|Case|Ref|Reference)?\s*(?:No|Number|ID)?\s*(?::|-)\s*([A-Za-z0-9_-]+)/i);
+  if (generalMatch) {
+    var val = generalMatch[1].trim();
+    // Skip if it is just a branch name or common word
+    var valLower = val.toLowerCase();
+    if (val.length > 3 && valLower !== "kanchipuram" && valLower !== "pondicherry" && valLower !== "villupuram" && valLower !== "tindivanam" && valLower !== "customer") {
+      return val;
+    }
+  }
+  return "";
 }
 
 // Helper to parse horizontal tables in Gmail body text
