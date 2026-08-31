@@ -2212,6 +2212,183 @@
     body.light-theme .remarks-textarea {
       background-color: #ffffff;
     }
+
+    /* FANCY CLOCK WIDGET (Digital & Analog Mode) */
+    .fancy-clock-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 6px 14px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(59, 130, 246, 0.08);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .fancy-clock-widget:hover {
+      border-color: rgba(96, 165, 250, 0.7);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15);
+      transform: translateY(-1px);
+    }
+
+    body.light-theme .fancy-clock-widget {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: rgba(59, 130, 246, 0.35);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Analog Clock Face */
+    .analog-clock {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      position: relative;
+      background: radial-gradient(circle, #0f172a 60%, #020617 100%);
+      border: 2px solid #3b82f6;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 8px rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    body.light-theme .analog-clock {
+      background: radial-gradient(circle, #f8fafc 60%, #e2e8f0 100%);
+      border-color: #2563eb;
+      box-shadow: 0 0 8px rgba(37, 99, 235, 0.25);
+    }
+
+    .clock-marker {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.6);
+      border-radius: 1px;
+    }
+    body.light-theme .clock-marker { background: rgba(0, 0, 0, 0.5); }
+    .marker-12 { top: 2px; left: 50%; width: 2px; height: 5px; transform: translateX(-50%); }
+    .marker-6 { bottom: 2px; left: 50%; width: 2px; height: 5px; transform: translateX(-50%); }
+    .marker-3 { right: 2px; top: 50%; width: 5px; height: 2px; transform: translateY(-50%); }
+    .marker-9 { left: 2px; top: 50%; width: 5px; height: 2px; transform: translateY(-50%); }
+
+    .clock-hand {
+      position: absolute;
+      bottom: 50%;
+      left: 50%;
+      transform-origin: bottom center;
+      border-radius: 4px;
+      transition: transform 0.05s linear;
+    }
+
+    .hand-hour {
+      width: 3px;
+      height: 12px;
+      background: #ffffff;
+      margin-left: -1.5px;
+      z-index: 2;
+    }
+    body.light-theme .hand-hour { background: #0f172a; }
+
+    .hand-minute {
+      width: 2px;
+      height: 16px;
+      background: #60a5fa;
+      margin-left: -1px;
+      z-index: 3;
+    }
+    body.light-theme .hand-minute { background: #2563eb; }
+
+    .hand-second {
+      width: 1.5px;
+      height: 18px;
+      background: #f59e0b;
+      margin-left: -0.75px;
+      z-index: 4;
+      box-shadow: 0 0 4px #f59e0b;
+    }
+
+    .clock-center-dot {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #f59e0b;
+      border-radius: 50%;
+      z-index: 5;
+      box-shadow: 0 0 4px #f59e0b;
+    }
+
+    /* Digital Clock Display */
+    .digital-clock {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      line-height: 1.1;
+    }
+
+    .digital-time {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #60a5fa;
+      letter-spacing: 0.5px;
+      text-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+    }
+
+    body.light-theme .digital-time {
+      color: #1d4ed8;
+      text-shadow: none;
+    }
+
+    .digital-ampm {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: #f59e0b;
+      letter-spacing: 0.5px;
+    }
+
+    .digital-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .clock-mode-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-muted);
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      margin-left: 2px;
+    }
+
+    .clock-mode-btn:hover {
+      background: rgba(59, 130, 246, 0.25);
+      color: #60a5fa;
+      border-color: rgba(59, 130, 246, 0.5);
+    }
+
+    body.light-theme .clock-mode-btn {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: rgba(0, 0, 0, 0.1);
+    }
+
+    @media (max-width: 768px) {
+      .fancy-clock-widget {
+        width: 100%;
+        justify-content: space-between;
+        padding: 8px 12px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -2338,7 +2515,36 @@
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;" id="welcome-message">ValuTrack Property Portal</p>
         </div>
         
-        <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <!-- Fancy Clock Widget (Digital & Analog Toggle) -->
+          <div id="fancy-clock-container" class="fancy-clock-widget" title="Click to switch clock display mode (Both / Digital / Analog)">
+            <!-- Analog Clock View -->
+            <div id="analog-clock-face" class="analog-clock">
+              <div class="clock-marker marker-12"></div>
+              <div class="clock-marker marker-3"></div>
+              <div class="clock-marker marker-6"></div>
+              <div class="clock-marker marker-9"></div>
+              <div class="clock-hand hand-hour" id="analog-hour-hand"></div>
+              <div class="clock-hand hand-minute" id="analog-minute-hand"></div>
+              <div class="clock-hand hand-second" id="analog-second-hand"></div>
+              <div class="clock-center-dot"></div>
+            </div>
+            
+            <!-- Digital Clock View -->
+            <div id="digital-clock-face" class="digital-clock">
+              <div class="digital-time">
+                <span id="digital-time-digits">12:00:00</span>
+                <span id="digital-time-ampm" class="digital-ampm">AM</span>
+              </div>
+              <div id="digital-date-str" class="digital-date">Mon, 31 Aug</div>
+            </div>
+
+            <!-- Mode Switcher Toggle Button -->
+            <button id="clock-mode-toggle" class="clock-mode-btn" title="Switch Clock Mode">
+              <span id="clock-mode-label">⏱️ Full</span>
+            </button>
+          </div>
+
           <!-- Engineer Selector Filter Icons -->
           <div style="display: flex; align-items: center; gap: 12px;">
             <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Assignee:</span>
@@ -2346,7 +2552,6 @@
               <!-- Populated dynamically by JS -->
             </div>
           </div>
-          <span class="current-date-badge" id="current-date-display">2026-07-13</span>
         </div>
       </div>
 
@@ -3122,7 +3327,7 @@
       selectedFileId: null,
       filters: {
         search: "",
-        status: null,
+        status: "Site Visit Pending",
         bank: null,
         engineer: null,
         priority: null,
@@ -3729,11 +3934,13 @@
       }
 
       // 2. Sidebar Filters
-      if (state.filters.status) {
+      if (state.filters.status && state.filters.status !== "ALL") {
         result = result.filter(f => f.Status === state.filters.status);
+      } else if (state.filters.status === "ALL") {
+        // Show all stages
       } else {
-        // By default, hide closed cases (Report Sent) from the list
-        result = result.filter(f => f.Status !== "Report Sent");
+        // Default driving dashboard view: only show pending site visit cases so completed visits disappear immediately
+        result = result.filter(f => f.Status === "Site Visit Pending");
       }
       if (state.filters.bank) {
         result = result.filter(f => f.Bank === state.filters.bank);
@@ -3899,21 +4106,22 @@
       
       // All stages count
       const allItem = document.createElement("li");
-      allItem.className = `sidebar-item ${!state.filters.status ? "active" : ""}`;
+      allItem.className = `sidebar-item ${state.filters.status === "ALL" ? "active" : ""}`;
       allItem.innerHTML = `
         <span>All Stages</span>
         <span class="sidebar-item-count">${filesScope.length}</span>
       `;
       allItem.addEventListener("click", () => {
-        state.filters.status = null;
+        state.filters.status = "ALL";
         renderAll();
       });
       statusList.appendChild(allItem);
 
       STAGES.forEach(stage => {
         const count = filesScope.filter(f => f.Status === stage).length;
+        const isActive = (state.filters.status === stage) || (!state.filters.status && stage === "Site Visit Pending");
         const item = document.createElement("li");
-        item.className = `sidebar-item ${state.filters.status === stage ? "active" : ""}`;
+        item.className = `sidebar-item ${isActive ? "active" : ""}`;
         item.innerHTML = `
           <span>${stage}</span>
           <span class="sidebar-item-count">${count}</span>
@@ -4204,7 +4412,10 @@
             <div class="mobile-card-view">
               <div class="mob-card-header">
                 <div class="mob-client-info">
-                  <div class="mob-owner-name">${file.Owner}</div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <span class="mob-owner-name">${file.Owner}</span>
+                    ${getBankBadgeHtml(file.Bank)}
+                  </div>
                   <div class="mob-owner-location" style="display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 4px;">
                     <span>📍 ${file.Location || "-"}</span>
                     ${dateHtml}
@@ -5571,9 +5782,105 @@
       renderAll();
     }
 
+    // 12.5. FANCY CLOCK CONTROLLER (Digital & Analog Mode)
+    let clockMode = localStorage.getItem("valutrack_clock_mode") || "both"; // 'both', 'digital', 'analog'
+
+    function updateClock() {
+      const now = new Date();
+      
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const seconds = now.getSeconds();
+      const millis = now.getMilliseconds();
+      
+      // Update Analog Clock Hands
+      const hourDeg = (hours % 12) * 30 + (minutes / 60) * 30;
+      const minDeg = minutes * 6 + (seconds / 60) * 6;
+      const secDeg = seconds * 6 + (millis / 1000) * 6;
+      
+      const hourHand = document.getElementById("analog-hour-hand");
+      const minHand = document.getElementById("analog-minute-hand");
+      const secHand = document.getElementById("analog-second-hand");
+      
+      if (hourHand) hourHand.style.transform = `rotate(${hourDeg}deg)`;
+      if (minHand) minHand.style.transform = `rotate(${minDeg}deg)`;
+      if (secHand) secHand.style.transform = `rotate(${secDeg}deg)`;
+      
+      // Update Digital Clock Display
+      const digitsEl = document.getElementById("digital-time-digits");
+      const ampmEl = document.getElementById("digital-time-ampm");
+      const dateEl = document.getElementById("digital-date-str");
+      
+      if (digitsEl) {
+        let displayHours = hours % 12;
+        if (displayHours === 0) displayHours = 12;
+        const hStr = displayHours < 10 ? "0" + displayHours : "" + displayHours;
+        const mStr = minutes < 10 ? "0" + minutes : "" + minutes;
+        const sStr = seconds < 10 ? "0" + seconds : "" + seconds;
+        digitsEl.textContent = `${hStr}:${mStr}:${sStr}`;
+      }
+      
+      if (ampmEl) {
+        ampmEl.textContent = hours >= 12 ? "PM" : "AM";
+      }
+      
+      if (dateEl) {
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        dateEl.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]}`;
+      }
+    }
+
+    function toggleClockMode(e) {
+      if (e) e.stopPropagation();
+      if (clockMode === "both") {
+        clockMode = "digital";
+      } else if (clockMode === "digital") {
+        clockMode = "analog";
+      } else {
+        clockMode = "both";
+      }
+      
+      localStorage.setItem("valutrack_clock_mode", clockMode);
+      applyClockMode();
+    }
+
+    function applyClockMode() {
+      const analogFace = document.getElementById("analog-clock-face");
+      const digitalFace = document.getElementById("digital-clock-face");
+      const modeLabel = document.getElementById("clock-mode-label");
+      
+      if (clockMode === "both") {
+        if (analogFace) analogFace.style.display = "flex";
+        if (digitalFace) digitalFace.style.display = "flex";
+        if (modeLabel) modeLabel.textContent = "⏱️ Full";
+      } else if (clockMode === "digital") {
+        if (analogFace) analogFace.style.display = "none";
+        if (digitalFace) digitalFace.style.display = "flex";
+        if (modeLabel) modeLabel.textContent = "🔢 Digital";
+      } else {
+        if (analogFace) analogFace.style.display = "flex";
+        if (digitalFace) digitalFace.style.display = "none";
+        if (modeLabel) modeLabel.textContent = "🕒 Analog";
+      }
+    }
 
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
+      // Initialize Fancy Clock
+      updateClock();
+      applyClockMode();
+      setInterval(updateClock, 1000);
+      
+      const clockContainer = document.getElementById("fancy-clock-container");
+      if (clockContainer) {
+        clockContainer.addEventListener("click", toggleClockMode);
+      }
+      const clockToggleBtn = document.getElementById("clock-mode-toggle");
+      if (clockToggleBtn) {
+        clockToggleBtn.addEventListener("click", toggleClockMode);
+      }
+
       // Initialize mobile tab navigation
       const mainApp = document.getElementById("main-app");
       if (mainApp) {
@@ -5605,9 +5912,6 @@
         }
       });
 
-      // Current Date Badge display
-      document.getElementById("current-date-display").textContent = getTodayString();
-
       // Set up search event listener (real-time keypress filtering)
       document.getElementById("search-input").addEventListener("input", (e) => {
         state.filters.search = e.target.value;
@@ -5616,7 +5920,7 @@
 
       // Clear Filters handler
       document.getElementById("clear-all-filters-btn").addEventListener("click", () => {
-        state.filters.status = null;
+        state.filters.status = "Site Visit Pending";
         state.filters.bank = null;
         state.filters.engineer = null;
         state.filters.priority = null;
@@ -5730,7 +6034,7 @@
 
       // Dashboard stat cards filter click listeners
       document.getElementById("card-total-files").addEventListener("click", () => {
-        state.filters.status = null;
+        state.filters.status = "ALL";
         renderAll();
       });
       document.getElementById("card-visit-pending").addEventListener("click", () => {
