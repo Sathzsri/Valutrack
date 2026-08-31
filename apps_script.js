@@ -883,21 +883,27 @@ function parseHtmlTable(htmlText) {
   
   if (rows.length === 0) return null;
   
-  // Check if it is a vertical table (where each row has exactly 2 columns: header | value)
-  var isVertical = true;
+  // Check if it is a vertical table (where data rows have exactly 2 columns)
+  var twoColCount = 0;
+  var otherColCount = 0;
   for (var r = 0; r < rows.length; r++) {
-    if (rows[r].length !== 2) {
-      isVertical = false;
-      break;
+    if (rows[r].length === 2) {
+      twoColCount++;
+    } else if (rows[r].length > 2) {
+      otherColCount++;
     }
   }
+  
+  var isVertical = (twoColCount > 0 && otherColCount === 0);
   
   var data = {};
   if (isVertical) {
     for (var r = 0; r < rows.length; r++) {
-      var header = rows[r][0].toUpperCase().trim();
-      var val = rows[r][1].trim();
-      data[header] = val;
+      if (rows[r].length === 2) {
+        var header = rows[r][0].toUpperCase().trim();
+        var val = rows[r][1].trim();
+        data[header] = val;
+      }
     }
     return data;
   } else {
