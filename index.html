@@ -3234,6 +3234,13 @@
       
       <div class="modal-body" style="padding-top: 15px;">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" for="bill-firm-select">Valuation Firm Header (Company Name)</label>
+            <select class="form-input" id="bill-firm-select" style="font-weight: 600;">
+              <option value="firm1" selected>Sathish & Udhaya Valuation Consultants</option>
+              <option value="firm2">Associated Engineers Structural Consultants and Property Valuers</option>
+            </select>
+          </div>
           <div class="form-group">
             <label class="form-label" for="bill-bank-select">Bank / Organization</label>
             <select class="form-input" id="bill-bank-select">
@@ -5649,6 +5656,15 @@
     }
 
     function openBillingModal() {
+      // Firm select restoration
+      const firmSelect = document.getElementById("bill-firm-select");
+      if (firmSelect) {
+        firmSelect.value = localStorage.getItem("valutrack_bill_firm") || "firm1";
+        firmSelect.onchange = () => {
+          localStorage.setItem("valutrack_bill_firm", firmSelect.value);
+        };
+      }
+
       // Populate Bank Select
       const bankSelect = document.getElementById("bill-bank-select");
       const currentFilteredBank = state.filters.bank || "";
@@ -5836,6 +5852,26 @@
         return;
       }
 
+      const selectedFirmKey = document.getElementById("bill-firm-select")?.value || "firm1";
+      let brandNameHtml = "";
+      let sigTitleText = "";
+
+      if (selectedFirmKey === "firm2") {
+        brandNameHtml = `
+          <div class="brand-name" style="font-size: 18px; color: #1e3a8a;">ASSOCIATED ENGINEERS STRUCTURAL CONSULTANTS AND PROPERTY VALUERS</div>
+          <div class="brand-sub" style="font-size: 13px; font-weight: 700; color: #2563eb;">Structural Consulting and Valuation</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Engineers, Structural Consultants & Approved Property Valuers</div>
+        `;
+        sigTitleText = "For Associated Engineers Structural Consultants and Property Valuers";
+      } else {
+        brandNameHtml = `
+          <div class="brand-name" style="font-size: 22px; color: #1e3a8a;">VALUTRACK PROPERTY SERVICES</div>
+          <div class="brand-sub" style="font-size: 13px; font-weight: 700; color: #2563eb;">Sathish & Udhaya Valuation Consultants</div>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Technical Property Valuations & Site Inspection Reports</div>
+        `;
+        sigTitleText = "For Sathish & Udhaya Valuation Consultants";
+      }
+
       const selectedBank = document.getElementById("bill-bank-select").value || "All Valuation Clients";
       const rateInput = parseFloat(document.getElementById("bill-rate-input").value) || 0;
       const totalCount = selectedCases.length;
@@ -5869,17 +5905,13 @@
               padding-bottom: 16px;
             }
             .brand-name {
-              font-size: 22px;
               font-weight: 800;
-              color: #1e3a8a;
               margin: 0;
               letter-spacing: -0.5px;
+              line-height: 1.2;
             }
             .brand-sub {
-              font-size: 12px;
-              color: #475569;
               margin-top: 3px;
-              font-weight: 600;
             }
             .invoice-title {
               font-size: 18px;
@@ -5925,11 +5957,11 @@
               font-weight: 700;
               text-transform: uppercase;
               letter-spacing: 0.5px;
-              padding: 9px 10px;
+              padding: 9px 12px;
               text-align: left;
             }
             .item-table td {
-              padding: 9px 10px;
+              padding: 9px 12px;
               font-size: 12px;
               border-bottom: 1px solid #e2e8f0;
               color: #334155;
@@ -5996,11 +6028,9 @@
           <table class="header-table">
             <tr>
               <td>
-                <div class="brand-name">VALUTRACK PROPERTY SERVICES</div>
-                <div class="brand-sub">Sathish & Udhaya Valuation Consultants</div>
-                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Technical Property Valuations & Site Inspection Reports</div>
+                ${brandNameHtml}
               </td>
-              <td style="text-align: right;">
+              <td style="text-align: right; vertical-align: top;">
                 <div class="invoice-title">BILLING STATEMENT</div>
                 <div style="font-size: 12px; font-weight: 600; color: #475569; margin-top: 3px;">Ref: ${invoiceNo}</div>
               </td>
@@ -6011,8 +6041,7 @@
             <tr>
               <td width="33%">
                 <div class="meta-label">Billed To</div>
-                <div class="meta-val" style="font-size: 14px; color: #1e3a8a; margin-top: 2px;">${selectedBank}</div>
-                <div style="font-size: 11px; color: #64748b;">Valuation & Risk Department</div>
+                <div class="meta-val" style="font-size: 15px; color: #1e3a8a; margin-top: 2px;">${selectedBank}</div>
               </td>
               <td width="33%">
                 <div class="meta-label">Statement Date</div>
@@ -6032,12 +6061,11 @@
           <table class="item-table">
             <thead>
               <tr>
-                <th width="35">#</th>
-                <th width="90">Date</th>
+                <th width="40">#</th>
+                <th width="110">Date</th>
                 <th>Customer / Applicant Name</th>
                 <th>Location / Area</th>
-                <th width="130">Case / Ref No</th>
-                <th width="85" style="text-align: right;">Amount (₹)</th>
+                <th width="100" style="text-align: right;">Amount (₹)</th>
               </tr>
             </thead>
             <tbody>
@@ -6050,7 +6078,6 @@
             <td>${file.Date ? file.Date.substring(0,10) : "-"}</td>
             <td style="font-weight: 700; color: #0f172a;">${file.Owner || "-"}</td>
             <td>📍 ${file.Location || file.Address || "-"}</td>
-            <td style="font-family: monospace; font-size: 11px; color: #475569;">${file.RefNo || file.FileNo || "-"}</td>
             <td style="text-align: right; font-weight: 700; color: #0f172a;">₹ ${rateInput.toLocaleString('en-IN')}.00</td>
           </tr>
         `;
@@ -6066,10 +6093,10 @@
                 <span style="font-size: 10px; text-transform: uppercase; color: #3b82f6; display: block; margin-bottom: 2px;">Amount In Words:</span>
                 ${amountInWords}
               </div>
-              <div style="font-size: 11px; color: #64748b; line-height: 1.4;">
+              <div style="font-size: 11px; color: #64748b; line-height: 1.5;">
                 <strong>Payment Instructions:</strong><br>
                 Please credit payments to <strong>Sathish Kumar & Udhaya</strong> valuation account.<br>
-                Contact: +91 97916 93845 / Sathish Kumar Pandurangan.
+                Contact: +91 97514 63013 / Sathish Kumar Pandurangan.
               </div>
             </div>
 
@@ -6091,10 +6118,10 @@
 
           <div class="footer-sig">
             <div style="font-size: 10px; color: #94a3b8;">
-              ValuTrack Automated Billing Statement • Page 1 of 1
+              ValuTrack Valuation Portal • Owned & Operated by Er. Sathish Kumar Pandurangan • Page 1 of 1
             </div>
             <div style="text-align: right;">
-              <div class="sig-title">For Sathish & Udhaya Valuation Services</div>
+              <div class="sig-title">${sigTitleText}</div>
               <div style="font-size: 12px; font-weight: 700; color: #0f172a; border-top: 1px solid #0f172a; padding-top: 4px; display: inline-block; min-width: 180px; text-align: center;">
                 Authorized Signatory
               </div>
