@@ -2643,6 +2643,12 @@
             </svg>
             Travel Plan
           </button>
+          <button class="btn btn-secondary" id="billing-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; border: none; font-weight: 600;">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            Generate Bill
+          </button>
           <button class="btn btn-secondary" id="export-csv-btn">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
@@ -2711,6 +2717,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
         </svg>
         <span>Stats</span>
+      </button>
+      <button class="mobile-nav-btn" id="nav-btn-billing">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span>Billing</span>
       </button>
       <button class="mobile-nav-btn" id="nav-btn-filters">
         <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -3202,6 +3214,91 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeTravelModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BILLING STATEMENT / PDF INVOICE GENERATOR MODAL -->
+  <div id="billing-modal" class="modal-overlay">
+    <div class="modal-container" style="max-width: 780px; width: 95%;">
+      <div class="modal-header">
+        <div class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <span>🧾 Valuation Billing & PDF Invoice Generator</span>
+        </div>
+        <button class="modal-close" onclick="closeBillingModal()">
+          <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      
+      <div class="modal-body" style="padding-top: 15px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06);">
+          <div class="form-group">
+            <label class="form-label" for="bill-bank-select">Bank / Organization</label>
+            <select class="form-input" id="bill-bank-select">
+              <option value="">All Banks</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bill-month-select">Month / Period</label>
+            <select class="form-input" id="bill-month-select">
+              <option value="all">All Dates / Current Filter</option>
+              <option value="this_month" selected>Current Month</option>
+              <option value="last_month">Last Month</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bill-status-select">Case Status</label>
+            <select class="form-input" id="bill-status-select">
+              <option value="Report Sent" selected>Report Sent (Completed)</option>
+              <option value="Site Visit Completed">Site Visit Completed</option>
+              <option value="all">All Statuses</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bill-rate-input">Rate per Case (₹)</label>
+            <input type="number" class="form-input" id="bill-rate-input" value="500" min="0" step="50" placeholder="500">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-light);">
+            Selected Cases Breakdown (<span id="bill-case-count" style="color: #10b981;">0 cases</span>)
+          </div>
+          <div style="font-size: 1rem; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
+            Total Payable: <span id="bill-total-amount">₹ 0</span>
+          </div>
+        </div>
+
+        <!-- Billing Items Live Preview Table -->
+        <div style="max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: rgba(0,0,0,0.15);">
+          <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
+            <thead>
+              <tr style="background: rgba(255,255,255,0.05); color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left;">
+                <th style="padding: 8px 10px; width: 35px;">#</th>
+                <th style="padding: 8px 10px; width: 90px;">Date</th>
+                <th style="padding: 8px 10px;">Customer Name</th>
+                <th style="padding: 8px 10px;">Location</th>
+                <th style="padding: 8px 10px; width: 90px;">Bank</th>
+                <th style="padding: 8px 10px; width: 85px; text-align: right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody id="billing-items-tbody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn btn-secondary" onclick="closeBillingModal()">Close</button>
+        <button class="btn btn-primary" id="generate-pdf-btn" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); border: none; font-weight: 600; gap: 6px;">
+          <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+          </svg>
+          Print / Download PDF Invoice
+        </button>
       </div>
     </div>
   </div>
@@ -5527,6 +5624,434 @@
       showToast("CSV file generated and download started!", "success");
     }
 
+    // 11.5. VALUATION BILLING & PDF INVOICE GENERATOR CONTROLLER
+    let currentBillingCases = [];
+
+    function numberToWordsIndian(num) {
+      if (!num || num === 0) return "Zero Rupees Only";
+      const a = ['', 'One ', 'Two ', 'Three ', 'Four ', 'Five ', 'Six ', 'Seven ', 'Eight ', 'Nine ', 'Ten ', 'Eleven ', 'Twelve ', 'Thirteen ', 'Fourteen ', 'Fifteen ', 'Sixteen ', 'Seventeen ', 'Eighteen ', 'Nineteen '];
+      const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+      function inWords(n) {
+        if (n < 20) return a[n];
+        if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : '');
+        if (n < 1000) return a[Math.floor(n / 100)] + 'Hundred ' + (n % 100 !== 0 ? 'and ' + inWords(n % 100) : '');
+        if (n < 100000) return inWords(Math.floor(n / 1000)) + 'Thousand ' + (n % 1000 !== 0 ? ' ' + inWords(n % 1000) : '');
+        if (n < 10000000) return inWords(Math.floor(n / 100000)) + 'Lakh ' + (n % 100000 !== 0 ? ' ' + inWords(n % 100000) : '');
+        return inWords(Math.floor(n / 10000000)) + 'Crore ' + (n % 10000000 !== 0 ? ' ' + inWords(n % 10000000) : '');
+      }
+
+      return inWords(num).trim() + " Rupees Only";
+    }
+
+    function openBillingModal() {
+      // Populate Bank Select
+      const bankSelect = document.getElementById("bill-bank-select");
+      const currentFilteredBank = state.filters.bank || "";
+      bankSelect.innerHTML = '<option value="">All Banks</option>';
+      
+      const uniqueBanks = [...new Set(state.files.map(f => f.Bank).filter(Boolean))].sort();
+      uniqueBanks.forEach(bank => {
+        const opt = document.createElement("option");
+        opt.value = bank;
+        opt.textContent = bank;
+        if (bank === currentFilteredBank || (currentFilteredBank === "" && bank === "AVM")) {
+          opt.selected = true;
+        }
+        bankSelect.appendChild(opt);
+      });
+
+      // Attach event listeners for dynamic preview updates
+      bankSelect.onchange = updateBillingPreview;
+      document.getElementById("bill-month-select").onchange = updateBillingPreview;
+      document.getElementById("bill-status-select").onchange = updateBillingPreview;
+      document.getElementById("bill-rate-input").oninput = updateBillingPreview;
+
+      updateBillingPreview();
+      document.getElementById("billing-modal").classList.add("open");
+    }
+
+    function closeBillingModal() {
+      document.getElementById("billing-modal").classList.remove("open");
+    }
+
+    function getFilteredBillingCases() {
+      const selectedBank = document.getElementById("bill-bank-select").value;
+      const selectedPeriod = document.getElementById("bill-month-select").value;
+      const selectedStatus = document.getElementById("bill-status-select").value;
+
+      let result = [...state.files];
+
+      // Filter by Bank
+      if (selectedBank) {
+        result = result.filter(f => f.Bank === selectedBank);
+      }
+
+      // Filter by Status
+      if (selectedStatus && selectedStatus !== "all") {
+        result = result.filter(f => f.Status === selectedStatus);
+      }
+
+      // Filter by Period / Date
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth(); // 0-indexed
+
+      if (selectedPeriod === "this_month") {
+        result = result.filter(f => {
+          if (!f.Date) return false;
+          const d = new Date(f.Date);
+          return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        });
+      } else if (selectedPeriod === "last_month") {
+        const lastMonthDate = new Date(currentYear, currentMonth - 1, 1);
+        const lmYear = lastMonthDate.getFullYear();
+        const lmMonth = lastMonthDate.getMonth();
+        result = result.filter(f => {
+          if (!f.Date) return false;
+          const d = new Date(f.Date);
+          return d.getFullYear() === lmYear && d.getMonth() === lmMonth;
+        });
+      }
+
+      // Sort by date ascending for clean billing statement chronological order
+      result.sort((a, b) => {
+        const dateA = a.Date ? a.Date.substring(0, 10) : "";
+        const dateB = b.Date ? b.Date.substring(0, 10) : "";
+        return dateA.localeCompare(dateB);
+      });
+
+      return result;
+    }
+
+    function updateBillingPreview() {
+      currentBillingCases = getFilteredBillingCases();
+      const rateInput = parseFloat(document.getElementById("bill-rate-input").value) || 0;
+      const totalCount = currentBillingCases.length;
+      const totalAmount = totalCount * rateInput;
+
+      document.getElementById("bill-case-count").textContent = `${totalCount} ${totalCount === 1 ? 'case' : 'cases'}`;
+      document.getElementById("bill-total-amount").textContent = `₹ ${totalAmount.toLocaleString('en-IN')}`;
+
+      const tbody = document.getElementById("billing-items-tbody");
+      tbody.innerHTML = "";
+
+      if (totalCount === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="padding: 20px; text-align: center; color: var(--text-muted);">
+              No valuation cases match the selected billing parameters.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      currentBillingCases.forEach((file, idx) => {
+        const tr = document.createElement("tr");
+        tr.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
+        tr.style.background = idx % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent";
+
+        tr.innerHTML = `
+          <td style="padding: 8px 10px; color: var(--text-muted); font-weight: 600;">${idx + 1}</td>
+          <td style="padding: 8px 10px; font-family: var(--font-mono); color: var(--text-sub);">${file.Date ? file.Date.substring(0,10) : "-"}</td>
+          <td style="padding: 8px 10px; font-weight: 600; color: var(--text-light);">${file.Owner || "-"}</td>
+          <td style="padding: 8px 10px; color: var(--text-sub);">📍 ${file.Location || file.Address || "-"}</td>
+          <td style="padding: 8px 10px; color: var(--text-muted); font-weight: 500;">${file.Bank || "-"}</td>
+          <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #10b981; font-family: var(--font-mono);">₹ ${rateInput}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function generateBillingPDF() {
+      if (currentBillingCases.length === 0) {
+        showToast("No cases selected to generate billing statement.", "warning");
+        return;
+      }
+
+      const selectedBank = document.getElementById("bill-bank-select").value || "All Valuation Clients";
+      const rateInput = parseFloat(document.getElementById("bill-rate-input").value) || 0;
+      const totalCount = currentBillingCases.length;
+      const totalAmount = totalCount * rateInput;
+      const amountInWords = numberToWordsIndian(totalAmount);
+
+      const today = new Date();
+      const dateStr = today.toLocaleDateString("en-IN", { day: '2-digit', month: 'short', year: 'numeric' });
+      const invoiceNo = `INV-${(selectedBank.replace(/[^a-zA-Z0-9]/g, "") || "VAL").toUpperCase()}-${today.getFullYear()}${String(today.getMonth()+1).padStart(2,'0')}${String(today.getDate()).padStart(2,'0')}`;
+
+      // Construct print HTML document
+      let printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Valuation Bill - ${selectedBank} (${dateStr})</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+            body {
+              font-family: 'Inter', system-ui, -apple-system, sans-serif;
+              color: #0f172a;
+              margin: 0;
+              padding: 24px;
+              background: #ffffff;
+            }
+            .header-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #1e3a8a;
+              padding-bottom: 16px;
+            }
+            .brand-name {
+              font-size: 22px;
+              font-weight: 800;
+              color: #1e3a8a;
+              margin: 0;
+              letter-spacing: -0.5px;
+            }
+            .brand-sub {
+              font-size: 12px;
+              color: #475569;
+              margin-top: 3px;
+              font-weight: 600;
+            }
+            .invoice-title {
+              font-size: 18px;
+              font-weight: 800;
+              color: #2563eb;
+              text-transform: uppercase;
+              text-align: right;
+              letter-spacing: 1px;
+            }
+            .meta-grid {
+              width: 100%;
+              margin-bottom: 20px;
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 8px;
+              padding: 14px;
+            }
+            .meta-grid td {
+              font-size: 12px;
+              padding: 4px 10px;
+              vertical-align: top;
+            }
+            .meta-label {
+              color: #64748b;
+              font-weight: 600;
+              text-transform: uppercase;
+              font-size: 10px;
+              letter-spacing: 0.5px;
+            }
+            .meta-val {
+              color: #0f172a;
+              font-weight: 700;
+            }
+            .item-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-bottom: 20px;
+            }
+            .item-table th {
+              background: #1e3a8a;
+              color: #ffffff;
+              font-size: 11px;
+              font-weight: 700;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              padding: 9px 10px;
+              text-align: left;
+            }
+            .item-table td {
+              padding: 9px 10px;
+              font-size: 12px;
+              border-bottom: 1px solid #e2e8f0;
+              color: #334155;
+            }
+            .item-table tr:nth-child(even) {
+              background: #f8fafc;
+            }
+            .summary-box {
+              width: 300px;
+              margin-left: auto;
+              background: #f1f5f9;
+              border: 1px solid #cbd5e1;
+              border-radius: 8px;
+              padding: 14px;
+              margin-bottom: 20px;
+            }
+            .summary-row {
+              display: flex;
+              justify-content: space-between;
+              font-size: 12px;
+              margin-bottom: 6px;
+              color: #475569;
+            }
+            .total-row {
+              display: flex;
+              justify-content: space-between;
+              font-size: 15px;
+              font-weight: 800;
+              color: #1e3a8a;
+              border-top: 2px solid #94a3b8;
+              padding-top: 6px;
+              margin-top: 6px;
+            }
+            .words-box {
+              background: #eff6ff;
+              border: 1px solid #bfdbfe;
+              padding: 10px 14px;
+              border-radius: 8px;
+              font-size: 12px;
+              color: #1e40af;
+              font-weight: 600;
+              margin-bottom: 20px;
+            }
+            .footer-sig {
+              margin-top: 30px;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-end;
+              padding-top: 16px;
+              border-top: 1px solid #cbd5e1;
+            }
+            .sig-title {
+              font-size: 12px;
+              font-weight: 700;
+              color: #1e3a8a;
+              margin-bottom: 35px;
+            }
+            @media print {
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <table class="header-table">
+            <tr>
+              <td>
+                <div class="brand-name">VALUTRACK PROPERTY SERVICES</div>
+                <div class="brand-sub">Sathish & Udhaya Valuation Consultants</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Technical Property Valuations & Site Inspection Reports</div>
+              </td>
+              <td style="text-align: right;">
+                <div class="invoice-title">BILLING STATEMENT</div>
+                <div style="font-size: 12px; font-weight: 600; color: #475569; margin-top: 3px;">Ref: ${invoiceNo}</div>
+              </td>
+            </tr>
+          </table>
+
+          <table class="meta-grid">
+            <tr>
+              <td width="33%">
+                <div class="meta-label">Billed To</div>
+                <div class="meta-val" style="font-size: 14px; color: #1e3a8a; margin-top: 2px;">${selectedBank}</div>
+                <div style="font-size: 11px; color: #64748b;">Valuation & Risk Department</div>
+              </td>
+              <td width="33%">
+                <div class="meta-label">Statement Date</div>
+                <div class="meta-val" style="margin-top: 2px;">${dateStr}</div>
+                <div class="meta-label" style="margin-top: 6px;">Rate Per Valuation</div>
+                <div class="meta-val">₹ ${rateInput.toLocaleString('en-IN')}.00</div>
+              </td>
+              <td width="34%" style="text-align: right;">
+                <div class="meta-label">Total Cases</div>
+                <div class="meta-val" style="font-size: 15px; color: #2563eb;">${totalCount} Completed</div>
+                <div class="meta-label" style="margin-top: 6px;">Total Amount Payable</div>
+                <div class="meta-val" style="font-size: 15px; color: #16a34a;">₹ ${totalAmount.toLocaleString('en-IN')}.00</div>
+              </td>
+            </tr>
+          </table>
+
+          <table class="item-table">
+            <thead>
+              <tr>
+                <th width="35">#</th>
+                <th width="90">Date</th>
+                <th>Customer / Applicant Name</th>
+                <th>Location / Area</th>
+                <th width="130">Case / Ref No</th>
+                <th width="85" style="text-align: right;">Amount (₹)</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+
+      currentBillingCases.forEach((file, idx) => {
+        printContent += `
+          <tr>
+            <td style="font-weight: 600; color: #64748b;">${idx + 1}</td>
+            <td>${file.Date ? file.Date.substring(0,10) : "-"}</td>
+            <td style="font-weight: 700; color: #0f172a;">${file.Owner || "-"}</td>
+            <td>📍 ${file.Location || file.Address || "-"}</td>
+            <td style="font-family: monospace; font-size: 11px; color: #475569;">${file.RefNo || file.FileNo || "-"}</td>
+            <td style="text-align: right; font-weight: 700; color: #0f172a;">₹ ${rateInput.toLocaleString('en-IN')}.00</td>
+          </tr>
+        `;
+      });
+
+      printContent += `
+            </tbody>
+          </table>
+
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+            <div style="flex: 1;">
+              <div class="words-box">
+                <span style="font-size: 10px; text-transform: uppercase; color: #3b82f6; display: block; margin-bottom: 2px;">Amount In Words:</span>
+                ${amountInWords}
+              </div>
+              <div style="font-size: 11px; color: #64748b; line-height: 1.4;">
+                <strong>Payment Instructions:</strong><br>
+                Please credit payments to <strong>Sathish Kumar & Udhaya</strong> valuation account.<br>
+                Contact: +91 97916 93845 / Sathish Kumar Pandurangan.
+              </div>
+            </div>
+
+            <div class="summary-box">
+              <div class="summary-row">
+                <span>Total Valuations Count:</span>
+                <strong>${totalCount} Cases</strong>
+              </div>
+              <div class="summary-row">
+                <span>Rate Per Inspection:</span>
+                <strong>₹ ${rateInput.toLocaleString('en-IN')}.00</strong>
+              </div>
+              <div class="total-row">
+                <span>Grand Total:</span>
+                <span>₹ ${totalAmount.toLocaleString('en-IN')}.00</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-sig">
+            <div style="font-size: 10px; color: #94a3b8;">
+              ValuTrack Automated Billing Statement • Page 1 of 1
+            </div>
+            <div style="text-align: right;">
+              <div class="sig-title">For Sathish & Udhaya Valuation Services</div>
+              <div style="font-size: 12px; font-weight: 700; color: #0f172a; border-top: 1px solid #0f172a; padding-top: 4px; display: inline-block; min-width: 180px; text-align: center;">
+                Authorized Signatory
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+
+      // Open print window
+      const printWindow = window.open("", "_blank");
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      // Auto-trigger print after render
+      setTimeout(() => {
+        printWindow.focus();
+        printWindow.print();
+      }, 400);
+
+      showToast("Billing Statement PDF generated!", "success");
+    }
+
     // 12. Setup Screen API configuration actions
     function openSetupModal() {
       document.getElementById("setup-sheet-url").value = state.sheetUrl;
@@ -6031,6 +6556,11 @@
 
       // CSV Download trigger
       document.getElementById("export-csv-btn").addEventListener("click", exportToCSV);
+
+      // Billing modal triggers
+      document.getElementById("billing-btn").addEventListener("click", openBillingModal);
+      document.getElementById("nav-btn-billing")?.addEventListener("click", openBillingModal);
+      document.getElementById("generate-pdf-btn").addEventListener("click", generateBillingPDF);
 
       // Dashboard stat cards filter click listeners
       document.getElementById("card-total-files").addEventListener("click", () => {
