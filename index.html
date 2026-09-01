@@ -3243,8 +3243,8 @@
           <div class="form-group">
             <label class="form-label" for="bill-month-select">Month / Period</label>
             <select class="form-input" id="bill-month-select">
-              <option value="all">All Dates / Current Filter</option>
-              <option value="this_month" selected>Current Month</option>
+              <option value="all" selected>All Dates / Current Filter View</option>
+              <option value="this_month">Current Month</option>
               <option value="last_month">Last Month</option>
             </select>
           </div>
@@ -3263,24 +3263,27 @@
         </div>
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-light);">
-            Selected Cases Breakdown (<span id="bill-case-count" style="color: #10b981;">0 cases</span>)
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-light); display: flex; align-items: center; gap: 8px;">
+            <span>Selected Cases Breakdown (<span id="bill-case-count" style="color: #10b981;">0 cases</span>)</span>
           </div>
           <div style="font-size: 1rem; font-weight: 700; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 12px; border-radius: 6px; border: 1px solid rgba(16,185,129,0.2);">
             Total Payable: <span id="bill-total-amount">₹ 0</span>
           </div>
         </div>
 
-        <!-- Billing Items Live Preview Table -->
-        <div style="max-height: 240px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: rgba(0,0,0,0.15);">
+        <!-- Billing Items Live Preview Table with Individual Checkboxes -->
+        <div style="max-height: 250px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; background: rgba(0,0,0,0.15);">
           <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem;">
             <thead>
               <tr style="background: rgba(255,255,255,0.05); color: var(--text-muted); border-bottom: 1px solid rgba(255,255,255,0.08); text-align: left;">
-                <th style="padding: 8px 10px; width: 35px;">#</th>
-                <th style="padding: 8px 10px; width: 90px;">Date</th>
+                <th style="padding: 8px 10px; width: 35px; text-align: center;">
+                  <input type="checkbox" id="bill-select-all" checked style="width: 15px; height: 15px; cursor: pointer;" title="Select / Deselect All">
+                </th>
+                <th style="padding: 8px 10px; width: 30px;">#</th>
+                <th style="padding: 8px 10px; width: 85px;">Date</th>
                 <th style="padding: 8px 10px;">Customer Name</th>
                 <th style="padding: 8px 10px;">Location</th>
-                <th style="padding: 8px 10px; width: 90px;">Bank</th>
+                <th style="padding: 8px 10px; width: 85px;">Bank</th>
                 <th style="padding: 8px 10px; width: 85px; text-align: right;">Amount (₹)</th>
               </tr>
             </thead>
@@ -5626,6 +5629,7 @@
 
     // 11.5. VALUATION BILLING & PDF INVOICE GENERATOR CONTROLLER
     let currentBillingCases = [];
+    let selectedBillingCaseIds = new Set();
 
     function numberToWordsIndian(num) {
       if (!num || num === 0) return "Zero Rupees Only";
@@ -5661,13 +5665,38 @@
         bankSelect.appendChild(opt);
       });
 
-      // Attach event listeners for dynamic preview updates
-      bankSelect.onchange = updateBillingPreview;
-      document.getElementById("bill-month-select").onchange = updateBillingPreview;
-      document.getElementById("bill-status-select").onchange = updateBillingPreview;
-      document.getElementById("bill-rate-input").oninput = updateBillingPreview;
+      // Match status selector to active filter if applicable
+      const statusSelect = document.getElementById("bill-status-select");
+      if (state.filters.status && state.filters.status !== "ALL") {
+        statusSelect.value = state.filters.status;
+      } else {
+        statusSelect.value = "Report Sent";
+      }
 
-      updateBillingPreview();
+      // Default month/period selector to all (to include all active filter dates)
+      document.getElementById("bill-month-select").value = "all";
+
+      // Attach event listeners for dynamic preview updates
+      bankSelect.onchange = () => updateBillingPreview(true);
+      document.getElementById("bill-month-select").onchange = () => updateBillingPreview(true);
+      document.getElementById("bill-status-select").onchange = () => updateBillingPreview(true);
+      document.getElementById("bill-rate-input").oninput = () => calculateBillingTotals();
+
+      const selectAllCb = document.getElementById("bill-select-all");
+      if (selectAllCb) {
+        selectAllCb.onchange = (e) => {
+          const isChecked = e.target.checked;
+          if (isChecked) {
+            currentBillingCases.forEach(f => selectedBillingCaseIds.add(f.ID));
+          } else {
+            selectedBillingCaseIds.clear();
+          }
+          document.querySelectorAll(".bill-case-cb").forEach(cb => cb.checked = isChecked);
+          calculateBillingTotals();
+        };
+      }
+
+      updateBillingPreview(true);
       document.getElementById("billing-modal").classList.add("open");
     }
 
@@ -5724,26 +5753,43 @@
       return result;
     }
 
-    function updateBillingPreview() {
-      currentBillingCases = getFilteredBillingCases();
+    function calculateBillingTotals() {
       const rateInput = parseFloat(document.getElementById("bill-rate-input").value) || 0;
-      const totalCount = currentBillingCases.length;
-      const totalAmount = totalCount * rateInput;
+      const checkedCount = selectedBillingCaseIds.size;
+      const totalAmount = checkedCount * rateInput;
 
-      document.getElementById("bill-case-count").textContent = `${totalCount} ${totalCount === 1 ? 'case' : 'cases'}`;
+      document.getElementById("bill-case-count").textContent = `${checkedCount} of ${currentBillingCases.length} selected`;
       document.getElementById("bill-total-amount").textContent = `₹ ${totalAmount.toLocaleString('en-IN')}`;
+
+      const selectAllCb = document.getElementById("bill-select-all");
+      if (selectAllCb) {
+        selectAllCb.checked = (currentBillingCases.length > 0 && checkedCount === currentBillingCases.length);
+      }
+    }
+
+    function updateBillingPreview(resetCheckedState = true) {
+      currentBillingCases = getFilteredBillingCases();
+      
+      if (resetCheckedState) {
+        selectedBillingCaseIds = new Set(currentBillingCases.map(f => f.ID));
+      } else {
+        // Retain only valid IDs
+        const validIds = new Set(currentBillingCases.map(f => f.ID));
+        selectedBillingCaseIds = new Set([...selectedBillingCaseIds].filter(id => validIds.has(id)));
+      }
 
       const tbody = document.getElementById("billing-items-tbody");
       tbody.innerHTML = "";
 
-      if (totalCount === 0) {
+      if (currentBillingCases.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6" style="padding: 20px; text-align: center; color: var(--text-muted);">
+            <td colspan="7" style="padding: 20px; text-align: center; color: var(--text-muted);">
               No valuation cases match the selected billing parameters.
             </td>
           </tr>
         `;
+        calculateBillingTotals();
         return;
       }
 
@@ -5752,27 +5798,47 @@
         tr.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
         tr.style.background = idx % 2 === 0 ? "rgba(255,255,255,0.02)" : "transparent";
 
+        const isChecked = selectedBillingCaseIds.has(file.ID);
+
         tr.innerHTML = `
+          <td style="padding: 8px 10px; text-align: center;">
+            <input type="checkbox" class="bill-case-cb" data-id="${file.ID}" ${isChecked ? "checked" : ""} style="width: 15px; height: 15px; cursor: pointer;">
+          </td>
           <td style="padding: 8px 10px; color: var(--text-muted); font-weight: 600;">${idx + 1}</td>
           <td style="padding: 8px 10px; font-family: var(--font-mono); color: var(--text-sub);">${file.Date ? file.Date.substring(0,10) : "-"}</td>
           <td style="padding: 8px 10px; font-weight: 600; color: var(--text-light);">${file.Owner || "-"}</td>
           <td style="padding: 8px 10px; color: var(--text-sub);">📍 ${file.Location || file.Address || "-"}</td>
           <td style="padding: 8px 10px; color: var(--text-muted); font-weight: 500;">${file.Bank || "-"}</td>
-          <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #10b981; font-family: var(--font-mono);">₹ ${rateInput}</td>
+          <td style="padding: 8px 10px; text-align: right; font-weight: 700; color: #10b981; font-family: var(--font-mono);">₹ ${parseFloat(document.getElementById("bill-rate-input").value) || 500}</td>
         `;
+
+        const cb = tr.querySelector(".bill-case-cb");
+        cb.addEventListener("change", (e) => {
+          if (e.target.checked) {
+            selectedBillingCaseIds.add(file.ID);
+          } else {
+            selectedBillingCaseIds.delete(file.ID);
+          }
+          calculateBillingTotals();
+        });
+
         tbody.appendChild(tr);
       });
+
+      calculateBillingTotals();
     }
 
     function generateBillingPDF() {
-      if (currentBillingCases.length === 0) {
-        showToast("No cases selected to generate billing statement.", "warning");
+      const selectedCases = currentBillingCases.filter(f => selectedBillingCaseIds.has(f.ID));
+
+      if (selectedCases.length === 0) {
+        showToast("Please check at least one case to generate billing statement.", "warning");
         return;
       }
 
       const selectedBank = document.getElementById("bill-bank-select").value || "All Valuation Clients";
       const rateInput = parseFloat(document.getElementById("bill-rate-input").value) || 0;
-      const totalCount = currentBillingCases.length;
+      const totalCount = selectedCases.length;
       const totalAmount = totalCount * rateInput;
       const amountInWords = numberToWordsIndian(totalAmount);
 
@@ -5977,7 +6043,7 @@
             <tbody>
       `;
 
-      currentBillingCases.forEach((file, idx) => {
+      selectedCases.forEach((file, idx) => {
         printContent += `
           <tr>
             <td style="font-weight: 600; color: #64748b;">${idx + 1}</td>
