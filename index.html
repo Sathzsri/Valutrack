@@ -5855,6 +5855,7 @@
       const selectedFirmKey = document.getElementById("bill-firm-select")?.value || "firm1";
       let brandNameHtml = "";
       let sigTitleText = "";
+      let accountNameText = "";
 
       if (selectedFirmKey === "firm2") {
         brandNameHtml = `
@@ -5863,6 +5864,7 @@
           <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Engineers, Structural Consultants & Approved Property Valuers</div>
         `;
         sigTitleText = "For Associated Engineers Structural Consultants and Property Valuers";
+        accountNameText = "Associated Engineers";
       } else {
         brandNameHtml = `
           <div class="brand-name" style="font-size: 22px; color: #1e3a8a;">VALUTRACK PROPERTY SERVICES</div>
@@ -5870,6 +5872,7 @@
           <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Technical Property Valuations & Site Inspection Reports</div>
         `;
         sigTitleText = "For Sathish & Udhaya Valuation Consultants";
+        accountNameText = "Sathish & Udhaya";
       }
 
       const selectedBank = document.getElementById("bill-bank-select").value || "All Valuation Clients";
@@ -6095,7 +6098,7 @@
               </div>
               <div style="font-size: 11px; color: #64748b; line-height: 1.5;">
                 <strong>Payment Instructions:</strong><br>
-                Please credit payments to <strong>Sathish Kumar & Udhaya</strong> valuation account.<br>
+                Please credit payments to <strong>${accountNameText}</strong> valuation account.<br>
                 Contact: +91 97514 63013 / Sathish Kumar Pandurangan.
               </div>
             </div>
