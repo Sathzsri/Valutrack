@@ -2262,14 +2262,13 @@
 
     .flip-card-inner {
       position: relative;
-      width: 60px;
-      height: 64px;
+      width: 64px;
+      height: 70px;
       background: var(--card-bg, #181818);
-      border-radius: 10px;
+      border-radius: 12px;
       perspective: 400px;
       box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
       border: 1px solid var(--card-border, #2e2e2e);
-      overflow: hidden;
     }
 
     /* Middle slit seam line */
@@ -2303,43 +2302,53 @@
     .flip-half {
       position: absolute;
       left: 0;
-      right: 0;
-      height: 50%;
+      width: 100%;
+      height: 35px; /* Exactly 50% of 70px */
       overflow: hidden;
       background: var(--card-bg, #181818);
-      display: flex;
-      justify-content: center;
       backface-visibility: hidden;
     }
 
     .flip-top-static, .flip-top-anim {
       top: 0;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
-      align-items: flex-end;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
     }
     .flip-top-static .flip-val, .flip-top-anim .flip-val {
-      transform: translateY(50%);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      line-height: 70px;
+      text-align: center;
     }
 
     .flip-bottom-static, .flip-bottom-anim {
       bottom: 0;
-      border-bottom-left-radius: 10px;
-      border-bottom-right-radius: 10px;
-      align-items: flex-start;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
     }
     .flip-bottom-static .flip-val, .flip-bottom-anim .flip-val {
-      transform: translateY(-50%);
+      position: absolute;
+      top: -35px; /* Offset upward by 35px so bottom half aligns perfectly */
+      left: 0;
+      width: 100%;
+      height: 70px;
+      line-height: 70px;
+      text-align: center;
     }
 
     /* Digit text styling */
     .flip-val {
-      font-family: 'Sora', 'JetBrains Mono', -apple-system, sans-serif;
-      font-size: 2.1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 2.3rem;
       font-weight: 800;
       color: var(--card-text-color, #ffffff);
-      line-height: 1;
+      margin: 0;
+      padding: 0;
       text-shadow: var(--card-text-shadow, none);
+      pointer-events: none;
     }
 
     .flip-unit-label {
@@ -2435,8 +2444,50 @@
       box-shadow: 0 0 10px var(--accent-blue-glow);
     }
 
-    /* FLIP CLOCK COLOR SCHEMES */
-    /* 1. Dark Retro (Default - Matches reference image) */
+    /* FLIP CLOCK COLOR SCHEMES (Includes Violet / Purple Family!) */
+    /* 1. Neon Violet (Vibrant Cyber Purple) */
+    .flip-clock-widget.theme-neon-violet {
+      --clock-bg: rgba(24, 9, 44, 0.95);
+      --clock-border: rgba(168, 85, 247, 0.4);
+      --card-bg: #1c0a35;
+      --card-border: #a855f7;
+      --card-text-color: #e9d5ff;
+      --clock-ampm-color: #c084fc;
+      --clock-bg-notch: #140728;
+      --card-text-shadow: 0 0 14px rgba(168, 85, 247, 0.85);
+      --card-seam-glow: rgba(192, 132, 252, 0.4);
+      --clock-label-color: #c084fc;
+    }
+
+    /* 2. Velvet Purple (Deep Royal Violet) */
+    .flip-clock-widget.theme-velvet-purple {
+      --clock-bg: #2e1065;
+      --clock-border: #7e22ce;
+      --card-bg: #3b0764;
+      --card-border: #9333ea;
+      --card-text-color: #f3e8ff;
+      --clock-ampm-color: #d8b4fe;
+      --clock-bg-notch: #2e1065;
+      --card-text-shadow: 0 0 10px rgba(147, 51, 234, 0.6);
+      --card-seam-glow: rgba(216, 180, 254, 0.35);
+      --clock-label-color: #d8b4fe;
+    }
+
+    /* 3. Amethyst Indigo */
+    .flip-clock-widget.theme-amethyst-glow {
+      --clock-bg: #1e1b4b;
+      --clock-border: #6366f1;
+      --card-bg: #312e81;
+      --card-border: #818cf8;
+      --card-text-color: #c7d2fe;
+      --clock-ampm-color: #a5b4fc;
+      --clock-bg-notch: #1e1b4b;
+      --card-text-shadow: 0 0 12px rgba(99, 102, 241, 0.7);
+      --card-seam-glow: rgba(165, 180, 252, 0.35);
+      --clock-label-color: #a5b4fc;
+    }
+
+    /* 4. Dark Retro (Classic Matte Black) */
     .flip-clock-widget.theme-dark-retro {
       --clock-bg: #0d0d0d;
       --clock-border: #222222;
@@ -2449,7 +2500,7 @@
       --clock-label-color: #777777;
     }
 
-    /* 2. Cyber Neon */
+    /* 5. Cyber Cyan Neon */
     .flip-clock-widget.theme-cyber-neon {
       --clock-bg: rgba(6, 12, 28, 0.95);
       --clock-border: rgba(0, 242, 254, 0.4);
@@ -2463,7 +2514,7 @@
       --clock-label-color: #00f2fe;
     }
 
-    /* 3. Emerald Luxe */
+    /* 6. Emerald Luxe */
     .flip-clock-widget.theme-emerald {
       --clock-bg: #022c22;
       --clock-border: #059669;
@@ -2477,7 +2528,7 @@
       --clock-label-color: #34d399;
     }
 
-    /* 4. Midnight Royal Blue */
+    /* 7. Midnight Royal Blue */
     .flip-clock-widget.theme-royal-blue {
       --clock-bg: #0f172a;
       --clock-border: #3b82f6;
@@ -2491,7 +2542,7 @@
       --clock-label-color: #93c5fd;
     }
 
-    /* 5. Sunset Amber Gold */
+    /* 8. Sunset Amber Gold */
     .flip-clock-widget.theme-amber-gold {
       --clock-bg: #2d1600;
       --clock-border: #d97706;
@@ -2505,7 +2556,7 @@
       --clock-label-color: #fbbf24;
     }
 
-    /* 6. Minimal Cream Light */
+    /* 9. Minimal Cream Light */
     .flip-clock-widget.theme-minimal-light {
       --clock-bg: #f1f5f9;
       --clock-border: #cbd5e1;
@@ -2524,11 +2575,23 @@
         padding: 8px 12px;
       }
       .flip-card-inner {
-        width: 52px;
-        height: 58px;
+        width: 54px;
+        height: 60px;
+      }
+      .flip-half {
+        height: 30px;
+      }
+      .flip-top-static .flip-val, .flip-top-anim .flip-val {
+        height: 60px;
+        line-height: 60px;
+      }
+      .flip-bottom-static .flip-val, .flip-bottom-anim .flip-val {
+        top: -30px;
+        height: 60px;
+        line-height: 60px;
       }
       .flip-val {
-        font-size: 1.8rem;
+        font-size: 1.9rem;
       }
     }
   </style>
@@ -2659,7 +2722,7 @@
         
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
           <!-- 3D Flip Clock Widget (Running Seconds, AM/PM Badge & Theme Switcher) -->
-          <div id="fancy-clock-container" class="flip-clock-widget theme-dark-retro">
+          <div id="fancy-clock-container" class="flip-clock-widget theme-neon-violet">
             <div class="flip-clock-cards">
               <!-- Hours Card -->
               <div class="flip-card-unit" id="flip-unit-hours">
@@ -6581,6 +6644,9 @@
 
     // 12.5. 3D MECHANICAL FLIP CLOCK CONTROLLER
     const flipClockThemes = [
+      { id: "theme-neon-violet", name: "Neon Violet", icon: "💜" },
+      { id: "theme-velvet-purple", name: "Velvet Purple", icon: "🔮" },
+      { id: "theme-amethyst-glow", name: "Amethyst Indigo", icon: "🍇" },
       { id: "theme-dark-retro", name: "Dark Retro", icon: "🖤" },
       { id: "theme-cyber-neon", name: "Cyber Neon", icon: "⚡" },
       { id: "theme-emerald", name: "Emerald Luxe", icon: "💚" },
@@ -6700,7 +6766,7 @@
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
       // Initialize 3D Flip Clock
-      const savedClockTheme = localStorage.getItem("valutrack_flip_clock_theme") || "theme-dark-retro";
+      const savedClockTheme = localStorage.getItem("valutrack_flip_clock_theme") || "theme-neon-violet";
       applyClockTheme(savedClockTheme);
       updateClock();
       setInterval(updateClock, 1000);
