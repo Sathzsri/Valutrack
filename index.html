@@ -2213,180 +2213,322 @@
       background-color: #ffffff;
     }
 
-    /* FANCY CLOCK WIDGET (Digital & Analog Mode) */
-    .fancy-clock-widget {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(15, 23, 42, 0.75);
-      border: 1px solid rgba(59, 130, 246, 0.35);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      padding: 6px 14px;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 0 12px rgba(59, 130, 246, 0.08);
-      cursor: pointer;
-      user-select: none;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .fancy-clock-widget:hover {
-      border-color: rgba(96, 165, 250, 0.7);
-      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.15);
-      transform: translateY(-1px);
-    }
-
-    body.light-theme .fancy-clock-widget {
-      background: rgba(255, 255, 255, 0.9);
-      border-color: rgba(59, 130, 246, 0.35);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    }
-
-    /* Analog Clock Face */
-    .analog-clock {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      position: relative;
-      background: radial-gradient(circle, #0f172a 60%, #020617 100%);
-      border: 2px solid #3b82f6;
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 8px rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    body.light-theme .analog-clock {
-      background: radial-gradient(circle, #f8fafc 60%, #e2e8f0 100%);
-      border-color: #2563eb;
-      box-shadow: 0 0 8px rgba(37, 99, 235, 0.25);
-    }
-
-    .clock-marker {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.6);
-      border-radius: 1px;
-    }
-    body.light-theme .clock-marker { background: rgba(0, 0, 0, 0.5); }
-    .marker-12 { top: 2px; left: 50%; width: 2px; height: 5px; transform: translateX(-50%); }
-    .marker-6 { bottom: 2px; left: 50%; width: 2px; height: 5px; transform: translateX(-50%); }
-    .marker-3 { right: 2px; top: 50%; width: 5px; height: 2px; transform: translateY(-50%); }
-    .marker-9 { left: 2px; top: 50%; width: 5px; height: 2px; transform: translateY(-50%); }
-
-    .clock-hand {
-      position: absolute;
-      bottom: 50%;
-      left: 50%;
-      transform-origin: bottom center;
-      border-radius: 4px;
-      transition: transform 0.05s linear;
-    }
-
-    .hand-hour {
-      width: 3px;
-      height: 12px;
-      background: #ffffff;
-      margin-left: -1.5px;
-      z-index: 2;
-    }
-    body.light-theme .hand-hour { background: #0f172a; }
-
-    .hand-minute {
-      width: 2px;
-      height: 16px;
-      background: #60a5fa;
-      margin-left: -1px;
-      z-index: 3;
-    }
-    body.light-theme .hand-minute { background: #2563eb; }
-
-    .hand-second {
-      width: 1.5px;
-      height: 18px;
-      background: #f59e0b;
-      margin-left: -0.75px;
-      z-index: 4;
-      box-shadow: 0 0 4px #f59e0b;
-    }
-
-    .clock-center-dot {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #f59e0b;
-      border-radius: 50%;
-      z-index: 5;
-      box-shadow: 0 0 4px #f59e0b;
-    }
-
-    /* Digital Clock Display */
-    .digital-clock {
+    /* ==========================================================================
+       3D FLIP CLOCK WIDGET STYLING & COLOR SCHEMES
+       ========================================================================== */
+    .flip-clock-widget {
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      line-height: 1.1;
+      align-items: center;
+      gap: 6px;
+      background: var(--clock-bg, #0d0d0d);
+      border: 1px solid var(--clock-border, #222222);
+      border-radius: 16px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      user-select: none;
     }
 
-    .digital-time {
+    .flip-clock-cards {
       display: flex;
-      align-items: baseline;
-      gap: 4px;
-      font-family: 'JetBrains Mono', 'Courier New', monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #60a5fa;
-      letter-spacing: 0.5px;
-      text-shadow: 0 0 10px rgba(96, 165, 250, 0.4);
+      align-items: center;
+      gap: 8px;
     }
 
-    body.light-theme .digital-time {
-      color: #1d4ed8;
-      text-shadow: none;
+    .flip-card-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
     }
 
-    .digital-ampm {
+    /* AM/PM Badge inside Hours card top-left */
+    .flip-ampm-badge {
+      position: absolute;
+      top: 5px;
+      left: 7px;
+      z-index: 10;
       font-size: 0.7rem;
-      font-weight: 600;
-      color: #f59e0b;
+      font-weight: 800;
       letter-spacing: 0.5px;
+      color: var(--clock-ampm-color, #888888);
+      font-family: var(--font-main);
+      text-transform: uppercase;
+      pointer-events: none;
     }
 
-    .digital-date {
+    .flip-card-inner {
+      position: relative;
+      width: 60px;
+      height: 64px;
+      background: var(--card-bg, #181818);
+      border-radius: 10px;
+      perspective: 400px;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+      border: 1px solid var(--card-border, #2e2e2e);
+      overflow: hidden;
+    }
+
+    /* Middle slit seam line */
+    .flip-line-seam {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(0, 0, 0, 0.75);
+      box-shadow: 0 1px 0 var(--card-seam-glow, rgba(255, 255, 255, 0.15));
+      z-index: 8;
+      transform: translateY(-50%);
+    }
+
+    /* Side notches */
+    .flip-notch {
+      position: absolute;
+      top: 50%;
+      width: 4px;
+      height: 6px;
+      background: var(--clock-bg-notch, #0d0d0d);
+      border-radius: 3px;
+      transform: translateY(-50%);
+      z-index: 9;
+    }
+    .flip-notch-left { left: -2px; }
+    .flip-notch-right { right: -2px; }
+
+    /* Half Flaps (Top half & Bottom half) */
+    .flip-half {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 50%;
+      overflow: hidden;
+      background: var(--card-bg, #181818);
+      display: flex;
+      justify-content: center;
+      backface-visibility: hidden;
+    }
+
+    .flip-top-static, .flip-top-anim {
+      top: 0;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+      align-items: flex-end;
+    }
+    .flip-top-static .flip-val, .flip-top-anim .flip-val {
+      transform: translateY(50%);
+    }
+
+    .flip-bottom-static, .flip-bottom-anim {
+      bottom: 0;
+      border-bottom-left-radius: 10px;
+      border-bottom-right-radius: 10px;
+      align-items: flex-start;
+    }
+    .flip-bottom-static .flip-val, .flip-bottom-anim .flip-val {
+      transform: translateY(-50%);
+    }
+
+    /* Digit text styling */
+    .flip-val {
+      font-family: 'Sora', 'JetBrains Mono', -apple-system, sans-serif;
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: var(--card-text-color, #ffffff);
+      line-height: 1;
+      text-shadow: var(--card-text-shadow, none);
+    }
+
+    .flip-unit-label {
+      font-size: 0.52rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--clock-label-color, var(--text-sub));
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+
+    /* Colon animation */
+    .flip-colon-dot {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--card-text-color, #ffffff);
+      opacity: 0.8;
+      margin-bottom: 14px;
+      animation: flipColonBlink 1s infinite alternate ease-in-out;
+    }
+    @keyframes flipColonBlink {
+      0% { opacity: 0.25; }
+      100% { opacity: 1; }
+    }
+
+    /* 3D Flip Animation Keyframes & Transformation */
+    .flip-top-anim {
+      transform-origin: bottom center;
+      z-index: 6;
+    }
+
+    .flip-bottom-anim {
+      transform-origin: top center;
+      z-index: 5;
+    }
+
+    /* Trigger flip animation */
+    .is-flipping .flip-top-anim {
+      animation: flipTopDown 0.3s ease-in forwards;
+    }
+
+    .is-flipping .flip-bottom-anim {
+      animation: flipBottomDown 0.3s ease-out 0.15s forwards;
+    }
+
+    @keyframes flipTopDown {
+      0% { transform: rotateX(0deg); }
+      100% { transform: rotateX(-90deg); }
+    }
+
+    @keyframes flipBottomDown {
+      0% { transform: rotateX(90deg); }
+      100% { transform: rotateX(0deg); }
+    }
+
+    /* Subbar for date and color theme selector */
+    .flip-clock-subbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding-top: 4px;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .flip-clock-date {
       font-size: 0.72rem;
+      font-weight: 600;
       color: var(--text-muted);
-      font-weight: 500;
-      margin-top: 2px;
+      font-family: var(--font-mono);
     }
 
-    .clock-mode-btn {
+    .clock-theme-pill-btn {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: var(--text-muted);
+      padding: 3px 10px;
+      border-radius: 99px;
       font-size: 0.7rem;
-      padding: 4px 8px;
-      border-radius: 6px;
+      font-weight: 600;
       cursor: pointer;
-      transition: var(--transition-smooth);
-      margin-left: 2px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+      font-family: var(--font-main);
     }
 
-    .clock-mode-btn:hover {
-      background: rgba(59, 130, 246, 0.25);
-      color: #60a5fa;
-      border-color: rgba(59, 130, 246, 0.5);
+    .clock-theme-pill-btn:hover {
+      background: var(--accent-blue);
+      color: #000000;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 10px var(--accent-blue-glow);
     }
 
-    body.light-theme .clock-mode-btn {
-      background: rgba(0, 0, 0, 0.05);
-      border-color: rgba(0, 0, 0, 0.1);
+    /* FLIP CLOCK COLOR SCHEMES */
+    /* 1. Dark Retro (Default - Matches reference image) */
+    .flip-clock-widget.theme-dark-retro {
+      --clock-bg: #0d0d0d;
+      --clock-border: #222222;
+      --card-bg: #181818;
+      --card-border: #2e2e2e;
+      --card-text-color: #ffffff;
+      --clock-ampm-color: #888888;
+      --clock-bg-notch: #0d0d0d;
+      --card-seam-glow: rgba(255, 255, 255, 0.15);
+      --clock-label-color: #777777;
+    }
+
+    /* 2. Cyber Neon */
+    .flip-clock-widget.theme-cyber-neon {
+      --clock-bg: rgba(6, 12, 28, 0.95);
+      --clock-border: rgba(0, 242, 254, 0.4);
+      --card-bg: #09132b;
+      --card-border: #00f2fe;
+      --card-text-color: #00f2fe;
+      --clock-ampm-color: #38bdf8;
+      --clock-bg-notch: #060c1c;
+      --card-text-shadow: 0 0 12px rgba(0, 242, 254, 0.7);
+      --card-seam-glow: rgba(0, 242, 254, 0.4);
+      --clock-label-color: #00f2fe;
+    }
+
+    /* 3. Emerald Luxe */
+    .flip-clock-widget.theme-emerald {
+      --clock-bg: #022c22;
+      --clock-border: #059669;
+      --card-bg: #064e3b;
+      --card-border: #10b981;
+      --card-text-color: #a7f3d0;
+      --clock-ampm-color: #34d399;
+      --clock-bg-notch: #022c22;
+      --card-text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+      --card-seam-glow: rgba(52, 211, 153, 0.3);
+      --clock-label-color: #34d399;
+    }
+
+    /* 4. Midnight Royal Blue */
+    .flip-clock-widget.theme-royal-blue {
+      --clock-bg: #0f172a;
+      --clock-border: #3b82f6;
+      --card-bg: #1e3a8a;
+      --card-border: #60a5fa;
+      --card-text-color: #ffffff;
+      --clock-ampm-color: #93c5fd;
+      --clock-bg-notch: #0f172a;
+      --card-text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+      --card-seam-glow: rgba(147, 197, 253, 0.3);
+      --clock-label-color: #93c5fd;
+    }
+
+    /* 5. Sunset Amber Gold */
+    .flip-clock-widget.theme-amber-gold {
+      --clock-bg: #2d1600;
+      --clock-border: #d97706;
+      --card-bg: #451a03;
+      --card-border: #f59e0b;
+      --card-text-color: #fef08a;
+      --clock-ampm-color: #fbbf24;
+      --clock-bg-notch: #2d1600;
+      --card-text-shadow: 0 0 10px rgba(245, 158, 11, 0.6);
+      --card-seam-glow: rgba(251, 191, 36, 0.4);
+      --clock-label-color: #fbbf24;
+    }
+
+    /* 6. Minimal Cream Light */
+    .flip-clock-widget.theme-minimal-light {
+      --clock-bg: #f1f5f9;
+      --clock-border: #cbd5e1;
+      --card-bg: #ffffff;
+      --card-border: #94a3b8;
+      --card-text-color: #0f172a;
+      --clock-ampm-color: #64748b;
+      --clock-bg-notch: #e2e8f0;
+      --card-seam-glow: rgba(0, 0, 0, 0.1);
+      --clock-label-color: #64748b;
     }
 
     @media (max-width: 768px) {
-      .fancy-clock-widget {
+      .flip-clock-widget {
         width: 100%;
-        justify-content: space-between;
         padding: 8px 12px;
+      }
+      .flip-card-inner {
+        width: 52px;
+        height: 58px;
+      }
+      .flip-val {
+        font-size: 1.8rem;
       }
     }
   </style>
@@ -2516,33 +2658,67 @@
         </div>
         
         <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
-          <!-- Fancy Clock Widget (Digital & Analog Toggle) -->
-          <div id="fancy-clock-container" class="fancy-clock-widget" title="Click to switch clock display mode (Both / Digital / Analog)">
-            <!-- Analog Clock View -->
-            <div id="analog-clock-face" class="analog-clock">
-              <div class="clock-marker marker-12"></div>
-              <div class="clock-marker marker-3"></div>
-              <div class="clock-marker marker-6"></div>
-              <div class="clock-marker marker-9"></div>
-              <div class="clock-hand hand-hour" id="analog-hour-hand"></div>
-              <div class="clock-hand hand-minute" id="analog-minute-hand"></div>
-              <div class="clock-hand hand-second" id="analog-second-hand"></div>
-              <div class="clock-center-dot"></div>
-            </div>
-            
-            <!-- Digital Clock View -->
-            <div id="digital-clock-face" class="digital-clock">
-              <div class="digital-time">
-                <span id="digital-time-digits">12:00:00</span>
-                <span id="digital-time-ampm" class="digital-ampm">AM</span>
+          <!-- 3D Flip Clock Widget (Running Seconds, AM/PM Badge & Theme Switcher) -->
+          <div id="fancy-clock-container" class="flip-clock-widget theme-dark-retro">
+            <div class="flip-clock-cards">
+              <!-- Hours Card -->
+              <div class="flip-card-unit" id="flip-unit-hours">
+                <span class="flip-ampm-badge" id="flip-ampm-text">AM</span>
+                <div class="flip-card-inner">
+                  <div class="flip-half flip-top-static"><span class="flip-val">12</span></div>
+                  <div class="flip-half flip-bottom-static"><span class="flip-val">12</span></div>
+                  <div class="flip-half flip-top-anim"><span class="flip-val">12</span></div>
+                  <div class="flip-half flip-bottom-anim"><span class="flip-val">12</span></div>
+                  <div class="flip-notch flip-notch-left"></div>
+                  <div class="flip-notch flip-notch-right"></div>
+                  <div class="flip-line-seam"></div>
+                </div>
+                <span class="flip-unit-label">HOURS</span>
               </div>
-              <div id="digital-date-str" class="digital-date">Mon, 31 Aug</div>
+
+              <!-- Colon Separator -->
+              <div class="flip-colon-dot">:</div>
+
+              <!-- Minutes Card -->
+              <div class="flip-card-unit" id="flip-unit-minutes">
+                <div class="flip-card-inner">
+                  <div class="flip-half flip-top-static"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-bottom-static"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-top-anim"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-bottom-anim"><span class="flip-val">00</span></div>
+                  <div class="flip-notch flip-notch-left"></div>
+                  <div class="flip-notch flip-notch-right"></div>
+                  <div class="flip-line-seam"></div>
+                </div>
+                <span class="flip-unit-label">MINUTES</span>
+              </div>
+
+              <!-- Colon Separator -->
+              <div class="flip-colon-dot">:</div>
+
+              <!-- Seconds Card -->
+              <div class="flip-card-unit" id="flip-unit-seconds">
+                <div class="flip-card-inner">
+                  <div class="flip-half flip-top-static"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-bottom-static"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-top-anim"><span class="flip-val">00</span></div>
+                  <div class="flip-half flip-bottom-anim"><span class="flip-val">00</span></div>
+                  <div class="flip-notch flip-notch-left"></div>
+                  <div class="flip-notch flip-notch-right"></div>
+                  <div class="flip-line-seam"></div>
+                </div>
+                <span class="flip-unit-label">SECONDS</span>
+              </div>
             </div>
 
-            <!-- Mode Switcher Toggle Button -->
-            <button id="clock-mode-toggle" class="clock-mode-btn" title="Switch Clock Mode">
-              <span id="clock-mode-label">⏱️ Full</span>
-            </button>
+            <!-- Clock Sub Bar: Date & Theme Switcher Button -->
+            <div class="flip-clock-subbar">
+              <span id="flip-clock-date-str" class="flip-clock-date">Mon, 08 Sep</span>
+              <button id="clock-theme-toggle-btn" class="clock-theme-pill-btn" title="Cycle Clock Color Scheme">
+                <span class="theme-swatch">🎨</span>
+                <span id="clock-theme-label">Dark</span>
+              </button>
+            </div>
           </div>
 
           <!-- Engineer Selector Filter Icons -->
@@ -6403,48 +6579,48 @@
       renderAll();
     }
 
-    // 12.5. FANCY CLOCK CONTROLLER (Digital & Analog Mode)
-    let clockMode = localStorage.getItem("valutrack_clock_mode") || "both"; // 'both', 'digital', 'analog'
+    // 12.5. 3D MECHANICAL FLIP CLOCK CONTROLLER
+    const flipClockThemes = [
+      { id: "theme-dark-retro", name: "Dark Retro", icon: "🖤" },
+      { id: "theme-cyber-neon", name: "Cyber Neon", icon: "⚡" },
+      { id: "theme-emerald", name: "Emerald Luxe", icon: "💚" },
+      { id: "theme-royal-blue", name: "Royal Sapphire", icon: "💙" },
+      { id: "theme-amber-gold", name: "Amber Gold", icon: "🧡" },
+      { id: "theme-minimal-light", name: "Minimal Light", icon: "🤍" }
+    ];
+
+    let flipClockThemeIndex = 0;
+    let lastClockValues = { hours: null, minutes: null, seconds: null };
 
     function updateClock() {
       const now = new Date();
-      
-      const hours = now.getHours();
+      let hours = now.getHours();
       const minutes = now.getMinutes();
       const seconds = now.getSeconds();
-      const millis = now.getMilliseconds();
-      
-      // Update Analog Clock Hands
-      const hourDeg = (hours % 12) * 30 + (minutes / 60) * 30;
-      const minDeg = minutes * 6 + (seconds / 60) * 6;
-      const secDeg = seconds * 6 + (millis / 1000) * 6;
-      
-      const hourHand = document.getElementById("analog-hour-hand");
-      const minHand = document.getElementById("analog-minute-hand");
-      const secHand = document.getElementById("analog-second-hand");
-      
-      if (hourHand) hourHand.style.transform = `rotate(${hourDeg}deg)`;
-      if (minHand) minHand.style.transform = `rotate(${minDeg}deg)`;
-      if (secHand) secHand.style.transform = `rotate(${secDeg}deg)`;
-      
-      // Update Digital Clock Display
-      const digitsEl = document.getElementById("digital-time-digits");
-      const ampmEl = document.getElementById("digital-time-ampm");
-      const dateEl = document.getElementById("digital-date-str");
-      
-      if (digitsEl) {
-        let displayHours = hours % 12;
-        if (displayHours === 0) displayHours = 12;
-        const hStr = displayHours < 10 ? "0" + displayHours : "" + displayHours;
-        const mStr = minutes < 10 ? "0" + minutes : "" + minutes;
-        const sStr = seconds < 10 ? "0" + seconds : "" + seconds;
-        digitsEl.textContent = `${hStr}:${mStr}:${sStr}`;
+      const isPm = hours >= 12;
+
+      // 12-hour format display
+      let h12 = hours % 12;
+      if (h12 === 0) h12 = 12;
+
+      const hStr = h12 < 10 ? "0" + h12 : "" + h12;
+      const mStr = minutes < 10 ? "0" + minutes : "" + minutes;
+      const sStr = seconds < 10 ? "0" + seconds : "" + seconds;
+      const ampmStr = isPm ? "PM" : "AM";
+
+      // AM/PM badge update
+      const ampmEl = document.getElementById("flip-ampm-text");
+      if (ampmEl && ampmEl.textContent !== ampmStr) {
+        ampmEl.textContent = ampmStr;
       }
-      
-      if (ampmEl) {
-        ampmEl.textContent = hours >= 12 ? "PM" : "AM";
-      }
-      
+
+      // Update Flip Cards with 3D animation
+      updateFlipCard("flip-unit-hours", hStr, "hours");
+      updateFlipCard("flip-unit-minutes", mStr, "minutes");
+      updateFlipCard("flip-unit-seconds", sStr, "seconds");
+
+      // Update date
+      const dateEl = document.getElementById("flip-clock-date-str");
       if (dateEl) {
         const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -6452,54 +6628,86 @@
       }
     }
 
-    function toggleClockMode(e) {
-      if (e) e.stopPropagation();
-      if (clockMode === "both") {
-        clockMode = "digital";
-      } else if (clockMode === "digital") {
-        clockMode = "analog";
-      } else {
-        clockMode = "both";
+    function updateFlipCard(unitId, newVal, unitKey) {
+      const unitEl = document.getElementById(unitId);
+      if (!unitEl) return;
+
+      const oldVal = lastClockValues[unitKey];
+
+      // Initial load or first render
+      if (oldVal === null) {
+        lastClockValues[unitKey] = newVal;
+        setCardDigits(unitEl, newVal);
+        return;
       }
-      
-      localStorage.setItem("valutrack_clock_mode", clockMode);
-      applyClockMode();
+
+      if (oldVal === newVal) return;
+
+      // Digit changed! Perform mechanical flip
+      lastClockValues[unitKey] = newVal;
+
+      const topStatic = unitEl.querySelector(".flip-top-static .flip-val");
+      const bottomStatic = unitEl.querySelector(".flip-bottom-static .flip-val");
+      const topAnim = unitEl.querySelector(".flip-top-anim .flip-val");
+      const bottomAnim = unitEl.querySelector(".flip-bottom-anim .flip-val");
+
+      if (topStatic && bottomStatic && topAnim && bottomAnim) {
+        topStatic.textContent = newVal;
+        bottomStatic.textContent = oldVal;
+        topAnim.textContent = oldVal;
+        bottomAnim.textContent = newVal;
+
+        const cardInner = unitEl.querySelector(".flip-card-inner");
+        cardInner.classList.remove("is-flipping");
+        void cardInner.offsetWidth; // Force reflow
+        cardInner.classList.add("is-flipping");
+
+        setTimeout(() => {
+          bottomStatic.textContent = newVal;
+          cardInner.classList.remove("is-flipping");
+        }, 350);
+      }
     }
 
-    function applyClockMode() {
-      const analogFace = document.getElementById("analog-clock-face");
-      const digitalFace = document.getElementById("digital-clock-face");
-      const modeLabel = document.getElementById("clock-mode-label");
-      
-      if (clockMode === "both") {
-        if (analogFace) analogFace.style.display = "flex";
-        if (digitalFace) digitalFace.style.display = "flex";
-        if (modeLabel) modeLabel.textContent = "⏱️ Full";
-      } else if (clockMode === "digital") {
-        if (analogFace) analogFace.style.display = "none";
-        if (digitalFace) digitalFace.style.display = "flex";
-        if (modeLabel) modeLabel.textContent = "🔢 Digital";
-      } else {
-        if (analogFace) analogFace.style.display = "flex";
-        if (digitalFace) digitalFace.style.display = "none";
-        if (modeLabel) modeLabel.textContent = "🕒 Analog";
-      }
+    function setCardDigits(unitEl, val) {
+      const vals = unitEl.querySelectorAll(".flip-val");
+      vals.forEach(el => el.textContent = val);
+    }
+
+    function applyClockTheme(themeId) {
+      const widget = document.getElementById("fancy-clock-container");
+      if (!widget) return;
+
+      flipClockThemes.forEach(t => widget.classList.remove(t.id));
+      widget.classList.add(themeId);
+
+      const currentTheme = flipClockThemes.find(t => t.id === themeId) || flipClockThemes[0];
+      flipClockThemeIndex = flipClockThemes.findIndex(t => t.id === themeId);
+
+      const labelEl = document.getElementById("clock-theme-label");
+      if (labelEl) labelEl.textContent = currentTheme.name;
+    }
+
+    function cycleClockColorScheme(e) {
+      if (e) e.stopPropagation();
+      flipClockThemeIndex = (flipClockThemeIndex + 1) % flipClockThemes.length;
+      const nextTheme = flipClockThemes[flipClockThemeIndex];
+      localStorage.setItem("valutrack_flip_clock_theme", nextTheme.id);
+      applyClockTheme(nextTheme.id);
+      showToast(`Clock Color Theme: ${nextTheme.name}`, "info");
     }
 
     // 13. BOOTSTRAP EVENT LISTENERS ON PAGE LOAD
     document.addEventListener("DOMContentLoaded", () => {
-      // Initialize Fancy Clock
+      // Initialize 3D Flip Clock
+      const savedClockTheme = localStorage.getItem("valutrack_flip_clock_theme") || "theme-dark-retro";
+      applyClockTheme(savedClockTheme);
       updateClock();
-      applyClockMode();
       setInterval(updateClock, 1000);
-      
-      const clockContainer = document.getElementById("fancy-clock-container");
-      if (clockContainer) {
-        clockContainer.addEventListener("click", toggleClockMode);
-      }
-      const clockToggleBtn = document.getElementById("clock-mode-toggle");
-      if (clockToggleBtn) {
-        clockToggleBtn.addEventListener("click", toggleClockMode);
+
+      const clockThemeBtn = document.getElementById("clock-theme-toggle-btn");
+      if (clockThemeBtn) {
+        clockThemeBtn.addEventListener("click", cycleClockColorScheme);
       }
 
       // Initialize mobile tab navigation
