@@ -1306,10 +1306,32 @@
     }
 
     @media (max-width: 768px) {
+      .controls-panel {
+        padding: 12px;
+        gap: 12px;
+      }
+      .filter-dropdowns {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .filter-select {
+        width: 100%;
+      }
       .action-buttons {
         width: 100%;
         margin-left: 0;
-        justify-content: flex-end;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .action-buttons .btn {
+        width: 100%;
+        justify-content: center;
+        padding: 10px 8px;
+        font-size: 0.78rem;
+        white-space: nowrap;
       }
     }
 
@@ -3879,10 +3901,33 @@
       return cleaned;
     }
 
+    function getDeletedIdsSet() {
+      try {
+        const arr = JSON.parse(localStorage.getItem("valutrack_deleted_ids") || "[]");
+        return new Set(arr);
+      } catch(e) {
+        return new Set();
+      }
+    }
+
+    function addDeletedId(id, fileNo) {
+      try {
+        const arr = JSON.parse(localStorage.getItem("valutrack_deleted_ids") || "[]");
+        if (id && !arr.includes(id)) arr.push(id);
+        if (fileNo && !arr.includes(fileNo)) arr.push(fileNo);
+        localStorage.setItem("valutrack_deleted_ids", JSON.stringify(arr));
+      } catch(e) {}
+    }
+
     function deduplicateFiles(filesArray) {
+      const deletedSet = getDeletedIdsSet();
       const map = {};
       filesArray.forEach(file => {
-        if (!file.ID) return;
+        if (!file || !file.ID) return;
+        // Ignore deleted cases permanently
+        if (deletedSet.has(file.ID) || (file.FileNo && deletedSet.has(file.FileNo))) return;
+        if (file.Status === "Deleted" || file.IsDeleted === "TRUE" || file.IsDeleted === true) return;
+
         const existing = map[file.ID];
         if (!existing) {
           map[file.ID] = file;
@@ -4202,7 +4247,8 @@
           state.files[idx] = data;
         }
       } else if (action === "delete") {
-        state.files = state.files.filter(f => f.ID !== data.ID);
+        addDeletedId(data.ID, data.FileNo);
+        state.files = state.files.filter(f => f.ID !== data.ID && f.FileNo !== data.FileNo);
       }
       
       saveLocalData();
@@ -5816,6 +5862,7 @@
       confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
       newConfirmBtn.addEventListener("click", () => {
+        addDeletedId(file.ID, file.FileNo);
         queueDatabaseUpdate("delete", file);
         showToast(`Valuation file ${file.FileNo} successfully deleted`, "success");
         closeDeleteConfirm();
