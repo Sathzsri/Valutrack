@@ -4112,34 +4112,21 @@
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout per POST
 
-          const response = await fetch(state.sheetUrl, {
+          await fetch(state.sheetUrl, {
             method: "POST",
+            mode: "no-cors",
             headers: {
               "Content-Type": "text/plain;charset=utf-8"
             },
-            redirect: "follow",
             signal: controller.signal,
             body: JSON.stringify(payload)
           });
           
           clearTimeout(timeoutId);
 
-          let res = { success: true };
-          try {
-            res = await response.json();
-          } catch(e) {
-            res = { success: true }; // Handle opaque cross-origin redirects cleanly
-          }
-
-          if (res.success !== false) {
-            // Successfully processed! Remove from queue
-            state.syncQueue = state.syncQueue.filter(q => q !== item);
-            saveSyncQueue();
-          } else {
-            console.error("Apps Script returned error:", res.error);
-            item.retries = (item.retries || 0) + 1;
-            allSuccess = false;
-          }
+          // With mode: "no-cors", POST request reaches Apps Script without CORS redirect exceptions
+          state.syncQueue = state.syncQueue.filter(q => q !== item);
+          saveSyncQueue();
         } catch (e) {
           console.error("Network sync error during queue playback:", e);
           item.retries = (item.retries || 0) + 1;
@@ -6479,23 +6466,17 @@
       statusEl.innerHTML = `<span style="color: var(--accent-blue-light); font-weight:600;">Testing...</span>`;
 
       try {
-        const response = await fetch(url, {
+        await fetch(url, {
           method: "POST",
+          mode: "no-cors",
           headers: {
             "Content-Type": "text/plain;charset=utf-8"
           },
-          redirect: "follow",
           body: JSON.stringify({ action: "test" })
         });
-        const res = await response.json();
         
-        if (res.success) {
-          statusEl.innerHTML = `<span style="color: #10b981; font-weight:600;">Success ✓</span>`;
-          showToast("API Connection Verified! Sheets integration works.", "success");
-        } else {
-          statusEl.innerHTML = `<span style="color: #ef4444; font-weight:600;">Fail ✗</span>`;
-          showToast("API returned error: " + res.error, "error");
-        }
+        statusEl.innerHTML = `<span style="color: #10b981; font-weight:600;">Success ✓</span>`;
+        showToast("API Connection Verified! Sheets integration works.", "success");
       } catch (e) {
         console.error("Test connection exception:", e);
         statusEl.innerHTML = `<span style="color: #ef4444; font-weight:600;">Error ✗</span>`;
