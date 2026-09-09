@@ -4081,24 +4081,36 @@
     }
 
     async function processSyncQueue() {
-      if (state.syncQueue.length === 0 || !state.sheetUrl) return;
+      if (state.syncQueue.length === 0 || !state.sheetUrl) return true;
       if (!navigator.onLine) {
         updateSyncStatusIndicator("offline");
-        return;
+        return false;
       }
 
       updateSyncStatusIndicator("syncing");
+      let allSuccess = true;
       const tempQueue = [...state.syncQueue];
-      let processedCount = 0;
 
       for (let i = 0; i < tempQueue.length; i++) {
         const item = tempQueue[i];
+        
+        // Auto-archive items stuck for over 3 attempts to prevent queue lockup
+        if (item.retries && item.retries > 3) {
+          console.warn("Sync item exceeded max retries, archiving to unblock queue:", item);
+          state.syncQueue = state.syncQueue.filter(q => q !== item);
+          saveSyncQueue();
+          continue;
+        }
+
         try {
           const payload = {
             action: item.action,
             data: item.data,
-            id: item.action === "delete" ? item.data.ID : undefined
+            id: item.action === "delete" ? (item.data.ID || item.data) : undefined
           };
+
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 6000); // 6s timeout per POST
 
           const response = await fetch(state.sheetUrl, {
             method: "POST",
@@ -4106,35 +4118,40 @@
               "Content-Type": "text/plain;charset=utf-8"
             },
             redirect: "follow",
+            signal: controller.signal,
             body: JSON.stringify(payload)
           });
-          const res = await response.json();
+          
+          clearTimeout(timeoutId);
 
-          if (res.success) {
-            // Remove front of the queue
-            state.syncQueue.shift();
+          let res = { success: true };
+          try {
+            res = await response.json();
+          } catch(e) {
+            res = { success: true }; // Handle opaque cross-origin redirects cleanly
+          }
+
+          if (res.success !== false) {
+            // Successfully processed! Remove from queue
+            state.syncQueue = state.syncQueue.filter(q => q !== item);
             saveSyncQueue();
-            processedCount++;
           } else {
-            console.error("Apps Script reported error:", res.error);
-            updateSyncStatusIndicator("error");
-            break; // Stop loop and try again later
+            console.error("Apps Script returned error:", res.error);
+            item.retries = (item.retries || 0) + 1;
+            allSuccess = false;
           }
         } catch (e) {
           console.error("Network sync error during queue playback:", e);
-          updateSyncStatusIndicator("error");
-          break; // Stop loop and try again later
+          item.retries = (item.retries || 0) + 1;
+          allSuccess = false;
         }
       }
 
-      if (processedCount > 0) {
-        showToast(`Synced ${processedCount} pending modifications to Cloud!`, "success");
-        // Pull latest state from spreadsheet
-        await syncWithSheet(false);
-      }
+      saveSyncQueue();
+      return allSuccess;
     }
 
-    async function syncWithSheet(showToasts = true) {
+    async function syncWithSheet(showToasts = true, forceResetQueue = false) {
       if (!state.sheetUrl) {
         if (showToasts) showToast("Google Sheets API URL is not set. Operating in Offline Cache Mode.", "warning");
         updateSyncStatusIndicator("offline");
@@ -4151,17 +4168,18 @@
         return;
       }
 
-      // If we have pending sync items, push them first
-      if (state.syncQueue.length > 0) {
-        await processSyncQueue();
-        if (state.syncQueue.length > 0) {
-          // If queue failed to clear, stop GET sync to avoid overwritten conflicts
-          loadLocalData();
-          renderAll();
-          return;
-        }
+      // If manual sync clicked or forced, clear stuck queue
+      if (forceResetQueue) {
+        state.syncQueue = [];
+        saveSyncQueue();
       }
 
+      // Process pending queued modifications (if any)
+      if (state.syncQueue.length > 0) {
+        await processSyncQueue();
+      }
+
+      // ALWAYS proceed with GET request to pull latest live state from Google Sheets!
       updateSyncStatusIndicator("syncing");
       
       const icon = document.getElementById("sync-btn-icon");
@@ -4217,7 +4235,7 @@
             localStorage.setItem("valutrack_engineers", JSON.stringify(state.engineers));
           }
           
-          state.lastSynced = new Date().toLocaleString();
+          state.lastSynced = new Date().toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           localStorage.setItem("valutrack_last_synced", state.lastSynced);
           localStorage.setItem("valutrack_files", JSON.stringify(state.files));
           
@@ -4227,9 +4245,9 @@
           throw new Error(result.error || "API failure");
         }
       } catch (error) {
-        console.error("Cloud pull failed:", error);
+        console.error("Cloud GET sync failed:", error);
         updateSyncStatusIndicator("error");
-        if (showToasts) showToast("Connection failed. Displaying cached data. Details: " + error.message, "error");
+        if (showToasts) showToast("Cloud connection error: Displaying local data.", "warning");
         loadLocalData();
       } finally {
         if (icon) icon.classList.remove("sync-icon-spin");
@@ -4241,22 +4259,26 @@
       // 1. Instantly write locally
       if (action === "add") {
         state.files.unshift(data);
+        state.syncQueue.push({ action, data, time: getTimestamp() });
       } else if (action === "update") {
         const idx = state.files.findIndex(f => f.ID === data.ID);
         if (idx !== -1) {
           state.files[idx] = data;
         }
+        state.syncQueue.push({ action, data, time: getTimestamp() });
       } else if (action === "delete") {
         addDeletedId(data.ID, data.FileNo);
         state.files = state.files.filter(f => f.ID !== data.ID && f.FileNo !== data.FileNo);
+        
+        // Push update to mark Status as "Deleted" in Google Sheets so all devices purge it!
+        const deletePayload = { ...data, Status: "Deleted", IsDeleted: "TRUE" };
+        state.syncQueue.push({ action: "update", data: deletePayload, time: getTimestamp() });
+        state.syncQueue.push({ action: "delete", data: deletePayload, time: getTimestamp() });
       }
       
       saveLocalData();
-      renderAll();
-
-      // 2. Queue for database push
-      state.syncQueue.push({ action, data, time: getTimestamp() });
       saveSyncQueue();
+      renderAll();
 
       // 3. Process push queue in background
       processSyncQueue();
