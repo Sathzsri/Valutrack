@@ -5455,13 +5455,25 @@
         document.getElementById("form-file-id").value = "";
         document.getElementById("form-file-no").disabled = false;
         
-        // Suggest automatic File number based on count
+        // Suggest automatic File number based on highest existing serial number (deletion-proof)
         const now = new Date();
         const yyyy = now.getFullYear();
         const mm = String(now.getMonth() + 1).padStart(2, '0');
         const dd = String(now.getDate()).padStart(2, '0');
-        const serial = state.files.length + 1;
-        document.getElementById("form-file-no").value = `VT-${yyyy}-${mm}-${dd}-${serial}`;
+        
+        let maxSerial = 0;
+        state.files.forEach(f => {
+          if (f.FileNo) {
+            const parts = f.FileNo.split("-");
+            const lastPart = parts[parts.length - 1];
+            const num = parseInt(lastPart, 10);
+            if (!isNaN(num) && num > maxSerial) {
+              maxSerial = num;
+            }
+          }
+        });
+        const nextSerial = maxSerial > 0 ? (maxSerial + 1) : (state.files.length + 1);
+        document.getElementById("form-file-no").value = `VT-${yyyy}-${mm}-${dd}-${nextSerial}`;
         document.getElementById("form-date").value = getTodayString();
         document.getElementById("form-ref-no").value = "";
         document.getElementById("form-contact").value = "";
