@@ -3991,32 +3991,30 @@
       return cleaned;
     }
 
-    function getDeletedIdsSet() {
-      try {
-        const arr = JSON.parse(localStorage.getItem("valutrack_deleted_ids") || "[]");
-        return new Set(arr);
-      } catch(e) {
-        return new Set();
+    function getPendingDeletedIds() {
+      const pendingSet = new Set();
+      if (state && state.syncQueue && Array.isArray(state.syncQueue)) {
+        state.syncQueue.forEach(item => {
+          if (item.action === "delete" && item.data) {
+            if (item.data.ID) pendingSet.add(item.data.ID);
+            if (item.data.FileNo) pendingSet.add(item.data.FileNo);
+          }
+        });
       }
-    }
-
-    function addDeletedId(id, fileNo) {
-      try {
-        const arr = JSON.parse(localStorage.getItem("valutrack_deleted_ids") || "[]");
-        if (id && !arr.includes(id)) arr.push(id);
-        if (fileNo && !arr.includes(fileNo)) arr.push(fileNo);
-        localStorage.setItem("valutrack_deleted_ids", JSON.stringify(arr));
-      } catch(e) {}
+      return pendingSet;
     }
 
     function deduplicateFiles(filesArray) {
-      const deletedSet = getDeletedIdsSet();
+      const pendingDeletedSet = getPendingDeletedIds();
       const map = {};
       filesArray.forEach(file => {
         if (!file || !file.ID) return;
-        // Ignore deleted cases permanently
-        if (deletedSet.has(file.ID) || (file.FileNo && deletedSet.has(file.FileNo))) return;
-        if (file.Status === "Deleted" || file.IsDeleted === "TRUE" || file.IsDeleted === true) return;
+        
+        // Skip cases marked as deleted in Google Sheets database
+        if (file.Status === "Deleted" || file.IsDeleted === "TRUE" || file.IsDeleted === true || file.IsDeleted === "true") return;
+
+        // Skip cases that have a pending un-synced delete action in local syncQueue
+        if (pendingDeletedSet.has(file.ID) || (file.FileNo && pendingDeletedSet.has(file.FileNo))) return;
 
         const existing = map[file.ID];
         if (!existing) {
@@ -4344,7 +4342,6 @@
         }
         state.syncQueue.push({ action, data, time: getTimestamp() });
       } else if (action === "delete") {
-        addDeletedId(data.ID, data.FileNo);
         state.files = state.files.filter(f => f.ID !== data.ID && f.FileNo !== data.FileNo);
         
         // Push update to mark Status as "Deleted" in Google Sheets so all devices purge it!
@@ -6022,7 +6019,6 @@
       confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
       newConfirmBtn.addEventListener("click", () => {
-        addDeletedId(file.ID, file.FileNo);
         queueDatabaseUpdate("delete", file);
         showToast(`Valuation file ${file.FileNo} successfully deleted`, "success");
         closeDeleteConfirm();
@@ -7220,6 +7216,9 @@
         closeMobileActionSheet();
         if (fid) openDeleteConfirm(fid);
       });
+
+      // Clear legacy deleted IDs cache to unblock recycled file numbers
+      try { localStorage.removeItem("valutrack_deleted_ids"); } catch(e) {}
 
       // Load database cache
       loadLocalData();
