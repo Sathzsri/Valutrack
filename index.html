@@ -4436,7 +4436,14 @@
 
       // 2.5 Date Range Filter
       const todayStr = getTodayString();
-      if (state.filters.quickDateRange === "today") {
+      if (state.filters.fromDate || state.filters.toDate) {
+        if (state.filters.fromDate) {
+          result = result.filter(f => f.Date && f.Date.substring(0, 10) >= state.filters.fromDate);
+        }
+        if (state.filters.toDate) {
+          result = result.filter(f => f.Date && f.Date.substring(0, 10) <= state.filters.toDate);
+        }
+      } else if (state.filters.quickDateRange === "today") {
         result = result.filter(f => {
           const caseDate = f.Date ? f.Date.substring(0, 10) : "";
           if (caseDate === todayStr) return true;
@@ -4452,21 +4459,13 @@
           const caseDate = f.Date ? f.Date.substring(0, 10) : "";
           return caseDate === yestStr;
         });
-      } else if (state.filters.quickDateRange === "all") {
-        // No date range filters
       } else if (state.filters.quickDateRange && state.filters.quickDateRange.length === 7) {
         // Month filter e.g. "2026-08"
         result = result.filter(f => {
           return f.Date && f.Date.substring(0, 7) === state.filters.quickDateRange;
         });
-      } else {
-        // Fallback to manual date inputs
-        if (state.filters.fromDate) {
-          result = result.filter(f => f.Date && f.Date.substring(0, 10) >= state.filters.fromDate);
-        }
-        if (state.filters.toDate) {
-          result = result.filter(f => f.Date && f.Date.substring(0, 10) <= state.filters.toDate);
-        }
+      } else if (state.filters.quickDateRange === "all") {
+        // No date range filters
       }
 
       // 3. Header Dropdowns
@@ -4495,6 +4494,7 @@
 
     // 8. RENDER SCREEN FUNCTIONS
     function renderAll() {
+      initializeQuickDateFilters();
       renderActiveFiltersRow();
       renderStats();
       renderTable();
@@ -4559,10 +4559,16 @@
       if (type === "fromDate") {
         state.filters.fromDate = null;
         document.getElementById("filter-from-date").value = "";
+        if (!state.filters.fromDate && !state.filters.toDate) {
+          state.filters.quickDateRange = "all";
+        }
       }
       if (type === "toDate") {
         state.filters.toDate = null;
         document.getElementById("filter-to-date").value = "";
+        if (!state.filters.fromDate && !state.filters.toDate) {
+          state.filters.quickDateRange = "all";
+        }
       }
       renderAll();
     }
@@ -5723,7 +5729,7 @@
       const container = document.querySelector(".scrollable-date-filters");
       if (!container) return;
 
-      const activeRange = state.filters.quickDateRange || "today";
+      const activeRange = state.filters.quickDateRange;
 
       let html = `
         <button class="date-filter-chip ${activeRange === 'today' ? 'active' : ''}" data-range="today" style="flex-shrink: 0; padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-light); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s; outline: none; -webkit-tap-highlight-color: transparent;">📅 Today</button>
@@ -7058,10 +7064,20 @@
       });
       document.getElementById("filter-from-date").addEventListener("change", (e) => {
         state.filters.fromDate = e.target.value || null;
+        if (state.filters.fromDate) {
+          state.filters.quickDateRange = null;
+        } else if (!state.filters.toDate) {
+          state.filters.quickDateRange = "all";
+        }
         renderAll();
       });
       document.getElementById("filter-to-date").addEventListener("change", (e) => {
         state.filters.toDate = e.target.value || null;
+        if (state.filters.toDate) {
+          state.filters.quickDateRange = null;
+        } else if (!state.filters.fromDate) {
+          state.filters.quickDateRange = "all";
+        }
         renderAll();
       });
 
