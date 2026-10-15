@@ -4006,39 +4006,159 @@
 
     function deduplicateFiles(filesArray) {
       const pendingDeletedSet = getPendingDeletedIds();
-      const map = {};
-      filesArray.forEach(file => {
-        if (!file || !file.ID) return;
-        
-        // Skip cases marked as deleted in Google Sheets database
-        if (file.Status === "Deleted" || file.IsDeleted === "TRUE" || file.IsDeleted === true || file.IsDeleted === "true") return;
 
-        // Skip cases that have a pending un-synced delete action in local syncQueue
-        if (pendingDeletedSet.has(file.ID) || (file.FileNo && pendingDeletedSet.has(file.FileNo))) return;
+      // Step 1: Filter out deleted and pending-delete entries
+      const cleaned = filesArray.filter(file => {
+        if (!file || !file.ID) return false;
+        if (file.Status === "Deleted" || file.IsDeleted === "TRUE" || file.IsDeleted === true || file.IsDeleted === "true") return false;
+        if (pendingDeletedSet.has(file.ID) || (file.FileNo && pendingDeletedSet.has(file.FileNo))) return false;
+        return true;
+      });
 
-        const existing = map[file.ID];
+      // Helper: get richness score to pick the "better" of two duplicate entries
+      function getRichnessScore(file) {
+        let score = 0;
+        try { score += file.History ? JSON.parse(file.History).length * 10 : 0; } catch(e) {}
+        score += (file.Owner || "").length;                         // longer/fuller name wins
+        score += (file.Coordinates ? 5 : 0);                       // has coordinates
+        score += (file.Remarks ? 3 : 0);                           // has remarks
+        score += (file.Engineer ? 2 : 0);                          // has engineer assigned
+        score += (file.RefNo ? 2 : 0);                             // has ref no
+        // Prefer more advanced status
+        const statusOrder = { "Site Visit Pending": 1, "Site Visit Completed": 2, "Report Sent": 3 };
+        score += (statusOrder[file.Status] || 0) * 5;
+        return score;
+      }
+
+      // Helper: merge two duplicate files — keep richer, but fill any missing fields from the other
+      function mergeEntries(fileA, fileB) {
+        const winner = getRichnessScore(fileA) >= getRichnessScore(fileB) ? fileA : fileB;
+        const loser  = winner === fileA ? fileB : fileA;
+        // Fill missing fields from loser into winner
+        const merged = { ...loser, ...winner }; // winner fields take precedence
+        // But if winner's owner is shorter and loser's is longer, use loser's owner
+        if ((loser.Owner || "").length > (winner.Owner || "").length) {
+          merged.Owner = loser.Owner;
+        }
+        return merged;
+      }
+
+      // Helper: normalize a phone number to digits only
+      function normalizePhone(phone) {
+        if (!phone) return null;
+        const digits = String(phone).replace(/\D/g, "");
+        return digits.length >= 8 ? digits.slice(-10) : null; // last 10 digits
+      }
+
+      // Step 2: Deduplicate by ID first (same logic as before)
+      const byId = {};
+      cleaned.forEach(file => {
+        const existing = byId[file.ID];
         if (!existing) {
-          map[file.ID] = file;
+          byId[file.ID] = file;
         } else {
-          let existingHistoryLen = 0;
-          let fileHistoryLen = 0;
-          try {
-            existingHistoryLen = existing.History ? JSON.parse(existing.History).length : 0;
-          } catch(e) {}
-          try {
-            fileHistoryLen = file.History ? JSON.parse(file.History).length : 0;
-          } catch(e) {}
+          byId[file.ID] = mergeEntries(existing, file);
+        }
+      });
 
-          if (fileHistoryLen > existingHistoryLen) {
-            map[file.ID] = file;
-          } else if (fileHistoryLen === existingHistoryLen) {
-            if (file.Status === "Report Sent" && existing.Status !== "Report Sent") {
-              map[file.ID] = file;
-            }
+      let dedupedList = Object.values(byId);
+
+      // Step 3: Deduplicate by Ref No (same bank reference = same case)
+      const byRefNo = {};
+      dedupedList.forEach(file => {
+        const refNo = (file.RefNo || "").trim().toUpperCase();
+        if (!refNo) return; // skip if no ref no
+        if (!byRefNo[refNo]) {
+          byRefNo[refNo] = file;
+        } else {
+          const merged = mergeEntries(byRefNo[refNo], file);
+          // Mark the losing duplicate's ID as a phantom so contact dedup step skips it
+          byRefNo[refNo] = merged;
+        }
+      });
+
+      // Build a set of surviving IDs after RefNo dedup
+      const survivingRefNoIds = new Set(Object.values(byRefNo).map(f => f.ID));
+      // Also track which IDs were absorbed (had a RefNo match but were replaced)
+      const absorbedIds = new Set();
+      dedupedList.forEach(file => {
+        const refNo = (file.RefNo || "").trim().toUpperCase();
+        if (refNo && byRefNo[refNo] && byRefNo[refNo].ID !== file.ID) {
+          absorbedIds.add(file.ID);
+        }
+      });
+      dedupedList = dedupedList.filter(f => !absorbedIds.has(f.ID));
+      // Update any merged entries
+      dedupedList = dedupedList.map(f => {
+        const refNo = (f.RefNo || "").trim().toUpperCase();
+        if (refNo && byRefNo[refNo]) return byRefNo[refNo];
+        return f;
+      });
+      // Remove true duplicates after map
+      const seenAfterRefNo = new Set();
+      dedupedList = dedupedList.filter(f => {
+        if (seenAfterRefNo.has(f.ID)) return false;
+        seenAfterRefNo.add(f.ID);
+        return true;
+      });
+
+      // Step 4: Deduplicate by Contact phone number (same phone + same bank = same case)
+      const byPhoneBank = {};
+      const contactAbsorbed = new Set();
+      dedupedList.forEach(file => {
+        const phones = [file.Contact, file.Contact2, file.Contact3]
+          .map(normalizePhone)
+          .filter(Boolean);
+        const bank = (file.Bank || "").trim().toUpperCase();
+        
+        let matchKey = null;
+        for (const ph of phones) {
+          const key = `${ph}::${bank}`;
+          if (byPhoneBank[key]) {
+            matchKey = key;
+            break;
+          }
+        }
+
+        if (matchKey) {
+          const existing = byPhoneBank[matchKey];
+          const merged = mergeEntries(existing, file);
+          // Remove the loser's entry
+          const loserId = (merged.ID === existing.ID) ? file.ID : existing.ID;
+          contactAbsorbed.add(loserId);
+          // Update the winner's entry under all its phone keys
+          byPhoneBank[matchKey] = merged;
+        } else {
+          // Register all phone+bank keys for this file
+          for (const ph of phones) {
+            const key = `${ph}::${bank}`;
+            byPhoneBank[key] = file;
           }
         }
       });
-      return Object.values(map);
+
+      dedupedList = dedupedList.filter(f => !contactAbsorbed.has(f.ID));
+      // Apply merged entries from phone dedup
+      dedupedList = dedupedList.map(f => {
+        const phones = [f.Contact, f.Contact2, f.Contact3]
+          .map(normalizePhone)
+          .filter(Boolean);
+        const bank = (f.Bank || "").trim().toUpperCase();
+        for (const ph of phones) {
+          const key = `${ph}::${bank}`;
+          if (byPhoneBank[key] && byPhoneBank[key].ID === f.ID) return byPhoneBank[key];
+        }
+        return f;
+      });
+      // Remove true duplicates after phone map
+      const seenFinal = new Set();
+      dedupedList = dedupedList.filter(f => {
+        if (seenFinal.has(f.ID)) return false;
+        seenFinal.add(f.ID);
+        return true;
+      });
+
+      return dedupedList;
     }
 
     function loadLocalData() {
