@@ -8152,18 +8152,18 @@
           else if (e.key === "Escape" || e.key === "Delete") { convInputArea("clear"); e.preventDefault(); }
           else if (e.key === "ArrowDown") { activeConvRow = (activeConvRow + 1) % 4; buildAreaFields(); e.preventDefault(); }
           else if (e.key === "ArrowUp") { activeConvRow = (activeConvRow + 3) % 4; buildAreaFields(); e.preventDefault(); }
-        } else if (activeTab === \"length\") {
-          if (e.key >= \"0\" && e.key <= \"9\") { convInputLength(\"num\", e.key); e.preventDefault(); }
-          else if (e.key === \".\") { convInputLength(\"dot\"); e.preventDefault(); }
-          else if (e.key === \"Backspace\") { convInputLength(\"backspace\"); e.preventDefault(); }
-          else if (e.key === \"Escape\" || e.key === \"Delete\") { convInputLength(\"clear\"); e.preventDefault(); }
-          else if (e.key === \"ArrowDown\") { activeConvRow = (activeConvRow + 1) % 4; buildLengthFields(); e.preventDefault(); }
-          else if (e.key === \"ArrowUp\") { activeConvRow = (activeConvRow + 3) % 4; buildLengthFields(); e.preventDefault(); }
-        } else if (activeTab === \"ftin\") {
-          if (e.key >= \"0\" && e.key <= \"9\") { ftinInput(\"num\", e.key); e.preventDefault(); }
-          else if (e.key === \".\") { ftinInput(\"dot\"); e.preventDefault(); }
-          else if (e.key === \"Backspace\") { ftinInput(\"backspace\"); e.preventDefault(); }
-          else if (e.key === \"Escape\" || e.key === \"Delete\") { ftinInput(\"clear\"); e.preventDefault(); }
+        } else if (activeTab === 'length') {
+          if (e.key >= '0' && e.key <= '9') { convInputLength('num', e.key); e.preventDefault(); }
+          else if (e.key === '.') { convInputLength('dot'); e.preventDefault(); }
+          else if (e.key === 'Backspace') { convInputLength('backspace'); e.preventDefault(); }
+          else if (e.key === 'Escape' || e.key === 'Delete') { convInputLength('clear'); e.preventDefault(); }
+          else if (e.key === 'ArrowDown') { activeConvRow = (activeConvRow + 1) % 4; buildLengthFields(); e.preventDefault(); }
+          else if (e.key === 'ArrowUp') { activeConvRow = (activeConvRow + 3) % 4; buildLengthFields(); e.preventDefault(); }
+        } else if (activeTab === 'ftin') {
+          if (e.key >= '0' && e.key <= '9') { ftinInput('num', e.key); e.preventDefault(); }
+          else if (e.key === '.') { ftinInput('dot'); e.preventDefault(); }
+          else if (e.key === 'Backspace') { ftinInput('backspace'); e.preventDefault(); }
+          else if (e.key === 'Escape' || e.key === 'Delete') { ftinInput('clear'); e.preventDefault(); }
         }
       });
 
