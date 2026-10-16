@@ -207,6 +207,69 @@
       background: var(--bg-input);
     }
 
+    /* ====== CALCULATOR PANEL STYLES ====== */
+    .calc-btn {
+      border: none;
+      padding: 18px 10px;
+      font-size: 1.35rem;
+      font-weight: 400;
+      cursor: pointer;
+      color: #ffffff;
+      transition: filter 0.1s ease;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, 'SF Pro Display', 'Sora', sans-serif;
+    }
+    .calc-btn:active { filter: brightness(1.4); }
+    .calc-btn.calc-num  { background: #333336; }
+    .calc-btn.calc-fn   { background: #636366; color: #000000; }
+    .calc-btn.calc-op   { background: #ff9f0a; }
+    .calc-btn.calc-op.active-op { background: #ffffff; color: #ff9f0a; }
+    .calc-btn.calc-eq   { background: #ff9f0a; }
+    .calc-btn:hover     { filter: brightness(1.15); }
+
+    /* Converter input row */
+    .conv-row {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px; padding: 8px 10px;
+      border: 1px solid transparent; transition: border 0.2s;
+    }
+    .conv-row.active-conv { border-color: rgba(124,58,237,0.6); background: rgba(124,58,237,0.1); }
+    .conv-row select {
+      background: transparent; border: none; color: rgba(255,255,255,0.6);
+      font-size: 0.78rem; font-weight: 600; outline: none;
+      cursor: pointer; font-family: inherit;
+      -webkit-appearance: none; appearance: none; padding-right: 4px;
+    }
+    .conv-row select option { background: #2c2c2e; color: #fff; }
+    .conv-row .conv-val {
+      flex: 1; font-size: 1.3rem; font-weight: 300; color: #fff;
+      text-align: right; font-family: inherit; letter-spacing: -0.5px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .conv-row .conv-unit-badge {
+      font-size: 0.65rem; color: rgba(255,255,255,0.35);
+      text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    /* On mobile: calc panel becomes a full-width bottom sheet */
+    @media (max-width: 1024px) {
+      #calc-panel {
+        bottom: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        border-radius: 22px 22px 0 0 !important;
+        max-height: 95vh !important;
+        overflow-y: auto !important;
+      }
+    }
+
     /* Login Screen */
     #login-screen {
       position: fixed;
@@ -2957,6 +3020,13 @@
             </svg>
             Export CSV
           </button>
+          <!-- Calculator Button -->
+          <button class="btn btn-secondary" id="calc-open-btn" title="Calculator (keyboard shortcut: Alt+C)" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; font-weight: 600;">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-2M9 7a2 2 0 012-2h2a2 2 0 012 2M9 7h6m-3 4h.01M12 15h.01M8 11h.01M8 15h.01M16 11h.01M16 15h.01"></path>
+            </svg>
+            Calculator
+          </button>
           <button class="btn btn-primary" id="add-file-btn">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
@@ -3031,6 +3101,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
         </svg>
         <span>Filters</span>
+      </button>
+      <!-- Mobile Calculator Nav Button -->
+      <button class="mobile-nav-btn" id="nav-btn-calc">
+        <svg style="width:20px; height:20px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V9a2 2 0 00-2-2h-2M9 7a2 2 0 012-2h2a2 2 0 012 2M9 7h6m-3 4h.01M12 15h.01M8 11h.01M8 15h.01M16 11h.01M16 15h.01"></path>
+        </svg>
+        <span>Calc</span>
       </button>
     </div>
   </div>
@@ -3664,6 +3741,146 @@
     </div>
   </div>
 
+  <!-- =========================================================
+       FLOATING CALCULATOR PANEL
+  ========================================================= -->
+  <div id="calc-panel" style="
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    background: #1c1c1e;
+    border-radius: 22px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.85), 0 0 0 1px rgba(255,255,255,0.08);
+    z-index: 9998;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    user-select: none;
+    font-family: -apple-system, 'SF Pro Display', 'Sora', sans-serif;
+  ">
+    <!-- Panel Header (drag handle + close) -->
+    <div id="calc-drag-handle" style="
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px 8px;
+      background: #2c2c2e;
+      cursor: move;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    ">
+      <!-- Tab Pills -->
+      <div style="display: flex; gap: 6px;">
+        <button class="calc-tab-btn active" data-tab="calc" style="
+          padding: 5px 12px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
+          border: none; cursor: pointer; letter-spacing: 0.3px; transition: all 0.2s;
+          background: rgba(124,58,237,0.8); color: #fff;
+        ">CALC</button>
+        <button class="calc-tab-btn" data-tab="area" style="
+          padding: 5px 12px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
+          border: none; cursor: pointer; letter-spacing: 0.3px; transition: all 0.2s;
+          background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+        ">AREA</button>
+        <button class="calc-tab-btn" data-tab="length" style="
+          padding: 5px 12px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
+          border: none; cursor: pointer; letter-spacing: 0.3px; transition: all 0.2s;
+          background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);
+        ">LENGTH</button>
+      </div>
+      <button id="calc-close-btn" style="
+        background: rgba(255,255,255,0.1); border: none; color: rgba(255,255,255,0.7);
+        width: 26px; height: 26px; border-radius: 50%; cursor: pointer; font-size: 1rem;
+        display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+        line-height: 1;
+      ">×</button>
+    </div>
+
+    <!-- ===== CALCULATOR TAB ===== -->
+    <div id="calc-tab-calc" class="calc-tab-panel">
+      <!-- Display -->
+      <div style="padding: 16px 20px 8px; text-align: right;">
+        <div id="calc-expression" style="font-size: 0.82rem; color: rgba(255,255,255,0.4); min-height: 20px; font-weight: 400; letter-spacing: 0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></div>
+        <div id="calc-display" style="
+          font-size: 2.8rem; font-weight: 300; color: #ffffff;
+          line-height: 1.1; margin-top: 4px; overflow: hidden;
+          text-overflow: ellipsis; white-space: nowrap; letter-spacing: -1px;
+        ">0</div>
+      </div>
+      <!-- Buttons Grid -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.06); padding: 1px;">
+        <!-- Row 1 -->
+        <button class="calc-btn calc-fn" data-action="clear">AC</button>
+        <button class="calc-btn calc-fn" data-action="sign">+/−</button>
+        <button class="calc-btn calc-fn" data-action="percent">%</button>
+        <button class="calc-btn calc-op" data-action="op" data-op="÷">÷</button>
+        <!-- Row 2 -->
+        <button class="calc-btn calc-num" data-action="num" data-val="7">7</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="8">8</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="9">9</button>
+        <button class="calc-btn calc-op" data-action="op" data-op="×">×</button>
+        <!-- Row 3 -->
+        <button class="calc-btn calc-num" data-action="num" data-val="4">4</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="5">5</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="6">6</button>
+        <button class="calc-btn calc-op" data-action="op" data-op="−">−</button>
+        <!-- Row 4 -->
+        <button class="calc-btn calc-num" data-action="num" data-val="1">1</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="2">2</button>
+        <button class="calc-btn calc-num" data-action="num" data-val="3">3</button>
+        <button class="calc-btn calc-op" data-action="op" data-op="+">+</button>
+        <!-- Row 5 -->
+        <button class="calc-btn calc-num" data-action="num" data-val="0" style="grid-column: span 2; border-radius: 0 0 0 20px;">0</button>
+        <button class="calc-btn calc-num" data-action="dot">.</button>
+        <button class="calc-btn calc-eq" data-action="equals" style="border-radius: 0 0 20px 0;">=</button>
+      </div>
+    </div>
+
+    <!-- ===== AREA CONVERTER TAB ===== -->
+    <div id="calc-tab-area" class="calc-tab-panel" style="display:none;">
+      <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Area Converter</div>
+        <div id="conv-area-fields" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+      <!-- Converter Keypad -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.06); padding: 1px;">
+        <button class="calc-btn calc-fn" data-conv-action="clear">CE</button>
+        <button class="calc-btn calc-fn" colspan="2" data-conv-action="backspace" style="grid-column: span 2;">⌫</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="7">7</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="8">8</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="9">9</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="4">4</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="5">5</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="6">6</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="1">1</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="2">2</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="3">3</button>
+        <button class="calc-btn calc-num" data-conv-action="num" data-val="0" style="grid-column: span 2;">0</button>
+        <button class="calc-btn calc-num" data-conv-action="dot">.</button>
+      </div>
+    </div>
+
+    <!-- ===== LENGTH CONVERTER TAB ===== -->
+    <div id="calc-tab-length" class="calc-tab-panel" style="display:none;">
+      <div style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
+        <div style="font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Length Converter</div>
+        <div id="conv-length-fields" style="display: flex; flex-direction: column; gap: 8px;"></div>
+      </div>
+      <!-- Converter Keypad -->
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.06); padding: 1px;">
+        <button class="calc-btn calc-fn" data-len-action="clear">CE</button>
+        <button class="calc-btn calc-fn" data-len-action="backspace" style="grid-column: span 2;">⌫</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="7">7</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="8">8</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="9">9</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="4">4</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="5">5</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="6">6</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="1">1</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="2">2</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="3">3</button>
+        <button class="calc-btn calc-num" data-len-action="num" data-val="0" style="grid-column: span 2;">0</button>
+        <button class="calc-btn calc-num" data-len-action="dot">.</button>
+      </div>
+    </div>
+  </div>
 
   <!-- JAVASCRIPT LOGIC -->
   <script>
@@ -7480,6 +7697,447 @@
         { enableHighAccuracy: true, timeout: 8000 }
       );
     }
+
+    // ================================================================
+    // FLOATING CALCULATOR MODULE
+    // ================================================================
+    (function initCalculator() {
+      const panel = document.getElementById("calc-panel");
+      if (!panel) return;
+
+      // ---- State ----
+      let calcState = {
+        display: "0",
+        expression: "",
+        firstOperand: null,
+        operator: null,
+        waitingForSecond: false,
+        justEvaluated: false
+      };
+
+      let activeTab = "calc";
+      let activeConvRow = 0; // which converter row is being typed into
+
+      // ---- Area converter units (all to sqm as base) ----
+      const areaUnits = [
+        { id: "sqft",   label: "Sq Ft",   toSqm: 0.092903 },
+        { id: "sqm",    label: "Sq M",    toSqm: 1 },
+        { id: "sqyard", label: "Sq Yd",   toSqm: 0.836127 },
+        { id: "ares",   label: "Ares",    toSqm: 100 },
+        { id: "cent",   label: "Cents",   toSqm: 40.4686 },
+        { id: "ground", label: "Grounds", toSqm: 222.967 }
+      ];
+      let areaValues = areaUnits.map(() => "");
+      let areaUnitSelections = [0, 1, 2, 3]; // indices into areaUnits for 4 rows
+
+      // ---- Length converter units (all to metres as base) ----
+      const lenUnits = [
+        { id: "m",   label: "Metres",     toM: 1 },
+        { id: "ft",  label: "Feet",       toM: 0.3048 },
+        { id: "cm",  label: "Centimetres",toM: 0.01 },
+        { id: "in",  label: "Inches",     toM: 0.0254 },
+        { id: "km",  label: "Kilometres", toM: 1000 },
+        { id: "mi",  label: "Miles",      toM: 1609.344 }
+      ];
+      let lenValues = lenUnits.map(() => "");
+      let lenUnitSelections = [0, 1, 2, 3]; // indices into lenUnits for 4 rows
+
+      // ---- Open/Close ----
+      function openCalc() {
+        panel.style.display = "flex";
+        setTimeout(() => panel.style.opacity = "1", 10);
+        // Let keyboard events go to calculator
+        panel._calcActive = true;
+      }
+      function closeCalc() {
+        panel.style.display = "none";
+        panel._calcActive = false;
+      }
+      function toggleCalc() {
+        if (panel.style.display === "flex") closeCalc(); else openCalc();
+      }
+
+      document.getElementById("calc-open-btn")?.addEventListener("click", toggleCalc);
+      document.getElementById("calc-close-btn")?.addEventListener("click", closeCalc);
+      document.getElementById("nav-btn-calc")?.addEventListener("click", toggleCalc);
+
+      // ---- Tab Switching ----
+      document.querySelectorAll(".calc-tab-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          activeTab = btn.dataset.tab;
+          document.querySelectorAll(".calc-tab-btn").forEach(b => {
+            b.style.background = "rgba(255,255,255,0.08)";
+            b.style.color = "rgba(255,255,255,0.6)";
+          });
+          btn.style.background = "rgba(124,58,237,0.8)";
+          btn.style.color = "#fff";
+          document.querySelectorAll(".calc-tab-panel").forEach(p => p.style.display = "none");
+          const tp = document.getElementById(`calc-tab-${activeTab}`);
+          if (tp) tp.style.display = "block";
+          // Rebuild converter fields
+          if (activeTab === "area") buildAreaFields();
+          if (activeTab === "length") buildLengthFields();
+        });
+      });
+
+      // ---- Calculator Logic ----
+      function formatNumber(n) {
+        if (isNaN(n) || !isFinite(n)) return "Error";
+        // Format with up to 10 significant digits
+        const s = parseFloat(n.toPrecision(10)).toString();
+        return s.length > 12 ? parseFloat(n.toExponential(6)).toString() : s;
+      }
+
+      function updateCalcDisplay() {
+        const disp = document.getElementById("calc-display");
+        const expr = document.getElementById("calc-expression");
+        if (disp) {
+          disp.textContent = calcState.display;
+          // Auto-shrink for long numbers
+          const len = calcState.display.length;
+          disp.style.fontSize = len > 12 ? "1.5rem" : len > 9 ? "2rem" : "2.8rem";
+        }
+        if (expr) expr.textContent = calcState.expression;
+        // Highlight active operator button
+        document.querySelectorAll(".calc-btn.calc-op").forEach(b => {
+          b.classList.remove("active-op");
+          if (calcState.waitingForSecond && b.dataset.op === calcState.operator) {
+            b.classList.add("active-op");
+          }
+        });
+      }
+
+      function calcInput(action, val) {
+        const s = calcState;
+        if (action === "num") {
+          if (s.display === "0" || s.waitingForSecond || s.justEvaluated) {
+            s.display = val;
+            s.waitingForSecond = false;
+            s.justEvaluated = false;
+          } else {
+            if (s.display.replace("-", "").length >= 12) return;
+            s.display += val;
+          }
+        } else if (action === "dot") {
+          if (s.waitingForSecond || s.justEvaluated) {
+            s.display = "0.";
+            s.waitingForSecond = false;
+            s.justEvaluated = false;
+            return;
+          }
+          if (!s.display.includes(".")) s.display += ".";
+        } else if (action === "clear") {
+          s.display = "0";
+          s.expression = "";
+          s.firstOperand = null;
+          s.operator = null;
+          s.waitingForSecond = false;
+          s.justEvaluated = false;
+        } else if (action === "backspace") {
+          if (s.justEvaluated) { s.display = "0"; s.justEvaluated = false; return; }
+          s.display = s.display.length <= 1 ? "0" : s.display.slice(0, -1);
+        } else if (action === "sign") {
+          s.display = s.display.startsWith("-") ? s.display.slice(1) : (s.display === "0" ? "0" : "-" + s.display);
+        } else if (action === "percent") {
+          s.display = formatNumber(parseFloat(s.display) / 100);
+        } else if (action === "op") {
+          const cur = parseFloat(s.display);
+          if (s.operator && s.waitingForSecond) {
+            s.operator = val;
+            s.expression = `${formatNumber(s.firstOperand)} ${val}`;
+          } else if (s.firstOperand !== null && !s.waitingForSecond) {
+            const result = evaluate(s.firstOperand, cur, s.operator);
+            s.display = formatNumber(result);
+            s.firstOperand = result;
+            s.expression = `${formatNumber(result)} ${val}`;
+          } else {
+            s.firstOperand = cur;
+            s.expression = `${formatNumber(cur)} ${val}`;
+          }
+          s.operator = val;
+          s.waitingForSecond = true;
+          s.justEvaluated = false;
+        } else if (action === "equals") {
+          if (s.operator === null) return;
+          const cur = parseFloat(s.display);
+          const result = evaluate(s.firstOperand, cur, s.operator);
+          s.expression = `${formatNumber(s.firstOperand)} ${s.operator} ${formatNumber(cur)} =`;
+          s.display = formatNumber(result);
+          s.firstOperand = null;
+          s.operator = null;
+          s.waitingForSecond = false;
+          s.justEvaluated = true;
+        }
+        updateCalcDisplay();
+      }
+
+      function evaluate(a, b, op) {
+        switch (op) {
+          case "+": return a + b;
+          case "−": return a - b;
+          case "×": return a * b;
+          case "÷": return b !== 0 ? a / b : NaN;
+          default: return b;
+        }
+      }
+
+      // ---- Calculator Button Clicks ----
+      document.querySelectorAll("[data-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.action;
+          if (action === "num") calcInput("num", btn.dataset.val);
+          else if (action === "op") calcInput("op", btn.dataset.op);
+          else calcInput(action);
+        });
+      });
+
+      // ---- Area Converter ----
+      function buildAreaFields() {
+        const container = document.getElementById("conv-area-fields");
+        if (!container) return;
+        container.innerHTML = "";
+        for (let i = 0; i < 4; i++) {
+          const row = document.createElement("div");
+          row.className = `conv-row ${i === activeConvRow ? "active-conv" : ""}`;
+          row.dataset.row = i;
+          // Unit select
+          const sel = document.createElement("select");
+          areaUnits.forEach((u, idx) => {
+            const opt = document.createElement("option");
+            opt.value = idx;
+            opt.textContent = u.label;
+            if (idx === areaUnitSelections[i]) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener("change", () => {
+            areaUnitSelections[i] = parseInt(sel.value);
+            recomputeArea(i);
+          });
+          // Value display
+          const val = document.createElement("div");
+          val.className = "conv-val";
+          val.textContent = areaValues[i] || "0";
+          row.appendChild(sel);
+          row.appendChild(val);
+          row.addEventListener("click", () => {
+            activeConvRow = i;
+            buildAreaFields();
+          });
+          container.appendChild(row);
+        }
+      }
+
+      function convInputArea(action, digitVal) {
+        if (action === "num") {
+          const cur = areaValues[activeConvRow] || "";
+          if (cur === "0" || cur === "") areaValues[activeConvRow] = digitVal;
+          else if (cur.replace(".", "").length < 12) areaValues[activeConvRow] = cur + digitVal;
+        } else if (action === "dot") {
+          const cur = areaValues[activeConvRow] || "";
+          if (!cur.includes(".")) areaValues[activeConvRow] = (cur || "0") + ".";
+        } else if (action === "backspace") {
+          const cur = areaValues[activeConvRow] || "";
+          areaValues[activeConvRow] = cur.length <= 1 ? "" : cur.slice(0, -1);
+        } else if (action === "clear") {
+          areaValues = areaUnits.map(() => "");
+          buildAreaFields();
+          return;
+        }
+        recomputeArea(activeConvRow);
+      }
+
+      function recomputeArea(fromRow) {
+        const inputVal = parseFloat(areaValues[fromRow]);
+        if (!isNaN(inputVal)) {
+          const fromUnit = areaUnits[areaUnitSelections[fromRow]];
+          const sqm = inputVal * fromUnit.toSqm;
+          for (let i = 0; i < 4; i++) {
+            if (i === fromRow) continue;
+            const toUnit = areaUnits[areaUnitSelections[i]];
+            const converted = sqm / toUnit.toSqm;
+            areaValues[i] = formatNumber(converted);
+          }
+        } else {
+          for (let i = 0; i < 4; i++) {
+            if (i !== fromRow) areaValues[i] = "";
+          }
+        }
+        buildAreaFields();
+      }
+
+      document.querySelectorAll("[data-conv-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.convAction;
+          if (action === "num") convInputArea("num", btn.dataset.val);
+          else if (action === "dot") convInputArea("dot");
+          else convInputArea(action);
+        });
+      });
+
+      // ---- Length Converter ----
+      function buildLengthFields() {
+        const container = document.getElementById("conv-length-fields");
+        if (!container) return;
+        container.innerHTML = "";
+        for (let i = 0; i < 4; i++) {
+          const row = document.createElement("div");
+          row.className = `conv-row ${i === activeConvRow ? "active-conv" : ""}`;
+          row.dataset.row = i;
+          const sel = document.createElement("select");
+          lenUnits.forEach((u, idx) => {
+            const opt = document.createElement("option");
+            opt.value = idx;
+            opt.textContent = u.label;
+            if (idx === lenUnitSelections[i]) opt.selected = true;
+            sel.appendChild(opt);
+          });
+          sel.addEventListener("change", () => {
+            lenUnitSelections[i] = parseInt(sel.value);
+            recomputeLength(i);
+          });
+          const val = document.createElement("div");
+          val.className = "conv-val";
+          val.textContent = lenValues[i] || "0";
+          row.appendChild(sel);
+          row.appendChild(val);
+          row.addEventListener("click", () => {
+            activeConvRow = i;
+            buildLengthFields();
+          });
+          container.appendChild(row);
+        }
+      }
+
+      function convInputLength(action, digitVal) {
+        if (action === "num") {
+          const cur = lenValues[activeConvRow] || "";
+          if (cur === "0" || cur === "") lenValues[activeConvRow] = digitVal;
+          else if (cur.replace(".", "").length < 12) lenValues[activeConvRow] = cur + digitVal;
+        } else if (action === "dot") {
+          const cur = lenValues[activeConvRow] || "";
+          if (!cur.includes(".")) lenValues[activeConvRow] = (cur || "0") + ".";
+        } else if (action === "backspace") {
+          const cur = lenValues[activeConvRow] || "";
+          lenValues[activeConvRow] = cur.length <= 1 ? "" : cur.slice(0, -1);
+        } else if (action === "clear") {
+          lenValues = lenUnits.map(() => "");
+          buildLengthFields();
+          return;
+        }
+        recomputeLength(activeConvRow);
+      }
+
+      function recomputeLength(fromRow) {
+        const inputVal = parseFloat(lenValues[fromRow]);
+        if (!isNaN(inputVal)) {
+          const fromUnit = lenUnits[lenUnitSelections[fromRow]];
+          const metres = inputVal * fromUnit.toM;
+          for (let i = 0; i < 4; i++) {
+            if (i === fromRow) continue;
+            const toUnit = lenUnits[lenUnitSelections[i]];
+            const converted = metres / toUnit.toM;
+            lenValues[i] = formatNumber(converted);
+          }
+        } else {
+          for (let i = 0; i < 4; i++) {
+            if (i !== fromRow) lenValues[i] = "";
+          }
+        }
+        buildLengthFields();
+      }
+
+      document.querySelectorAll("[data-len-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.lenAction;
+          if (action === "num") convInputLength("num", btn.dataset.val);
+          else if (action === "dot") convInputLength("dot");
+          else convInputLength(action);
+        });
+      });
+
+      // ---- Keyboard Support ----
+      document.addEventListener("keydown", (e) => {
+        // Alt+C opens/closes calculator
+        if (e.altKey && (e.key === "c" || e.key === "C")) {
+          e.preventDefault();
+          toggleCalc();
+          return;
+        }
+
+        // Only intercept keyboard when calc is open
+        if (panel.style.display !== "flex") return;
+
+        // Don't steal from input fields (except if calc is focused)
+        const tag = document.activeElement?.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+        if (activeTab === "calc") {
+          if (e.key >= "0" && e.key <= "9") {
+            calcInput("num", e.key); e.preventDefault();
+          } else if (e.key === ".") {
+            calcInput("dot"); e.preventDefault();
+          } else if (e.key === "+") {
+            calcInput("op", "+"); e.preventDefault();
+          } else if (e.key === "-") {
+            calcInput("op", "−"); e.preventDefault();
+          } else if (e.key === "*") {
+            calcInput("op", "×"); e.preventDefault();
+          } else if (e.key === "/") {
+            calcInput("op", "÷"); e.preventDefault();
+          } else if (e.key === "Enter" || e.key === "=") {
+            calcInput("equals"); e.preventDefault();
+          } else if (e.key === "Backspace") {
+            calcInput("backspace"); e.preventDefault();
+          } else if (e.key === "Escape" || e.key === "Delete") {
+            calcInput("clear"); e.preventDefault();
+          } else if (e.key === "%") {
+            calcInput("percent"); e.preventDefault();
+          }
+        } else if (activeTab === "area") {
+          if (e.key >= "0" && e.key <= "9") { convInputArea("num", e.key); e.preventDefault(); }
+          else if (e.key === ".") { convInputArea("dot"); e.preventDefault(); }
+          else if (e.key === "Backspace") { convInputArea("backspace"); e.preventDefault(); }
+          else if (e.key === "Escape" || e.key === "Delete") { convInputArea("clear"); e.preventDefault(); }
+          else if (e.key === "ArrowDown") { activeConvRow = (activeConvRow + 1) % 4; buildAreaFields(); e.preventDefault(); }
+          else if (e.key === "ArrowUp") { activeConvRow = (activeConvRow + 3) % 4; buildAreaFields(); e.preventDefault(); }
+        } else if (activeTab === "length") {
+          if (e.key >= "0" && e.key <= "9") { convInputLength("num", e.key); e.preventDefault(); }
+          else if (e.key === ".") { convInputLength("dot"); e.preventDefault(); }
+          else if (e.key === "Backspace") { convInputLength("backspace"); e.preventDefault(); }
+          else if (e.key === "Escape" || e.key === "Delete") { convInputLength("clear"); e.preventDefault(); }
+          else if (e.key === "ArrowDown") { activeConvRow = (activeConvRow + 1) % 4; buildLengthFields(); e.preventDefault(); }
+          else if (e.key === "ArrowUp") { activeConvRow = (activeConvRow + 3) % 4; buildLengthFields(); e.preventDefault(); }
+        }
+      });
+
+      // ---- Draggable on Desktop ----
+      const handle = document.getElementById("calc-drag-handle");
+      let isDragging = false, dragOffX = 0, dragOffY = 0;
+
+      handle.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        const rect = panel.getBoundingClientRect();
+        dragOffX = e.clientX - rect.left;
+        dragOffY = e.clientY - rect.top;
+        panel.style.transition = "none";
+        e.preventDefault();
+      });
+      document.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const x = e.clientX - dragOffX;
+        const y = e.clientY - dragOffY;
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.left = Math.max(0, Math.min(x, window.innerWidth - panel.offsetWidth)) + "px";
+        panel.style.top = Math.max(0, Math.min(y, window.innerHeight - panel.offsetHeight)) + "px";
+      });
+      document.addEventListener("mouseup", () => { isDragging = false; });
+
+      // ---- Init display ----
+      updateCalcDisplay();
+      buildAreaFields();
+      buildLengthFields();
+    })();
   </script>
 </body>
 </html>
