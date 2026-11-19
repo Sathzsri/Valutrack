@@ -3020,6 +3020,11 @@
             </svg>
             Export CSV
           </button>
+          <!-- Email Import Button -->
+          <button class="btn btn-secondary" id="email-import-btn" title="Import case from email" style="background: linear-gradient(135deg, #0ea5e9, #0369a1); color: white; border: none; font-weight: 600;">
+            <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            Import Email
+          </button>
           <!-- Calculator Button -->
           <button class="btn btn-secondary" id="calc-open-btn" title="Calculator (keyboard shortcut: Alt+C)" style="background: linear-gradient(135deg, #7c3aed, #5b21b6); color: white; border: none; font-weight: 600;">
             <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -3300,8 +3305,12 @@
           <div class="form-group-row">
             <div class="form-group">
               <label class="form-label" for="form-bank">Bank Name *</label>
-              <input type="text" class="form-input" id="form-bank" required placeholder="e.g. State Bank of India" list="form-bank-datalist">
+              <div style="display:flex; gap:6px; align-items:center;">
+                <input type="text" class="form-input" id="form-bank" required placeholder="e.g. India Shelter" list="form-bank-datalist" style="flex:1;">
+                <button type="button" id="save-bank-btn" title="Save this bank to list" style="flex-shrink:0; padding:8px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.4); background:rgba(16,185,129,0.12); color:#10b981; font-size:0.78rem; font-weight:700; cursor:pointer; white-space:nowrap;">+ Save Bank</button>
+              </div>
               <datalist id="form-bank-datalist"></datalist>
+              <div id="saved-bank-chips" style="display:flex; flex-wrap:wrap; gap:5px; margin-top:6px;"></div>
             </div>
             <div class="form-group">
               <label class="form-label" for="form-date">Date Received *</label>
@@ -3742,6 +3751,73 @@
   </div>
 
   <!-- =========================================================
+       EMAIL IMPORT MODAL
+  ========================================================= -->
+  <div id="email-import-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); z-index:9000; align-items:center; justify-content:center; padding:16px;">
+    <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:20px; width:100%; max-width:580px; max-height:90vh; overflow:auto; box-shadow:0 24px 64px rgba(0,0,0,0.5);">
+      
+      <!-- Header -->
+      <div style="padding:20px 24px 16px; border-bottom:1px solid var(--border-color); display:flex; align-items:center; justify-content:space-between;">
+        <div>
+          <div style="font-size:1.1rem; font-weight:700; color:var(--text-primary); display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.3rem;">📧</span> Import Case from Email
+          </div>
+          <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">Paste the email text below — fields will be auto-detected</div>
+        </div>
+        <button id="email-import-close" style="background:none; border:none; color:var(--text-muted); font-size:1.4rem; cursor:pointer; padding:4px; line-height:1;">✕</button>
+      </div>
+
+      <!-- Bank selector for import -->
+      <div style="padding:16px 24px 0;">
+        <label style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Bank / HFC (select before parsing)</label>
+        <select id="email-import-bank-sel" style="width:100%; margin-top:6px; padding:10px 12px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); font-size:0.9rem;">
+          <option value="">— Select Bank —</option>
+          <option value="India Shelter Finance">India Shelter Finance</option>
+          <option value="Mahindra Rural Housing Finance">Mahindra Rural Housing Finance (MRHFL)</option>
+          <option value="HDFC Bank">HDFC Bank</option>
+          <option value="ICICI Bank">ICICI Bank</option>
+          <option value="State Bank of India">State Bank of India</option>
+          <option value="Axis Bank">Axis Bank</option>
+          <option value="Equitas Bank">Equitas Bank</option>
+          <option value="Centrum Housing Finance">Centrum Housing Finance</option>
+          <option value="Niwas Home Finance">Niwas Home Finance</option>
+          <option value="GrowXcd Home Finance">GrowXcd Home Finance</option>
+        </select>
+      </div>
+
+      <!-- Paste area -->
+      <div style="padding:14px 24px 0;">
+        <label style="font-size:0.78rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.5px;">Paste Email Text Here</label>
+        <textarea id="email-import-text" rows="9" style="width:100%; margin-top:6px; padding:12px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-input); color:var(--text-primary); font-size:0.85rem; resize:vertical; font-family:inherit; line-height:1.5; box-sizing:border-box;" placeholder="Paste the full email body here...&#10;&#10;Example (India Shelter):&#10;AP-10600956&#10;CUSTOMER NAME: VINODHINI WO PARASURAMAN&#10;CUSTOMER PHONE NUMBER: 9360213253, 9003553651&#10;PROPERTY ADDRESS: plot no 97 Sri Lakshmi Nagar...&#10;&#10;Example (Mahindra):&#10;Customer name - Manikandan&#10;Phone number - 9159897216&#10;Product - Self construction"></textarea>
+      </div>
+
+      <!-- Parse button -->
+      <div style="padding:12px 24px 0; display:flex; gap:10px;">
+        <button id="email-parse-btn" style="flex:1; padding:12px; border-radius:10px; border:none; background:linear-gradient(135deg,#0ea5e9,#0369a1); color:#fff; font-size:0.92rem; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          Parse &amp; Preview
+        </button>
+        <button id="email-clear-btn" style="padding:12px 16px; border-radius:10px; border:1px solid var(--border-color); background:transparent; color:var(--text-muted); font-size:0.85rem; cursor:pointer;">Clear</button>
+      </div>
+
+      <!-- Preview section (hidden until parsed) -->
+      <div id="email-parse-preview" style="display:none; margin:14px 24px 0; border:1px solid rgba(16,185,129,0.3); border-radius:12px; background:rgba(16,185,129,0.06); padding:14px;">
+        <div style="font-size:0.75rem; font-weight:700; color:#10b981; text-transform:uppercase; letter-spacing:0.8px; margin-bottom:10px;">✅ Detected Fields</div>
+        <div id="email-parse-fields" style="display:flex; flex-direction:column; gap:7px; font-size:0.86rem;"></div>
+        <div id="email-parse-warning" style="margin-top:10px; font-size:0.78rem; color:#f59e0b; display:none;"></div>
+      </div>
+
+      <!-- Action buttons -->
+      <div style="padding:16px 24px; display:flex; gap:10px; justify-content:flex-end; border-top:1px solid var(--border-color); margin-top:14px;">
+        <button id="email-import-cancel-btn" style="padding:10px 20px; border-radius:10px; border:1px solid var(--border-color); background:transparent; color:var(--text-secondary); font-size:0.88rem; cursor:pointer;">Cancel</button>
+        <button id="email-fill-form-btn" style="display:none; padding:10px 24px; border-radius:10px; border:none; background:linear-gradient(135deg,#10b981,#059669); color:#fff; font-size:0.92rem; font-weight:700; cursor:pointer;">
+          ✍️ Fill &amp; Open Form
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
        FLOATING CALCULATOR PANEL
   ========================================================= -->
   <div id="calc-panel" style="
@@ -4151,7 +4227,9 @@
         growxcd: ["rgba(236, 72, 153, 0.3)", "rgba(236, 72, 153, 0.06)", "#fbcfe8", "rgba(236, 72, 153, 0.5)", "rgba(236, 72, 153, 0.15)", "rgba(236, 72, 153, 0.05)", "#be185d", "rgba(236, 72, 153, 0.3)"],
         state: ["rgba(20, 184, 166, 0.3)", "rgba(20, 184, 166, 0.06)", "#99f6e4", "rgba(20, 184, 166, 0.5)", "rgba(20, 184, 166, 0.15)", "rgba(20, 184, 166, 0.05)", "#0f766e", "rgba(20, 184, 166, 0.3)"],
         crotis: ["rgba(244, 63, 94, 0.3)", "rgba(244, 63, 94, 0.06)", "#fda4af", "rgba(244, 63, 94, 0.5)", "rgba(244, 63, 94, 0.15)", "rgba(244, 63, 94, 0.05)", "#be123c", "rgba(244, 63, 94, 0.3)"],
-        nivara: ["rgba(244, 63, 94, 0.3)", "rgba(244, 63, 94, 0.06)", "#fda4af", "rgba(244, 63, 94, 0.5)", "rgba(244, 63, 94, 0.15)", "rgba(244, 63, 94, 0.05)", "#be123c", "rgba(244, 63, 94, 0.3)"]
+        nivara: ["rgba(244, 63, 94, 0.3)", "rgba(244, 63, 94, 0.06)", "#fda4af", "rgba(244, 63, 94, 0.5)", "rgba(244, 63, 94, 0.15)", "rgba(244, 63, 94, 0.05)", "#be123c", "rgba(244, 63, 94, 0.3)"],
+        "india shelter": ["rgba(16, 185, 129, 0.3)", "rgba(16, 185, 129, 0.06)", "#6ee7b7", "rgba(16, 185, 129, 0.5)", "rgba(16, 185, 129, 0.15)", "rgba(16, 185, 129, 0.05)", "#047857", "rgba(16, 185, 129, 0.3)"],
+        indiashelter: ["rgba(16, 185, 129, 0.3)", "rgba(16, 185, 129, 0.06)", "#6ee7b7", "rgba(16, 185, 129, 0.5)", "rgba(16, 185, 129, 0.15)", "rgba(16, 185, 129, 0.05)", "#047857", "rgba(16, 185, 129, 0.3)"]
       };
       
       let p = null;
@@ -8339,6 +8417,264 @@
       buildLengthFields();
       renderFtIn();
     })();
+
+    // ========================================================
+    //  CUSTOM BANK SAVE (localStorage persisted)
+    // ========================================================
+    const CUSTOM_BANKS_KEY = "valutrack_custom_banks";
+
+    function getCustomBanks() {
+      try { return JSON.parse(localStorage.getItem(CUSTOM_BANKS_KEY) || "[]"); }
+      catch { return []; }
+    }
+
+    function saveCustomBanks(arr) {
+      localStorage.setItem(CUSTOM_BANKS_KEY, JSON.stringify(arr));
+    }
+
+    function renderSavedBankChips() {
+      const chips = document.getElementById("saved-bank-chips");
+      if (!chips) return;
+      chips.innerHTML = "";
+      const banks = getCustomBanks();
+      banks.forEach(b => {
+        const chip = document.createElement("span");
+        chip.style.cssText = "display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 10px;border-radius:20px;border:1px solid rgba(14,165,233,0.4);background:rgba(14,165,233,0.1);color:#38bdf8;font-size:0.76rem;font-weight:600;cursor:pointer;";
+        chip.title = "Click to use this bank";
+        chip.innerHTML = `${b} <span style="color:rgba(255,255,255,0.3);font-size:0.9em;cursor:pointer;" data-remove="${b}">✕</span>`;
+        chip.addEventListener("click", (e) => {
+          if (e.target.dataset.remove) {
+            // Remove bank
+            const updated = getCustomBanks().filter(x => x !== e.target.dataset.remove);
+            saveCustomBanks(updated);
+            renderSavedBankChips();
+            refreshBankDatalist();
+            refreshEmailImportBankSel();
+          } else {
+            document.getElementById("form-bank").value = b;
+          }
+        });
+        chips.appendChild(chip);
+      });
+    }
+
+    function refreshBankDatalist() {
+      const dl = document.getElementById("form-bank-datalist");
+      if (!dl) return;
+      const existing = [...new Set(state.files.map(f => f.Bank).filter(Boolean))].sort();
+      const custom = getCustomBanks();
+      const all = [...new Set([...existing, ...custom])].sort();
+      dl.innerHTML = "";
+      all.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        dl.appendChild(opt);
+      });
+    }
+
+    function refreshEmailImportBankSel() {
+      const sel = document.getElementById("email-import-bank-sel");
+      if (!sel) return;
+      const custom = getCustomBanks();
+      // Remove old custom options (data-custom="1")
+      sel.querySelectorAll("[data-custom]").forEach(o => o.remove());
+      custom.forEach(b => {
+        const opt = document.createElement("option");
+        opt.value = b;
+        opt.textContent = b;
+        opt.dataset.custom = "1";
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById("save-bank-btn")?.addEventListener("click", () => {
+      const val = (document.getElementById("form-bank")?.value || "").trim();
+      if (!val) { showToast("Type a bank name first", "error"); return; }
+      const banks = getCustomBanks();
+      if (!banks.includes(val)) {
+        banks.push(val);
+        saveCustomBanks(banks);
+        renderSavedBankChips();
+        refreshBankDatalist();
+        refreshEmailImportBankSel();
+        showToast(`"${val}" saved to bank list`, "success");
+      } else {
+        showToast(`"${val}" is already saved`, "info");
+      }
+    });
+
+    // Init chips on load
+    renderSavedBankChips();
+    refreshEmailImportBankSel();
+
+    // ========================================================
+    //  EMAIL IMPORT MODAL
+    // ========================================================
+    let parsedEmailData = {};
+
+    function openEmailImport() {
+      const overlay = document.getElementById("email-import-overlay");
+      overlay.style.display = "flex";
+      document.getElementById("email-import-text").value = "";
+      document.getElementById("email-parse-preview").style.display = "none";
+      document.getElementById("email-fill-form-btn").style.display = "none";
+      parsedEmailData = {};
+      refreshEmailImportBankSel();
+    }
+
+    function closeEmailImport() {
+      document.getElementById("email-import-overlay").style.display = "none";
+    }
+
+    document.getElementById("email-import-btn")?.addEventListener("click", openEmailImport);
+    document.getElementById("email-import-close")?.addEventListener("click", closeEmailImport);
+    document.getElementById("email-import-cancel-btn")?.addEventListener("click", closeEmailImport);
+    document.getElementById("email-import-overlay")?.addEventListener("click", (e) => {
+      if (e.target === document.getElementById("email-import-overlay")) closeEmailImport();
+    });
+    document.getElementById("email-clear-btn")?.addEventListener("click", () => {
+      document.getElementById("email-import-text").value = "";
+      document.getElementById("email-parse-preview").style.display = "none";
+      document.getElementById("email-fill-form-btn").style.display = "none";
+      parsedEmailData = {};
+    });
+
+    // ---- Email Parser ----
+    function parseEmailText(text, bankOverride) {
+      const result = {};
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      const full = text;
+
+      // ---- INDIA SHELTER FORMAT ----
+      // AP-10600956 → Ref No
+      const refMatch = full.match(/\b([A-Z]{1,4}-\d{5,12})\b/);
+      if (refMatch) result.refNo = refMatch[1];
+
+      // CUSTOMER NAME: VINODHINI WO PARASURAMAN
+      const nameIS = full.match(/CUSTOMER\s*NAME\s*[:\-]\s*(.+)/i);
+      if (nameIS) result.owner = nameIS[1].trim();
+
+      // CUSTOMER PHONE NUMBER: 9360213253,9003553651
+      const phoneIS = full.match(/CUSTOMER\s*PHONE\s*(?:NUMBER)?\s*[:\-]\s*([\d ,]+)/i);
+      if (phoneIS) {
+        const phones = phoneIS[1].split(/[,\s]+/).map(p => p.trim()).filter(p => /^\d{10}$/.test(p));
+        if (phones[0]) result.contact  = phones[0];
+        if (phones[1]) result.contact2 = phones[1];
+        if (phones[2]) result.contact3 = phones[2];
+      }
+
+      // PROPERTY ADDRESS: ...
+      const addrIS = full.match(/PROPERTY\s*ADDRESS\s*[:\-]\s*(.+)/i);
+      if (addrIS) result.address = addrIS[1].trim();
+
+      // Branch from subject line pattern "... Villupuram Branch"
+      const branchMatch = full.match(/([A-Za-z\s]+)\s+[Bb]ranch/);
+      if (branchMatch) result.location = branchMatch[1].trim().replace(/^(Fw:|Re:|Request for vendor initiate.*?)\s*/i, "").trim();
+
+      // ---- MAHINDRA / GENERIC FORMAT ----
+      // Customer name - Manikandan
+      if (!result.owner) {
+        const nameMH = full.match(/Customer\s*name\s*[-:]\s*(.+)/i);
+        if (nameMH) result.owner = nameMH[1].trim();
+      }
+
+      // Phone number - 9159897216
+      if (!result.contact) {
+        const phoneMH = full.match(/Phone\s*(?:number)?\s*[-:]\s*([\d ,]+)/i);
+        if (phoneMH) {
+          const phones = phoneMH[1].split(/[,\s]+/).map(p => p.trim()).filter(p => /^\d{10}$/.test(p));
+          if (phones[0]) result.contact  = phones[0];
+          if (phones[1]) result.contact2 = phones[1];
+        }
+      }
+
+      // Product - Self construction
+      const product = full.match(/Product\s*[-:]\s*(.+)/i);
+      if (product) result.remarks = "Product: " + product[1].trim();
+
+      // Branch from "Tindivanam branch" in subject-style text
+      if (!result.location) {
+        const branchMH = full.match(/([A-Za-z]+)\s+[Bb]ranch/);
+        if (branchMH) result.location = branchMH[1].trim();
+      }
+
+      // Bank override from selector
+      if (bankOverride) result.bank = bankOverride;
+
+      // Today's date as default
+      result.date = new Date().toISOString().substring(0, 10);
+
+      return result;
+    }
+
+    document.getElementById("email-parse-btn")?.addEventListener("click", () => {
+      const text = document.getElementById("email-import-text").value.trim();
+      if (!text) { showToast("Paste an email first", "error"); return; }
+
+      const bankSel = document.getElementById("email-import-bank-sel")?.value || "";
+      parsedEmailData = parseEmailText(text, bankSel);
+
+      const preview = document.getElementById("email-parse-preview");
+      const fieldsDiv = document.getElementById("email-parse-fields");
+      const warnDiv = document.getElementById("email-parse-warning");
+      const fillBtn = document.getElementById("email-fill-form-btn");
+
+      const fieldLabels = {
+        owner: "Customer Name", contact: "Phone 1", contact2: "Phone 2", contact3: "Phone 3",
+        refNo: "Reference No", bank: "Bank / HFC", address: "Property Address",
+        location: "Area / Location", remarks: "Remarks", date: "Date"
+      };
+
+      fieldsDiv.innerHTML = "";
+      let found = 0;
+      const missing = [];
+
+      for (const [key, label] of Object.entries(fieldLabels)) {
+        const val = parsedEmailData[key];
+        if (val) {
+          found++;
+          fieldsDiv.innerHTML += `
+            <div style="display:flex;gap:8px;align-items:flex-start;">
+              <span style="font-size:0.75rem;color:var(--text-muted);min-width:120px;padding-top:1px;">${label}</span>
+              <span style="color:var(--text-primary);font-weight:500;flex:1;">${val}</span>
+            </div>`;
+        } else if (["owner","contact","bank"].includes(key)) {
+          missing.push(label);
+        }
+      }
+
+      if (found === 0) {
+        fieldsDiv.innerHTML = `<div style="color:#ef4444;">Could not detect any fields. Check the email format or try manually.</div>`;
+        warnDiv.style.display = "none";
+        fillBtn.style.display = "none";
+      } else {
+        warnDiv.style.display = missing.length ? "block" : "none";
+        warnDiv.textContent = missing.length ? `⚠️ Not detected: ${missing.join(", ")} — please fill manually in the form.` : "";
+        fillBtn.style.display = "inline-flex";
+      }
+
+      preview.style.display = "block";
+    });
+
+    document.getElementById("email-fill-form-btn")?.addEventListener("click", () => {
+      closeEmailImport();
+      // Open the Add Case form
+      openFileModal(null);
+      // Fill in parsed fields
+      const d = parsedEmailData;
+      if (d.owner)    document.getElementById("form-owner").value    = d.owner;
+      if (d.contact)  document.getElementById("form-contact").value  = d.contact;
+      if (d.contact2) document.getElementById("form-contact-2").value = d.contact2;
+      if (d.contact3) document.getElementById("form-contact-3").value = d.contact3;
+      if (d.bank)     document.getElementById("form-bank").value     = d.bank;
+      if (d.refNo)    document.getElementById("form-ref-no").value   = d.refNo;
+      if (d.address)  document.getElementById("form-address").value  = d.address;
+      if (d.location) document.getElementById("form-location").value = d.location;
+      if (d.date)     document.getElementById("form-date").value     = d.date;
+      if (d.remarks)  document.getElementById("form-remarks").value  = d.remarks;
+      showToast("Email fields filled — review and save", "success");
+    });
+
   </script>
 </body>
 </html>
