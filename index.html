@@ -2999,6 +2999,15 @@
             <option value="Medium">Medium</option>
             <option value="Low">Low</option>
           </select>
+          <select class="filter-select" id="filter-sort" style="background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238892a4' viewBox='0 0 24 24'%3E%3Cpath d='M3 6h18M7 12h10M11 18h2' stroke='%238892a4' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E\"); background-repeat:no-repeat; background-position: 8px center; padding-left:28px;">
+            <option value="newest">↓ Newest First</option>
+            <option value="oldest">↑ Oldest First</option>
+            <option value="name_az">Name A → Z</option>
+            <option value="name_za">Name Z → A</option>
+            <option value="priority_hl">Priority: High → Low</option>
+            <option value="priority_lh">Priority: Low → High</option>
+            <option value="status">Status</option>
+          </select>
         </div>
 
         <div class="action-buttons">
@@ -4945,15 +4954,35 @@
         result = result.filter(f => f.Bank === dropBank);
       }
 
-      // Sort descending to show the last case first (newest case first)
+      // Dynamic sort
+      const sortMode = (state.filters.sort || "newest");
+      const priorityOrder = { High: 0, Medium: 1, Low: 2 };
+      const statusOrder = { "Site Visit Pending": 0, "Site Visit Completed": 1, "Report Sent": 2 };
       result.sort((a, b) => {
-        const dateA = a.Date ? a.Date.substring(0, 10) : "";
-        const dateB = b.Date ? b.Date.substring(0, 10) : "";
-        if (dateA !== dateB) return dateB.localeCompare(dateA);
-        
-        const fileNoA = a.FileNo || "";
-        const fileNoB = b.FileNo || "";
-        return fileNoB.localeCompare(fileNoA);
+        switch (sortMode) {
+          case "oldest": {
+            const dA = a.Date ? a.Date.substring(0,10) : "";
+            const dB = b.Date ? b.Date.substring(0,10) : "";
+            if (dA !== dB) return dA.localeCompare(dB);
+            return (a.FileNo||"|").localeCompare(b.FileNo||"");
+          }
+          case "name_az":
+            return (a.Owner||"").localeCompare(b.Owner||"");
+          case "name_za":
+            return (b.Owner||"").localeCompare(a.Owner||"");
+          case "priority_hl":
+            return (priorityOrder[a.Priority]??1) - (priorityOrder[b.Priority]??1);
+          case "priority_lh":
+            return (priorityOrder[b.Priority]??1) - (priorityOrder[a.Priority]??1);
+          case "status":
+            return (statusOrder[a.Status]??9) - (statusOrder[b.Status]??9);
+          default: { // newest
+            const dA = a.Date ? a.Date.substring(0,10) : "";
+            const dB = b.Date ? b.Date.substring(0,10) : "";
+            if (dA !== dB) return dB.localeCompare(dA);
+            return (b.FileNo||"").localeCompare(a.FileNo||"");
+          }
+        }
       });
 
       return result;
@@ -7501,6 +7530,7 @@
         state.filters.bank = null;
         state.filters.engineer = null;
         state.filters.priority = null;
+        state.filters.sort = "newest";
         state.filters.search = "";
         state.filters.fromDate = null;
         state.filters.toDate = null;
@@ -7508,6 +7538,7 @@
         document.getElementById("filter-bank").value = "";
         document.getElementById("filter-engineer").value = "";
         document.getElementById("filter-priority").value = "";
+        document.getElementById("filter-sort").value = "newest";
         document.getElementById("filter-from-date").value = "";
         document.getElementById("filter-to-date").value = "";
 
@@ -7527,6 +7558,10 @@
       });
       document.getElementById("filter-priority").addEventListener("change", (e) => {
         state.filters.priority = e.target.value || null;
+        renderAll();
+      });
+      document.getElementById("filter-sort").addEventListener("change", (e) => {
+        state.filters.sort = e.target.value || "newest";
         renderAll();
       });
       document.getElementById("filter-from-date").addEventListener("change", (e) => {
